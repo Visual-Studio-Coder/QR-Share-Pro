@@ -5,4 +5,4 @@ Hate how Clash Royale doesn't let you AirDrop the friend links?
 
 With QR Share, problem solved!
 
-Now, you can effortlessly select QR Share from the sharesheet that pops up, and you'll get a beautifully generated QR code with a beautiful interface.
+Now, you can effortlessly select QR Share from the sharesheet that pops up, and you'll get a beautifully generated QR code with an amazing interface.
