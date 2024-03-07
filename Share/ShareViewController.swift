@@ -3,6 +3,7 @@ import Social
 import SwiftUI
 import CoreImage.CIFilterBuiltins
 import MobileCoreServices
+import UniformTypeIdentifiers
 
 class ShareViewController: UIViewController {
     var hostingView: UIHostingController<ShareView>!
@@ -23,9 +24,6 @@ class ShareViewController: UIViewController {
         })
     }
 }
-
-import SwiftUI
-import UniformTypeIdentifiers
 
 struct ShareView: View {
     @State private var qrCodeImage: UIImage?
