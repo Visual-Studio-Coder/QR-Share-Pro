@@ -36,11 +36,54 @@ struct OnboardingPageView: View {
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
+    
+    @State private var selection: Tab = .Home
+    
+    enum Tab {
+        case Home
+        case History
+        case MyCodes
+    }
 
     var body: some View {
         if isOnboardingDone {
-            ContentView()
-                .environmentObject(qrCodeStore)
+            TabView(selection: $selection) {
+                Home()
+                    .environmentObject(qrCodeStore)
+                    .tabItem {
+                        Label("Home", systemImage: "house")
+                    }
+                    .onAppear {
+                        Task {
+                            try await qrCodeStore.load()
+                        }
+                    }
+                    .tag(Tab.Home)
+                
+                History()
+                    .environmentObject(qrCodeStore)
+                    .tabItem {
+                        Label("History", systemImage: "clock.arrow.circlepath")
+                    }
+                    .onAppear {
+                        Task {
+                            try await qrCodeStore.load()
+                        }
+                    }
+                    .tag(Tab.History)
+                
+                MyCodes()
+                    .environmentObject(qrCodeStore)
+                    .tabItem {
+                        Label("My Codes", systemImage: "qrcode")
+                    }
+                    .onAppear {
+                        Task {
+                            try await qrCodeStore.load()
+                        }
+                    }
+                    .tag(Tab.MyCodes)
+            }
         } else {
             TabView {
                 OnboardingPageView(image: Image("AppIcon"), title: "QR Code Generator", description: "This app allows you to generate QR codes from text.")
@@ -50,8 +93,8 @@ struct OnboardingView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
+                        .background(.blue)
+                        .foregroundStyle(.white)
                         .cornerRadius(10)
                         .padding(.bottom, 20)
                         .onTapGesture {
