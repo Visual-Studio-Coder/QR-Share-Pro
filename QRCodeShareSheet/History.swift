@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct History: View {
+    @Environment(\.editMode) private var editMode
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    
+    @State private var showNewQRCodeSheet = false
     
     func save() async throws {
         try await qrCodeStore.save(history: qrCodeStore.history)
@@ -24,6 +27,25 @@ struct History: View {
             VStack {
                 if qrCodeStore.history.isEmpty {
                     VStack {
+                        VStack {
+                            NavigationLink {
+                                Analytics()
+                            } label: {
+                                HStack {
+                                    Spacer()
+                                    Text("Analytics →")
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                }
+                            }
+                            .padding()
+                            .background(Color(UIColor.systemGray6))
+                            .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                        
+                        Spacer()
+                        
                         Image(systemName: "clock.arrow.circlepath")
                             .resizable()
                             .scaledToFit()
@@ -42,19 +64,54 @@ struct History: View {
                             .padding(.bottom, 30)
                         
                         Button {
+                            showNewQRCodeSheet = true
                         } label: {
-                            Label("**Create QR Code**", systemImage: "qrcode")
+                            Label("**New QR Code**", systemImage: "qrcode")
                                 .padding()
                                 .background(Color.blue)
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
+                        .sheet(isPresented: $showNewQRCodeSheet) {
+                            NavigationView {
+                                NewQRCode()
+                                    .navigationTitle("New QR Code")
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showNewQRCodeSheet = false
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+                        
+                        Spacer()
                     }
                 } else {
+                    VStack {
+                        NavigationLink {
+                            Analytics()
+                        } label: {
+                            HStack {
+                                Spacer()
+                                Text("Analytics →")
+                                    .fontWeight(.bold)
+                                Spacer()
+                            }
+                        }
+                        .padding()
+                        .background(Color(UIColor.systemGray6))
+                        .cornerRadius(10)
+                    }
+                    .padding(.horizontal)
+                    
                     List {
                         ForEach(qrCodeStore.history) { i in
                             NavigationLink {
                                 HistoryDetailInfo(qrCode: i)
+                                    .environmentObject(qrCodeStore)
                             } label: {
                                 HStack {
                                     i.qrCode?.toImage()?
@@ -62,13 +119,26 @@ struct History: View {
                                         .frame(width: 50, height: 50)
                                     
                                     VStack(alignment: .leading) {
-                                        Text(i.name)
+                                        Text(i.text)
                                             .fontWeight(.bold)
-                                        
-                                        Text(i.tinyURL)
-                                            .foregroundColor(.secondary)
-                                            .lineLimit(1)
                                     }
+                                }
+                            }
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                        qrCodeStore.history.remove(at: idx)
+                                        
+                                        Task {
+                                            do {
+                                                try await save()
+                                            } catch {
+                                                print(error)
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
@@ -77,8 +147,11 @@ struct History: View {
                 }
             }
             .navigationTitle("History")
-            //            .toolbar {
-            //            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    EditButton()
+                }
+            }
         }
     }
 }

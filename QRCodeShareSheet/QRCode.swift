@@ -3,9 +3,8 @@ import SwiftUI
 
 struct QRCode: Identifiable, Codable {
     var id = UUID()
-    var name: String
+    var text: String
     var qrCode: Data?
-    var tinyURL: String
 }
 
 extension Data {

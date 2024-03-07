@@ -34,7 +34,7 @@ struct HistoryDetailInfo: View {
         if isEditing {
             ScrollView {
                 VStack {
-                    if !qrCode.name.isEmpty {
+                    if !qrCode.text.isEmpty {
                         if let qrCodeImage = qrCodeImage {
                             Image(uiImage: qrCodeImage)
                                 .resizable()
@@ -50,7 +50,7 @@ struct HistoryDetailInfo: View {
                             }
                             .padding()
                             .background(Color.blue)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                             .cornerRadius(10)
                             .alert(isPresented: $showSavedAlert) {
                                 Alert(title: Text("Saved to Photos!"))
@@ -59,16 +59,16 @@ struct HistoryDetailInfo: View {
                     }
                     
                     ZStack(alignment: .topTrailing) {
-                        TextEditor(text: $qrCode.name)
+                        TextEditor(text: $qrCode.text)
                             .frame(minHeight: 200)
                             .padding()
                             .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 0.5))
-                            .onChange(of: qrCode.name) { newValue in
+                            .onChange(of: qrCode.text) { newValue in
                                 generateQRCode(from: newValue)
                             }
                         
                         Button(action: {
-                            qrCode.name = ""
+                            qrCode.text = ""
                             qrCodeImage = nil
                         }) {
                             Image(systemName: "xmark.circle.fill")
@@ -89,7 +89,7 @@ struct HistoryDetailInfo: View {
                         qrCodeImage = uiImage
                     }
                     
-                    originalText = qrCode.name
+                    originalText = qrCode.text
                 }
             }
         } else {
@@ -98,12 +98,12 @@ struct HistoryDetailInfo: View {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                 
-                Text(qrCode.name)
+                Text(qrCode.text)
             }
         }
         
         VStack {}
-            .navigationTitle(qrCode.name)
+            .navigationTitle(qrCode.text)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -153,7 +153,7 @@ struct HistoryDetailInfo: View {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
         
-        HistoryDetailInfo(qrCode: QRCode(name: "Test", tinyURL: "https://tinyurl.com/"))
+        HistoryDetailInfo(qrCode: QRCode(text: "Test"))
             .environmentObject(qrCodeStore)
     }
 }
