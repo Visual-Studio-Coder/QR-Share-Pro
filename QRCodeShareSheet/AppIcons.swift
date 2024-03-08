@@ -34,7 +34,7 @@ struct AppIcons: View {
                 } label: {
                     HStack {
                         Image(systemName: i.iconURL == "AppIcon" ? "checkmark.circle.fill" : "circle")
-                            .font(.largeTitle)
+                            .font(.title2)
                         
                         Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                             .resizable()

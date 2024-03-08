@@ -7,7 +7,7 @@ import UniformTypeIdentifiers
 
 class ShareViewController: UIViewController {
     var hostingView: UIHostingController<ShareView>!
-
+    
     override func viewDidLoad() {
         isModalInPresentation = true
         
@@ -15,10 +15,10 @@ class ShareViewController: UIViewController {
         hostingView.view.frame = view.frame
         view.addSubview(hostingView.view)
     }
-
+    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-
+        
         coordinator.animate(alongsideTransition: { _ in
             self.hostingView.view.frame = CGRect(origin: .zero, size: size)
         })
@@ -28,21 +28,34 @@ class ShareViewController: UIViewController {
 struct ShareView: View {
     @State private var qrCodeImage: UIImage?
     var extensionContext: NSExtensionContext?
+    @State private var isBackgroundVisible = false
+    @State private var receivedText: String = ""
+    @State private var showAlert = false
+    
+    var shareLabel: String {
+        if URL(string: receivedText) != nil {
+            return "Share URL"
+        } else {
+            return "Share Plaintext"
+        }
+    }
     
     var body: some View {
         ZStack {
             AnimatedRainbowBackground()
-            
+                .transition(.opacity)
             if let qrCodeImage = qrCodeImage {
                 VStack {
                     Image(uiImage: qrCodeImage)
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .cornerRadius(10)
                         .padding(16)
                     Button(action: {
                         dismiss()
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
                     }, label: {
                         HStack {
                             Spacer()
@@ -52,14 +65,75 @@ struct ShareView: View {
                             Spacer()
                         }
                     })
+                    .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                        if inProgress {
+                            let generator = UIImpactFeedbackGenerator(style: .soft)
+                            generator.impactOccurred()
+                        }
+                    }, perform: {})
                     .buttonStyle(.borderedProminent)
                     .padding(16)
                     .tint(Color(UIColor(red: 0.11, green: 0.14, blue: 0.79, alpha: 1.0)))
+                    
+                    HStack {
+                        Button(action: {
+                            let ciImage = CIImage(cgImage: qrCodeImage.cgImage!)
+                            let context = CIContext()
+                            if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+                                let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .up)
+                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                showAlert = true
+                            }
+                        }) {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "square.and.arrow.down")
+                                    .font(.system(size: 20))
+                                Text("Save to Photos")
+                                Spacer()
+                            }
+                            .frame(height: 60)
+                            .padding(.horizontal)
+                            .background(.ultraThinMaterial)
+                            .foregroundStyle(.white)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .alert(isPresented: $showAlert) {
+                            Alert(title: Text("Saved!"), message: Text("The QR code has been saved to your photos."), dismissButton: .default(Text("OK")))
+                        }
+                        Button(action: {
+                            //asdasd
+                        }) {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "printer")
+                                    .font(.system(size: 20))
+                                Text("Print")
+                                Spacer()
+                            }
+                            .frame(height: 60)
+                            .padding(.horizontal)
+                            .background(.ultraThinMaterial)
+                            .foregroundStyle(.white)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .padding(.horizontal, 16)      .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                        if inProgress {
+                            let generator = UIImpactFeedbackGenerator(style: .soft)
+                            generator.impactOccurred()
+                        }
+                    }, perform: {})
                 }
             }
         }
+        .background(Color.clear)
         .onAppear {
+            withAnimation(.easeIn(duration: 2.0)) {
+                isBackgroundVisible = true
+            }
             loadSharedText { sharedText in
+                receivedText = sharedText
                 if let qrImage = generateQRCode(from: sharedText) {
                     qrCodeImage = qrImage
                 } else {
@@ -77,14 +151,17 @@ struct ShareView: View {
         let data = Data(string.utf8)
         let filter = CIFilter.qrCodeGenerator()
         filter.setValue(data, forKey: "inputMessage")
-
-        if let outputImage = filter.outputImage {
+        filter.setValue("H", forKey: "inputCorrectionLevel")
+        
+        if let qrCode = filter.outputImage {
+            let transform = CGAffineTransform(scaleX: 10, y: 10)
+            let scaledQrCode = qrCode.transformed(by: transform)
+            
             let context = CIContext()
-            if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
+            if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
                 return UIImage(cgImage: cgImage)
             }
         }
-        
         return nil
     }
     
@@ -127,18 +204,40 @@ struct ShareView: View {
     }
 }
 
-struct AnimatedRainbowBackground: View {
-    let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .indigo, .purple]
-    @State private var colorCycle = 0.0
-
+struct BouncingCircle: View {
+    let color: Color
+    @State private var position = CGPoint(x: CGFloat.random(in: 0...UIScreen.main.bounds.width), y: CGFloat.random(in: 0...UIScreen.main.bounds.height))
+    @State private var direction = CGSize(width: CGFloat.random(in: -1...1), height: CGFloat.random(in: -1...1))
+    
     var body: some View {
-        LinearGradient(gradient: Gradient(colors: colors), startPoint: .top, endPoint: .bottom)
-            .edgesIgnoringSafeArea(.all)
-            .hueRotation(Angle(degrees: colorCycle))
+        Circle()
+            .fill(color)
+            .frame(width: 400, height: 400)
+            .position(position)
+            .blur(radius: 60)
             .onAppear {
-                withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: false)) {
-                    colorCycle = 360
+                Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+                    position = CGPoint(x: max(min(position.x + direction.width * 10, UIScreen.main.bounds.width), 0), y: max(min(position.y + direction.height * 10, UIScreen.main.bounds.height), 0))
+                    if position.x == 0 || position.x == UIScreen.main.bounds.width {
+                        direction.width *= -1
+                    }
+                    if position.y == 0 || position.y == UIScreen.main.bounds.height {
+                        direction.height *= -1
+                    }
                 }
             }
+    }
+}
+
+struct AnimatedRainbowBackground: View {
+    let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink, .gray, .white, .brown, .cyan, .yellow, .red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink, .gray, .white, .brown, .cyan]
+    
+    var body: some View {
+        ZStack {
+            ForEach(colors.indices) { index in
+                BouncingCircle(color: colors[index])
+                    .animation(Animation.easeInOut(duration: 0.5).delay(Double(index) * 0.1))
+            }
+        }
     }
 }
