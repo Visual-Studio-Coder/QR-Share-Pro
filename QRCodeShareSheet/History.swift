@@ -6,12 +6,10 @@ struct History: View {
     
     @State private var searchText = ""
     @State private var searchTag = "All"
-    @State private var selectedTab = "All"
     @State private var showNewQRCodeSheet = false
     @State private var showingSearchSheet = false
     @State private var showingDeleteConfirmation = false
     
-    private var allTabs = ["All", "Folders"]
     private var allSearchTags = ["All", "URL"]
     
     func save() async throws {
@@ -47,144 +45,114 @@ struct History: View {
     var body: some View {
         NavigationView {
             VStack {
-                Picker("All Tabs", selection: $selectedTab) {
-                    ForEach(allTabs, id: \.self) {
-                        Text($0)
-                    }
-                }
-                .pickerStyle(.segmented)
-                
-                if selectedTab == "All" {
-                    if qrCodeStore.history.isEmpty {
-                        VStack {
-                            Spacer()
-                            
-                            Image(systemName: "books.vertical.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 80)
-                                .padding(.bottom, 10)
-                            
-                            Text("No QR Codes Yet")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .padding(.bottom, 10)
-                            
-                            Text("Saved QR codes appear here.")
-                                .font(.subheadline)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 50)
-                                .padding(.bottom, 30)
-                            
-                            Button {
-                                showNewQRCodeSheet = true
-                            } label: {
-                                Label("**New QR Code**", systemImage: "qrcode")
-                                    .padding()
-                                    .background(Color.blue)
-                                    .foregroundStyle(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                            }
-                            .sheet(isPresented: $showNewQRCodeSheet) {
-                                NavigationView {
-                                    NewQRCode()
-                                        .navigationTitle("New QR Code")
-                                        .navigationBarTitleDisplayMode(.inline)
-                                        .toolbar {
-                                            ToolbarItem(placement: .topBarTrailing) {
-                                                Button("Done") {
-                                                    showNewQRCodeSheet = false
-                                                }
-                                            }
-                                        }
-                                }
-                            }
-                            
-                            Spacer()
-                        }
-                    } else {
-                        List {
-                            ForEach(qrCodeStore.history.reversed()) { i in
-                                NavigationLink {
-                                    HistoryDetailInfo(qrCode: i)
-                                        .environmentObject(qrCodeStore)
-                                } label: {
-                                    HStack {
-                                        if isValidURL(i.text) {
-                                            Image(systemName: "network")
-                                                .font(.title)
-                                                .padding()
-                                                .background(.blue)
-                                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        } else {
-                                            i.qrCode?.toImage()?
-                                                .resizable()
-                                                .frame(width: 50, height: 50)
-                                        }
-                                        
-                                        VStack(alignment: .leading) {
-                                            Text(i.text)
-                                                .fontWeight(.bold)
-                                            
-                                            Text(i.date, format: .dateTime)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                }
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        showingDeleteConfirmation = true
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
-                                .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
-                                    Button("Delete QR Code", role: .destructive) {
-                                        if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
-                                            qrCodeStore.history.remove(at: idx)
-                                            
-                                            Task {
-                                                do {
-                                                    try await save()
-                                                } catch {
-                                                    print(error)
-                                                }
-                                            }
-                                        }
-                                        
-                                        showingDeleteConfirmation = false
-                                    }
-                                    
-                                    Button("Cancel", role: .cancel) {
-                                        showingDeleteConfirmation = false
-                                    }
-                                }
-                            }
-                            .onDelete(perform: deleteItems)
-                        }
-                    }
-                } else {
+                if qrCodeStore.history.isEmpty {
                     VStack {
                         Spacer()
                         
-                        Image(systemName: "questionmark.folder.fill")
+                        Image(systemName: "books.vertical.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(height: 80)
                             .padding(.bottom, 10)
                         
-                        Text("No Folders Yet")
+                        Text("No QR Codes Yet")
                             .font(.title)
                             .fontWeight(.bold)
                             .padding(.bottom, 10)
                         
-                        Text("Organize QR codes into their own folders.")
+                        Text("Saved QR codes appear here.")
                             .font(.subheadline)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 50)
                             .padding(.bottom, 30)
                         
+                        Button {
+                            showNewQRCodeSheet = true
+                        } label: {
+                            Label("**New QR Code**", systemImage: "qrcode")
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .sheet(isPresented: $showNewQRCodeSheet) {
+                            NavigationView {
+                                NewQRCode()
+                                    .navigationTitle("New QR Code")
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showNewQRCodeSheet = false
+                                            }
+                                        }
+                                    }
+                            }
+                        }
+                        
                         Spacer()
+                    }
+                } else {
+                    List {
+                        ForEach(qrCodeStore.history.reversed()) { i in
+                            NavigationLink {
+                                HistoryDetailInfo(qrCode: i)
+                                    .environmentObject(qrCodeStore)
+                            } label: {
+                                HStack {
+                                    if isValidURL(i.text) {
+                                        Image(systemName: "network")
+                                            .padding()
+                                            .font(.title)
+//                                            .resizable()
+                                            .frame(width: 50, height: 50)
+                                            .background(.blue)
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    } else {
+                                        i.qrCode?.toImage()?
+                                            .resizable()
+                                            .frame(width: 50, height: 50)
+                                    }
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(i.text)
+                                            .fontWeight(.bold)
+                                        
+                                        Text(i.date, format: .dateTime)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    showingDeleteConfirmation = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+                                Button("Delete QR Code", role: .destructive) {
+                                    if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                        qrCodeStore.history.remove(at: idx)
+                                        
+                                        Task {
+                                            do {
+                                                try await save()
+                                            } catch {
+                                                print(error)
+                                            }
+                                        }
+                                    }
+                                    
+                                    showingDeleteConfirmation = false
+                                }
+                                
+                                Button("Cancel", role: .cancel) {
+                                    showingDeleteConfirmation = false
+                                }
+                            }
+                        }
+                        .onDelete(perform: deleteItems)
                     }
                 }
             }
