@@ -17,6 +17,7 @@
 		8B2EE4BA2B981229001C7997 /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B92B981229001C7997 /* QRCode.swift */; };
 		8B2EE4EB2B9822BF001C7997 /* HistoryDetailInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4EA2B9822BF001C7997 /* HistoryDetailInfo.swift */; };
 		8B2EE4ED2B990CBF001C7997 /* GetPro.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4EC2B990CBF001C7997 /* GetPro.swift */; };
+		8B4FAAE62B9BB53000D58419 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8B4FAAE52B9BB53000D58419 /* LaunchScreen.storyboard */; };
 		8BB6E14A2B9955120094D652 /* QRShareProList.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1492B9955120094D652 /* QRShareProList.plist */; };
 		8BB6E14C2B9955750094D652 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E14B2B9955750094D652 /* StoreKitManager.swift */; };
 		8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E1652B99575C0094D652 /* ShareViewController.swift */; };
@@ -64,6 +65,7 @@
 		8B2EE4B92B981229001C7997 /* QRCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCode.swift; sourceTree = "<group>"; };
 		8B2EE4EA2B9822BF001C7997 /* HistoryDetailInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailInfo.swift; sourceTree = "<group>"; };
 		8B2EE4EC2B990CBF001C7997 /* GetPro.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetPro.swift; sourceTree = "<group>"; };
+		8B4FAAE52B9BB53000D58419 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8BB6E1492B9955120094D652 /* QRShareProList.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = QRShareProList.plist; sourceTree = "<group>"; };
 		8BB6E14B2B9955750094D652 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		8BB6E1632B99575C0094D652 /* Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,6 +132,7 @@
 				78F2F2442B91677300CDF3EC /* Assets.xcassets */,
 				8BD228582B9A83FD00357794 /* AppIcons.swift */,
 				8BD2285A2B9AAD1900357794 /* Haptics.swift */,
+				8B4FAAE52B9BB53000D58419 /* LaunchScreen.storyboard */,
 			);
 			path = QRCodeShareSheet;
 			sourceTree = "<group>";
@@ -228,6 +231,7 @@
 				8BB6E14A2B9955120094D652 /* QRShareProList.plist in Resources */,
 				8BB6E1742B995A8E0094D652 /* QRSharePro.storekit in Resources */,
 				78F2F2482B91677300CDF3EC /* Preview Assets.xcassets in Resources */,
+				8B4FAAE62B9BB53000D58419 /* LaunchScreen.storyboard in Resources */,
 				78F2F2452B91677300CDF3EC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -428,6 +432,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -465,6 +470,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
