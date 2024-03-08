@@ -9,10 +9,15 @@ import SwiftUI
 
 struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    @EnvironmentObject var storeKit: StoreKitManager
+    
     @State private var showingSettingsSheet = false
     @State private var showingGetProSheet = false
     
     @State private var toggleHaptics = true
+    @State private var boughtPro = true
+    
+    @State private var colorSelection = Color.black
     
 //    @State private var animateGradient = false
     
@@ -49,7 +54,7 @@ struct Home: View {
 //                            }
 //                            .padding()
 //                            .background(Color(UIColor.systemGray6))
-//                            .cornerRadius(10)
+//                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                     }
                 }
@@ -57,10 +62,12 @@ struct Home: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            showingGetProSheet = true
-                        } label: {
-                            Label("Upgrade", systemImage: "crown.fill")
+                        if !boughtPro {
+                            Button {
+                                showingGetProSheet = true
+                            } label: {
+                                Label("Upgrade", systemImage: "crown.fill")
+                            }
                         }
                     }
                     
@@ -75,11 +82,14 @@ struct Home: View {
                 .sheet(isPresented: $showingSettingsSheet) {
                     NavigationView {
                         List {
-                            Section {
-                                NavigationLink {
-                                    GetPro()
-                                } label: {
-                                    Label("**QR Share Pro** - $1.99", systemImage: "crown.fill")
+                            if !boughtPro {
+                                Section {
+                                    NavigationLink {
+                                        GetPro()
+                                            .environmentObject(storeKit)
+                                    } label: {
+                                        Label("**QR Share Pro** - $1.99", systemImage: "crown.fill")
+                                    }
                                 }
                             }
                             
@@ -87,13 +97,23 @@ struct Home: View {
                                 NavigationLink {
                                     AppIcons()
                                 } label: {
-                                    Label("App Theme", systemImage: "paintbrush.pointed")
+                                    HStack {
+                                        Label("App Theme", systemImage: "paintbrush.pointed")
+                                        Spacer()
+                                        Text("Blue")
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                                 
                                 NavigationLink {
                                     AppIcons()
                                 } label: {
-                                    Label("App Icons", systemImage: "square.grid.3x3.square")
+                                    HStack {
+                                        Label("App Icons", systemImage: "square.grid.3x3.square")
+                                        Spacer()
+                                        Text("Default")
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             } header: {
                                 Text("Theme & App Icon")
@@ -108,36 +128,76 @@ struct Home: View {
                             }
                             
                             Section {
-                                HStack {
-                                    Label("QR Code Color", systemImage: "paintbrush")
-                                    Spacer()
-                                    Label("Pro Required", systemImage: "lock")
-                                        .foregroundStyle(.secondary)
-                                }
-                                
-                                HStack {
-                                    Label("QR Code Watermark", systemImage: "water.waves")
-                                    Spacer()
-                                    Label("Pro Required", systemImage: "lock")
-                                        .foregroundStyle(.secondary)
-                                }
-                                
-                                HStack {
-                                    Label("Branding Logo", systemImage: "briefcase")
-                                    Spacer()
-                                    Label("Pro Required", systemImage: "lock")
-                                        .foregroundStyle(.secondary)
+                                if !boughtPro {
+                                    HStack {
+                                        Label("Color", systemImage: "paintbrush")
+                                        Spacer()
+                                        Label("Pro Required", systemImage: "lock")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    
+                                    HStack {
+                                        Label("Watermark", systemImage: "water.waves")
+                                        Spacer()
+                                        Label("Pro Required", systemImage: "lock")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    
+                                    HStack {
+                                        Label("Branding Logo", systemImage: "briefcase")
+                                        Spacer()
+                                        Label("Pro Required", systemImage: "lock")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                } else {
+                                    HStack {
+                                        Label("Color", systemImage: "paintbrush")
+                                        Spacer()
+                                        ColorPicker("", selection: $colorSelection)
+                                    }
+                                    
+                                    NavigationLink {
+                                        VStack(alignment: .leading) {
+                                            Text("Coming Soon")
+                                        }
+                                        .navigationTitle("Watermark")
+                                    } label: {
+                                        HStack {
+                                            Label("Watermark", systemImage: "water.waves")
+                                            Spacer()
+                                            Text("Coming Soon")
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    
+                                    NavigationLink {
+                                        VStack(alignment: .leading) {
+                                            Text("Coming Soon")
+                                        }
+                                        .navigationTitle("Branding Logo")
+                                    } label: {
+                                        HStack {
+                                            Label("Branding Logo", systemImage: "briefcase")
+                                            Spacer()
+                                            Text("Coming Soon")
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
                                 }
                             } header: {
-                                Text("Pro Settings")
+                                Text("QR Code Settings")
                             }
                             
                             Section {
                                 HStack {
-                                    Label("QR Share", systemImage: "qrcode")
+                                    Label(boughtPro ? "QR Share Pro" : "QR Share", systemImage: "qrcode")
                                     Spacer()
                                     Text("Version 0.0.1")
                                         .foregroundStyle(.secondary)
+                                }
+                                
+                                Toggle(isOn: $boughtPro) {
+                                    Label("DEBUG - Enable Pro", systemImage: "hammer")
                                 }
                                 
                                 HStack {
@@ -154,7 +214,7 @@ struct Home: View {
                                         .foregroundStyle(.secondary)
                                 }
                             } header: {
-                                Text("QR Share")
+                                Text(boughtPro ? "QR Share Pro" : "QR Share")
                             } footer: {
                                 Text("© Copyright 2024 The [X] Company. All Rights Reserved.")
                             }
@@ -175,8 +235,14 @@ struct Home: View {
                 .sheet(isPresented: $showingGetProSheet) {
                     NavigationView {
                         GetPro()
+                            .environmentObject(storeKit)
                     }
                 }
+            }
+        }
+        .onChange(of: storeKit.purchasedPlan) { course in
+            Task {
+                boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
             }
         }
     }
@@ -185,8 +251,10 @@ struct Home: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
+        @StateObject var storeKit = StoreKitManager()
         
         Home()
             .environmentObject(qrCodeStore)
+            .environmentObject(storeKit)
     }
 }
