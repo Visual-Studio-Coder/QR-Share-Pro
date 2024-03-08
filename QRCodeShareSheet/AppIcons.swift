@@ -20,7 +20,7 @@ struct AppIcons: View {
     private func changeAppIcon(to iconURL: String) {
         UIApplication.shared.setAlternateIconName(iconURL) { error in
             if let error = error {
-                fatalError(error.localizedDescription)
+//                fatalError(error.localizedDescription)
             }
             
         }
@@ -33,6 +33,9 @@ struct AppIcons: View {
                     changeAppIcon(to: i.iconURL)
                 } label: {
                     HStack {
+                        Image(systemName: i.iconURL == "AppIcon" ? "checkmark.circle.fill" : "circle")
+                            .font(.largeTitle)
+                        
                         Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                             .resizable()
                             .frame(width: 50, height: 50)

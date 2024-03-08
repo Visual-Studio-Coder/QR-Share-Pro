@@ -24,6 +24,7 @@
 		8BB6E16D2B99575C0094D652 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BB6E1632B99575C0094D652 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8BB6E1742B995A8E0094D652 /* QRSharePro.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1732B995A8E0094D652 /* QRSharePro.storekit */; };
 		8BD228592B9A83FD00357794 /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD228582B9A83FD00357794 /* AppIcons.swift */; };
+		8BD2285B2B9AAD1900357794 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD2285A2B9AAD1900357794 /* Haptics.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 		8BB6E16A2B99575C0094D652 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8BB6E1732B995A8E0094D652 /* QRSharePro.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = QRSharePro.storekit; sourceTree = "<group>"; };
 		8BD228582B9A83FD00357794 /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
+		8BD2285A2B9AAD1900357794 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 				78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */,
 				78F2F2442B91677300CDF3EC /* Assets.xcassets */,
 				8BD228582B9A83FD00357794 /* AppIcons.swift */,
+				8BD2285A2B9AAD1900357794 /* Haptics.swift */,
 			);
 			path = QRCodeShareSheet;
 			sourceTree = "<group>";
@@ -246,6 +249,7 @@
 			files = (
 				8B2EE4BA2B981229001C7997 /* QRCode.swift in Sources */,
 				8B2EE4B82B9810B1001C7997 /* History.swift in Sources */,
+				8BD2285B2B9AAD1900357794 /* Haptics.swift in Sources */,
 				8BD228592B9A83FD00357794 /* AppIcons.swift in Sources */,
 				8B25D7672B9965770081423F /* NewQRCode.swift in Sources */,
 				8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */,

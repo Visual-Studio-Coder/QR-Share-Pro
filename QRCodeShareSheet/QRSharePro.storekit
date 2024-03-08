@@ -7,7 +7,7 @@
     {
       "displayPrice" : "1.99",
       "familyShareable" : true,
-      "internalID" : "98AD759C",
+      "internalID" : "C20E806F",
       "localizations" : [
         {
           "description" : "QR Share Pro",
@@ -22,9 +22,14 @@
   ],
   "settings" : {
     "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
     "_storeKitErrors" : [
       {
-        "current" : null,
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
         "enabled" : false,
         "name" : "Load Products"
       },

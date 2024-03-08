@@ -3,6 +3,7 @@ import SwiftUI
 struct HistoryDetailInfo: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @State private var isEditing = false
+    @State private var showingDeleteConfirmation = false
     @State private var showSavedAlert = false
     @State private var qrCodeImage: UIImage?
     
@@ -51,7 +52,7 @@ struct HistoryDetailInfo: View {
                             .padding()
                             .background(Color.blue)
                             .foregroundStyle(.white)
-                            .cornerRadius(10)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                             .alert(isPresented: $showSavedAlert) {
                                 Alert(title: Text("Saved to Photos!"))
                             }
@@ -115,17 +116,7 @@ struct HistoryDetailInfo: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
-                        qrCodeStore.history.remove(at: idx)
-                        
-                        Task {
-                            do {
-                                try await save()
-                            } catch {
-                                print(error)
-                            }
-                        }
-                    }
+                    showingDeleteConfirmation = true
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
@@ -151,6 +142,27 @@ struct HistoryDetailInfo: View {
                 } label: {
                     Text(isEditing ? "Done" : "Edit")
                 }
+            }
+        }
+        .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete QR Code", role: .destructive) {
+                if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                    qrCodeStore.history.remove(at: idx)
+                    
+                    Task {
+                        do {
+                            try await save()
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
+                
+                showingDeleteConfirmation = false
+            }
+            
+            Button("Cancel", role: .cancel) {
+                showingDeleteConfirmation = false
             }
         }
     }

@@ -39,7 +39,7 @@ struct ShareView: View {
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(16)
                     Button(action: {
                         dismiss()
