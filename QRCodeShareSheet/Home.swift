@@ -61,16 +61,6 @@ struct Home: View {
                 .navigationTitle("New QR Code")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        if !boughtPro {
-                            Button {
-                                showingGetProSheet = true
-                            } label: {
-                                Label("Upgrade", systemImage: "crown.fill")
-                            }
-                        }
-                    }
-                    
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showingSettingsSheet = true
