@@ -31,8 +31,8 @@ struct HistoryDetailInfo: View {
     }
     
     var body: some View {
-        if isEditing {
-            ScrollView {
+        ScrollView {
+            if isEditing {
                 VStack {
                     if !qrCode.text.isEmpty {
                         if let qrCodeImage = qrCodeImage {
@@ -82,34 +82,60 @@ struct HistoryDetailInfo: View {
                     // Dismiss keyboard
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
-            }
-            .onAppear {
-                Task {
-                    if let data = qrCode.qrCode, let uiImage = UIImage(data: data) {
-                        qrCodeImage = uiImage
+                .onAppear {
+                    Task {
+                        if let data = qrCode.qrCode, let uiImage = UIImage(data: data) {
+                            qrCodeImage = uiImage
+                        }
+                        
+                        originalText = qrCode.text
                     }
+                }
+            } else {
+                VStack(alignment: .leading) {
+                    qrCode.qrCode?.toImage()?
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
                     
-                    originalText = qrCode.text
+                    Text(qrCode.text)
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    
+                    HStack {
+                        Text("Generated on")
+
+                        Text(qrCode.date, format: .dateTime)
+                    }
+                    .foregroundStyle(.secondary)
                 }
             }
-        } else {
-            VStack(alignment: .leading) {
-                qrCode.qrCode?.toImage()?
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fit)
-                
-                Text(qrCode.text)
-            }
         }
-        
-        VStack {}
-            .navigationTitle(qrCode.text)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
+        .navigationTitle(qrCode.text)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                        qrCodeStore.history.remove(at: idx)
+                        
+                        Task {
+                            do {
+                                try await save()
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    }
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if isEditing {
                         if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
-                            qrCodeStore.history.remove(at: idx)
+                            qrCodeStore.history[idx] = qrCode
                             
                             Task {
                                 do {
@@ -119,33 +145,14 @@ struct HistoryDetailInfo: View {
                                 }
                             }
                         }
-                    } label: {
-                        Label("Delete", systemImage: "trash")
                     }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        if isEditing {
-                            if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
-                                qrCodeStore.history[idx] = qrCode
-                                
-                                Task {
-                                    do {
-                                        try await save()
-                                    } catch {
-                                        print(error)
-                                    }
-                                }
-                            }
-                        }
-                        
-                        isEditing.toggle()
-                    } label: {
-                        Text(isEditing ? "Done" : "Edit")
-                    }
+                    
+                    isEditing.toggle()
+                } label: {
+                    Text(isEditing ? "Done" : "Edit")
                 }
             }
+        }
     }
 }
 

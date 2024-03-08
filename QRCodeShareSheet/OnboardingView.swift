@@ -11,7 +11,7 @@ struct OnboardingPageView: View {
     var image: Image
     var title: String
     var description: String
-
+    
     var body: some View {
         VStack {
             image
@@ -42,16 +42,15 @@ struct OnboardingView: View {
     enum Tab {
         case Home
         case History
-        case MyCodes
     }
-
+    
     var body: some View {
         if isOnboardingDone {
             TabView(selection: $selection) {
                 Home()
                     .environmentObject(qrCodeStore)
                     .tabItem {
-                        Label("Home", systemImage: "house")
+                        Label("New QR Code", systemImage: "qrcode")
                     }
                     .onAppear {
                         Task {
@@ -71,18 +70,6 @@ struct OnboardingView: View {
                         }
                     }
                     .tag(Tab.History)
-                
-                MyCodes()
-                    .environmentObject(qrCodeStore)
-                    .tabItem {
-                        Label("My Codes", systemImage: "qrcode")
-                    }
-                    .onAppear {
-                        Task {
-                            try await qrCodeStore.load()
-                        }
-                    }
-                    .tag(Tab.MyCodes)
             }
         } else {
             TabView {
