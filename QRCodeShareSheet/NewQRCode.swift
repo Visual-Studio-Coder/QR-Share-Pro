@@ -16,8 +16,8 @@ struct NewQRCode: View {
     @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage?
     
-    @State private var selection = "Photos"
-    private var allSaveChoices = ["Photos", "History"]
+    @State private var savedToPhotos = false
+    @State private var addedToLibrary = false
     
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
@@ -55,7 +55,7 @@ struct NewQRCode: View {
                 }
                 .padding()
                 .background(Color(UIColor.systemGray6))
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
         
@@ -66,6 +66,8 @@ struct NewQRCode: View {
                 .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 0.5))
                 .onChange(of: text) { newValue in
                     generateQRCode(from: newValue)
+                    addedToLibrary = false
+                    savedToPhotos = false
                 }
                 .font(.custom("Helvetica", size: 34))
             
@@ -78,47 +80,50 @@ struct NewQRCode: View {
             }
             .padding()
         }
+        .padding()
         
         if !text.isEmpty {
             HStack {
-                Picker("Save", selection: $selection) {
-                    ForEach(allSaveChoices, id: \.self) {
-                        Text($0)
-                    }
-                }
-                
                 Button {
                     if let qrCodeImage = qrCodeImage {
-                        if selection == "Photos" {
-                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                            showSavedAlert = true
-                        } else {
-                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                            
-                            qrCodeStore.history.append(newCode)
-                            
-                            Task {
-                                do {
-                                    try await save()
-                                } catch {
-                                    fatalError(error.localizedDescription)
-                                }
-                            }
-                            
-                            showHistorySavedAlert = true
-                        }
+                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                        savedToPhotos = true
+                        showSavedAlert = true
                     }
                 } label: {
-                    Text("Save →")
-                        .fontWeight(.bold)
+                    Label(savedToPhotos ? "Saved to Photos" : "Save to Photos", systemImage: savedToPhotos ? "checkmark" : "square.and.arrow.down.fill")
                 }
                 .padding()
                 .background(Color(UIColor.systemGray6))
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                Button {
+                    if let qrCodeImage = qrCodeImage {
+                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                        
+                        qrCodeStore.history.append(newCode)
+                        
+                        Task {
+                            do {
+                                try await save()
+                            } catch {
+                                fatalError(error.localizedDescription)
+                            }
+                        }
+                        
+                        addedToLibrary = true
+                        showHistorySavedAlert = true
+                    }
+                } label: {
+                    Label(addedToLibrary ? "Added to Library" : "Add to Library", systemImage: addedToLibrary ? "checkmark" : "plus")
+                }
+                .padding()
+                .background(Color(UIColor.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .alert("Saved to Photos!", isPresented: $showSavedAlert) {
                     Button("OK", role: .cancel) {}
                 }
-                .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
+                .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
                     Button("OK", role: .cancel) {}
                 }
             }

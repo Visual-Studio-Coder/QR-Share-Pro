@@ -52,11 +52,44 @@ extension View {
 @main
 struct QRCodeApp: App {
     @StateObject private var qrCodeStore = QRCodeStore()
+    @StateObject private var storeKit = StoreKitManager()
+    
+//    struct SplashView: View {
+//        
+//        // 1.
+//        @State var isActive:Bool = false
+//        
+//        var body: some View {
+//            VStack {
+//                // 2.
+//                if self.isActive {
+//                    // 3.
+//                    HomeView()
+//                } else {
+//                    // 4.
+//                    Text("Awesome Splash Screen!")
+//                        .font(Font.largeTitle)
+//                }
+//            }
+//            // 5.
+//            .onAppear {
+//                // 6.
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+//                    // 7.
+//                    withAnimation {
+//                        self.isActive = true
+//                    }
+//                }
+//            }
+//        }
+//        
+//    }
     
     var body: some Scene {
         WindowGroup {
             OnboardingView()
                 .environmentObject(qrCodeStore)
+                .environmentObject(storeKit)
                 .splashView {
                     ZStack {
                         LinearGradient(colors: [Color(#colorLiteral(red: 0.384, green: 0.714, blue: 0.937, alpha: 1)), Color(#colorLiteral(red: 0.5606167912, green: 0.8587760329, blue: 0.9991238713, alpha: 1))], startPoint: .topLeading, endPoint: .bottomTrailing)

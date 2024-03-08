@@ -35,6 +35,8 @@ struct OnboardingPageView: View {
 
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    @EnvironmentObject var storeKit: StoreKitManager
+    
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
     @State private var selection: Tab = .Home
@@ -49,6 +51,7 @@ struct OnboardingView: View {
             TabView(selection: $selection) {
                 Home()
                     .environmentObject(qrCodeStore)
+                    .environmentObject(storeKit)
                     .tabItem {
                         Label("New QR Code", systemImage: "qrcode")
                     }
@@ -62,7 +65,7 @@ struct OnboardingView: View {
                 History()
                     .environmentObject(qrCodeStore)
                     .tabItem {
-                        Label("History", systemImage: "clock.arrow.circlepath")
+                        Label("Library", systemImage: "books.vertical.fill")
                     }
                     .onAppear {
                         Task {
@@ -82,7 +85,7 @@ struct OnboardingView: View {
                         .padding()
                         .background(.blue)
                         .foregroundStyle(.white)
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.bottom, 20)
                         .onTapGesture {
                             isOnboardingDone = true
@@ -102,8 +105,10 @@ struct OnboardingView: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
+        @StateObject var storeKit = StoreKitManager()
         
         OnboardingView()
             .environmentObject(qrCodeStore)
+            .environmentObject(storeKit)
     }
 }
