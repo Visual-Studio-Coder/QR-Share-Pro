@@ -27,25 +27,6 @@ struct History: View {
             VStack {
                 if qrCodeStore.history.isEmpty {
                     VStack {
-                        VStack {
-                            NavigationLink {
-                                Analytics()
-                            } label: {
-                                HStack {
-                                    Spacer()
-                                    Text("Analytics →")
-                                        .fontWeight(.bold)
-                                    Spacer()
-                                }
-                            }
-                            .padding()
-                            .background(Color(UIColor.systemGray6))
-                            .cornerRadius(10)
-                        }
-                        .padding(.horizontal)
-                        
-                        Spacer()
-                        
                         Image(systemName: "clock.arrow.circlepath")
                             .resizable()
                             .scaledToFit()
@@ -86,29 +67,10 @@ struct History: View {
                                     }
                             }
                         }
-                        
-                        Spacer()
                     }
                 } else {
-                    VStack {
-                        NavigationLink {
-                            Analytics()
-                        } label: {
-                            HStack {
-                                Spacer()
-                                Text("Analytics →")
-                                    .fontWeight(.bold)
-                                Spacer()
-                            }
-                        }
-                        .padding()
-                        .background(Color(UIColor.systemGray6))
-                        .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-                    
                     List {
-                        ForEach(qrCodeStore.history) { i in
+                        ForEach(qrCodeStore.history.reversed()) { i in
                             NavigationLink {
                                 HistoryDetailInfo(qrCode: i)
                                     .environmentObject(qrCodeStore)
@@ -121,6 +83,9 @@ struct History: View {
                                     VStack(alignment: .leading) {
                                         Text(i.text)
                                             .fontWeight(.bold)
+                                        
+                                        Text(i.date, format: .dateTime)
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                             }

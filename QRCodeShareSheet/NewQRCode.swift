@@ -13,7 +13,11 @@ struct NewQRCode: View {
     
     @State private var text = ""
     @State private var showSavedAlert = false
+    @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage?
+    
+    @State private var selection = "Photos"
+    private var allSaveChoices = ["Photos", "History"]
     
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
@@ -40,76 +44,30 @@ struct NewQRCode: View {
         if !text.isEmpty {
             if let qrCodeImage = qrCodeImage {
                 Image(uiImage: qrCodeImage)
+                    .interpolation(.none)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
-                    .padding()
                 
-                HStack {
-                    Button(action: {
-                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                        showSavedAlert = true
-                    }) {
-                        Label("Save to Photos", systemImage: "photo")
-                    }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .cornerRadius(10)
-                    .alert(isPresented: $showSavedAlert) {
-                        Alert(title: Text("Saved to Photos!"))
-                    }
-                    
-                    Button {
-                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                        
-                        qrCodeStore.history.append(newCode)
-                        
-                        Task {
-                            do {
-                                try await save()
-                            } catch {
-                                fatalError(error.localizedDescription)
-                            }
-                        }
-                    } label: {
-                        Label("Share Link", systemImage: "link")
-                    }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .cornerRadius(10)
+                Button {
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
                 }
+                .padding()
+                .background(Color(UIColor.systemGray6))
+                .cornerRadius(10)
             }
         }
         
         ZStack(alignment: .topTrailing) {
-            ZStack {
-                TextEditor(text: $text)
-                    .frame(minHeight: 200)
-                    .padding()
-                    .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 0.5))
-                    .onChange(of: text) { newValue in
-                        generateQRCode(from: newValue)
-                    }
-                    .font(.custom("Helvetica", size: 34))
-                
-                if text.isEmpty {
-                    VStack {
-                        HStack {
-                            Text("Share anything with a QR code...")
-                                .foregroundStyle(.tertiary)
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                                .font(.custom("Helvetica", size: 34))
-                            
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                    }
+            TextEditor(text: $text)
+                .frame(minHeight: 150)
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 0.5))
+                .onChange(of: text) { newValue in
+                    generateQRCode(from: newValue)
                 }
-            }
+                .font(.custom("Helvetica", size: 34))
             
             Button(action: {
                 text = ""
@@ -119,6 +77,51 @@ struct NewQRCode: View {
                     .padding()
             }
             .padding()
+        }
+        
+        if !text.isEmpty {
+            HStack {
+                Picker("Save", selection: $selection) {
+                    ForEach(allSaveChoices, id: \.self) {
+                        Text($0)
+                    }
+                }
+                
+                Button {
+                    if let qrCodeImage = qrCodeImage {
+                        if selection == "Photos" {
+                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                            showSavedAlert = true
+                        } else {
+                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                            
+                            qrCodeStore.history.append(newCode)
+                            
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    fatalError(error.localizedDescription)
+                                }
+                            }
+                            
+                            showHistorySavedAlert = true
+                        }
+                    }
+                } label: {
+                    Text("Save →")
+                        .fontWeight(.bold)
+                }
+                .padding()
+                .background(Color(UIColor.systemGray6))
+                .cornerRadius(10)
+                .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                    Button("OK", role: .cancel) {}
+                }
+                .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
+                    Button("OK", role: .cancel) {}
+                }
+            }
         }
     }
 }
