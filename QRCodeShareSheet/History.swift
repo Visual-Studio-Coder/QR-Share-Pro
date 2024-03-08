@@ -42,6 +42,8 @@ struct History: View {
         }
     }
     
+    let domains = "apple.com,stackoverflow.com,github.com".components(separatedBy: ",")
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -101,12 +103,12 @@ struct History: View {
                             } label: {
                                 HStack {
                                     if isValidURL(i.text) {
-                                        Image(systemName: "network")
+                                        AsyncImage(url: URL(string: "https://www.google.com/s2/favicons?sz=\(50)&domain=\(i.text)"))
                                             .padding()
                                             .font(.title)
-//                                            .resizable()
+                                        //                                            .resizable()
                                             .frame(width: 50, height: 50)
-                                            .background(.blue)
+//                                            .background(.blue)
                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                     } else {
                                         i.qrCode?.toImage()?
