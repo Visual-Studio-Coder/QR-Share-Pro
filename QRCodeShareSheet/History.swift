@@ -120,13 +120,15 @@ struct History: View {
                             } label: {
                                 HStack {
                                     if isValidURL(i.text) {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico"))
-                                            .padding()
-                                            .font(.title)
-                                        //                                            .resizable()
-                                            .frame(width: 50, height: 50)
-                                        //                                            .background(.blue)
-                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                            i
+                                                .resizable()
+                                                .aspectRatio(1, contentMode: .fit)
+                                                .frame(width: 50, height: 50)
+                                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
                                     } else {
                                         i.qrCode?.toImage()?
                                             .resizable()
@@ -136,6 +138,7 @@ struct History: View {
                                     VStack(alignment: .leading) {
                                         Text(i.text)
                                             .fontWeight(.bold)
+                                            .lineLimit(searchText.isEmpty ? 2 : 3)
                                         
                                         Text(i.date, format: .dateTime)
                                             .foregroundStyle(.secondary)
