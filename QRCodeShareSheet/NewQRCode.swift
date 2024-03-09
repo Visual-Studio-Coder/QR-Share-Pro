@@ -28,7 +28,7 @@ struct ClearButton: ViewModifier
                     Image(systemName: "delete.left")
                         .foregroundColor(Color(UIColor.opaqueSeparator))
                 }
-                .padding(.trailing, 8)
+                .padding(.trailing, 15)
             }
         }
     }
@@ -44,6 +44,9 @@ struct NewQRCode: View {
     
     @State private var savedToPhotos = false
     @State private var addedToLibrary = false
+    
+    @State var boughtPro = false
+    @State private var colorSelection = Color.black
     
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
@@ -67,28 +70,23 @@ struct NewQRCode: View {
     }
     
     var body: some View {
-        if !text.isEmpty {
-            if let qrCodeImage = qrCodeImage {
-                Image(uiImage: qrCodeImage)
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
-                
-                Button {
-                } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+        Form {
+            if !text.isEmpty {
+                if let qrCodeImage = qrCodeImage {
+                    Image(uiImage: qrCodeImage)
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                    
+                    Button {
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
                 }
-                .padding()
-                .background(Color(UIColor.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-        }
-        
-        VStack {
+            
             TextField("Start typing...", text: $text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
                 .keyboardType(.webSearch)
                 .autocapitalization(.none)
                 .font(.custom("SF Pro", size: 34))
@@ -98,52 +96,106 @@ struct NewQRCode: View {
                     addedToLibrary = false
                     savedToPhotos = false
                 }
-        }
-        .padding()
-        
-        if !text.isEmpty {
-            HStack {
-                Button {
-                    if let qrCodeImage = qrCodeImage {
-                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                        savedToPhotos = true
-                        showSavedAlert = true
+            
+            Section {
+                if !boughtPro {
+                    HStack {
+                        Label("Color", systemImage: "paintbrush")
+                        Spacer()
+                        Label("Pro Required", systemImage: "lock")
+                            .foregroundStyle(.secondary)
                     }
-                } label: {
-                    Label(savedToPhotos ? "Saved to Photos" : "Save to Photos", systemImage: savedToPhotos ? "checkmark" : "square.and.arrow.down.fill")
-                }
-                .padding()
-                .background(Color(UIColor.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                Button {
-                    if let qrCodeImage = qrCodeImage {
-                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                        
-                        qrCodeStore.history.append(newCode)
-                        
-                        Task {
-                            do {
-                                try await save()
-                            } catch {
-                                fatalError(error.localizedDescription)
-                            }
+                    
+                    HStack {
+                        Label("Watermark", systemImage: "water.waves")
+                        Spacer()
+                        Label("Pro Required", systemImage: "lock")
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    HStack {
+                        Label("Branding Logo", systemImage: "briefcase")
+                        Spacer()
+                        Label("Pro Required", systemImage: "lock")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    HStack {
+                        Label("Color", systemImage: "paintbrush")
+                        Spacer()
+                        ColorPicker("", selection: $colorSelection)
+                    }
+                    
+                    NavigationLink {
+                        VStack(alignment: .leading) {
+                            Text("Coming Soon")
                         }
-                        
-                        addedToLibrary = true
-                        showHistorySavedAlert = true
+                        .navigationTitle("Watermark")
+                    } label: {
+                        HStack {
+                            Label("Watermark", systemImage: "water.waves")
+                            Spacer()
+                            Text("Coming Soon")
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                } label: {
-                    Label(addedToLibrary ? "Added to Library" : "Add to Library", systemImage: addedToLibrary ? "checkmark" : "plus")
+                    
+                    NavigationLink {
+                        VStack(alignment: .leading) {
+                            Text("Coming Soon")
+                        }
+                        .navigationTitle("Branding Logo")
+                    } label: {
+                        HStack {
+                            Label("Branding Logo", systemImage: "briefcase")
+                            Spacer()
+                            Text("Coming Soon")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .padding()
-                .background(Color(UIColor.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                    Button("OK", role: .cancel) {}
-                }
-                .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
-                    Button("OK", role: .cancel) {}
+            } header: {
+                Text("QR Code Settings")
+            }
+            
+            if !text.isEmpty {
+                HStack {
+                    Button {
+                        if let qrCodeImage = qrCodeImage {
+                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                            savedToPhotos = true
+                            showSavedAlert = true
+                        }
+                    } label: {
+                        Label(savedToPhotos ? "Saved to Photos" : "Save to Photos", systemImage: savedToPhotos ? "checkmark" : "square.and.arrow.down.fill")
+                    }
+
+                    Button {
+                        if let qrCodeImage = qrCodeImage {
+                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                            
+                            qrCodeStore.history.append(newCode)
+                            
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    fatalError(error.localizedDescription)
+                                }
+                            }
+                            
+                            addedToLibrary = true
+                            showHistorySavedAlert = true
+                        }
+                    } label: {
+                        Label(addedToLibrary ? "Added to Library" : "Add to Library", systemImage: addedToLibrary ? "checkmark" : "plus")
+                    }
+                    .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                        Button("OK", role: .cancel) {}
+                    }
+                    .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
+                        Button("OK", role: .cancel) {}
+                    }
                 }
             }
         }
