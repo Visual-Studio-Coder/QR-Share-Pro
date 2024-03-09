@@ -15,14 +15,16 @@ struct AppIcon: Identifiable {
 }
 
 struct AppIcons: View {
-    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "QR Share", proRequired: false)]//, AppIcon(iconURL: "AppIcon2", iconName: "QR Share 2", proRequired: false), AppIcon(iconURL: "AppIcon3", iconName: "QR Share 3", proRequired: false), AppIcon(iconURL: "AppIcon", iconName: "QR Share 4", proRequired: false)]
+    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default", proRequired: false), AppIcon(iconURL: "AppIcon2", iconName: "Hacker", proRequired: false), AppIcon(iconURL: "AppIcon3", iconName: "Rainbow", proRequired: false)]
+    
+    @State private var currentlySelected = "AppIcon"
     
     private func changeAppIcon(to iconURL: String) {
         UIApplication.shared.setAlternateIconName(iconURL) { error in
             if let error = error {
+                print(error.localizedDescription)
 //                fatalError(error.localizedDescription)
             }
-            
         }
     }
     
@@ -31,9 +33,10 @@ struct AppIcons: View {
             ForEach(allIcons) { i in
                 Button {
                     changeAppIcon(to: i.iconURL)
+                    currentlySelected = i.iconURL
                 } label: {
                     HStack {
-                        Image(systemName: i.iconURL == "AppIcon" ? "checkmark.circle.fill" : "circle")
+                        Image(systemName: i.iconURL == currentlySelected ? "checkmark.circle.fill" : "circle")
                             .font(.title2)
                         
                         Image(uiImage: #imageLiteral(resourceName: i.iconURL))
@@ -46,7 +49,7 @@ struct AppIcons: View {
                     }
                 }
             }
-            .navigationTitle("App Icons")
+            .navigationTitle("App Icon")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
