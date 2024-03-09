@@ -19,6 +19,8 @@ struct Home: View {
     
     @State private var colorSelection = Color.black
     
+    private var allThemes = ["Orange", "Yellow"]
+    
 //    @State private var animateGradient = false
     
     var body: some View {
@@ -85,7 +87,20 @@ struct Home: View {
                             
                             Section {
                                 NavigationLink {
-                                    AppIcons()
+                                    List {
+                                        ForEach(allThemes, id: \.self) { i in
+                                            Button {
+                                            } label: {
+                                                HStack {
+//                                                    //                                                    Image(systemName: i.iconURL == "AppIcon" ? "checkmark.circle.fill" : "circle")
+//                                                    //                                                        .font(.title2)
+                                                    Text(i)
+                                                }
+                                            }
+                                        }
+                                    }
+                                        .navigationTitle("App Icons")
+                                        .navigationBarTitleDisplayMode(.inline)
                                 } label: {
                                     HStack {
                                         Label("App Theme", systemImage: "paintbrush.pointed")
@@ -112,6 +127,10 @@ struct Home: View {
                             Section {
                                 Toggle(isOn: $toggleHaptics) {
                                     Label("Play Haptics", systemImage: "wave.3.right")
+                                }
+                                
+                                Toggle(isOn: $toggleHaptics) {
+                                    Label("Show Website Favicons", systemImage: "photo.circle")
                                 }
                             } header: {
                                 Text("General")

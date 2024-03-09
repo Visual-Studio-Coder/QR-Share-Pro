@@ -15,7 +15,7 @@ struct AppIcon: Identifiable {
 }
 
 struct AppIcons: View {
-    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "QR Share", proRequired: false), AppIcon(iconURL: "AppIcon", iconName: "QR Share 2", proRequired: false), AppIcon(iconURL: "AppIcon", iconName: "QR Share 3", proRequired: false), AppIcon(iconURL: "AppIcon", iconName: "QR Share 4", proRequired: false)]
+    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "QR Share", proRequired: false)]//, AppIcon(iconURL: "AppIcon2", iconName: "QR Share 2", proRequired: false), AppIcon(iconURL: "AppIcon3", iconName: "QR Share 3", proRequired: false), AppIcon(iconURL: "AppIcon", iconName: "QR Share 4", proRequired: false)]
     
     private func changeAppIcon(to iconURL: String) {
         UIApplication.shared.setAlternateIconName(iconURL) { error in
