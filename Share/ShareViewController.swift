@@ -102,7 +102,19 @@ struct ShareView: View {
                             Alert(title: Text("Saved!"), message: Text("The QR code has been saved to your photos."), dismissButton: .default(Text("OK")))
                         }
                         Button(action: {
-                            //asdasd
+                            let ciImage = CIImage(cgImage: qrCodeImage.cgImage!)
+                            let context = CIContext()
+                            if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+                                let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .up)
+                                let printController = UIPrintInteractionController.shared
+                                let printInfo = UIPrintInfo(dictionary:nil)
+                                printInfo.outputType = .general
+                                printInfo.jobName = "Print QR Code"
+                                printController.printInfo = printInfo
+                                let myRenderer = MyPrintPageRenderer(text: receivedText, image: image)
+                                printController.printPageRenderer = myRenderer
+                                printController.present(animated: true, completionHandler: nil)
+                            }
                         }) {
                             HStack {
                                 Spacer()
@@ -239,5 +251,35 @@ struct AnimatedRainbowBackground: View {
                     .animation(Animation.easeInOut(duration: 0.5).delay(Double(index) * 0.1))
             }
         }
+    }
+}
+class MyPrintPageRenderer: UIPrintPageRenderer {
+    let myText: String
+    let myImage: UIImage
+
+    init(text: String, image: UIImage) {
+        myText = "This QR code has the following text: \n\(text)"
+        myImage = image
+        super.init()
+    }
+
+    override var numberOfPages: Int {
+        return 1
+    }
+
+    override func drawContentForPage(at pageIndex: Int, in contentRect: CGRect) {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 18.0),
+            .paragraphStyle: paragraphStyle
+        ]
+
+        let imageRect = CGRect(x: contentRect.midX - 100, y: contentRect.midY - 150, width: 200, height: 200)
+        myImage.draw(in: imageRect)
+
+        let textRect = CGRect(x: contentRect.origin.x, y: imageRect.maxY + 20, width: contentRect.width, height: 100)
+        (myText as NSString).draw(in: textRect, withAttributes: attributes)
     }
 }
