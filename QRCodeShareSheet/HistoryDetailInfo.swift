@@ -3,8 +3,9 @@ import SwiftUI
 struct HistoryDetailInfo: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @State private var isEditing = false
+    @State private var showingFullURL = false
     @State private var showingDeleteConfirmation = false
-    @State private var showSavedAlert = false
+    @State private var showingSavedAlert = false
     @State private var qrCodeImage: UIImage?
     
     @State var qrCode: QRCode
@@ -53,7 +54,7 @@ struct HistoryDetailInfo: View {
                             
                             Button(action: {
                                 UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                showSavedAlert = true
+                                showingSavedAlert = true
                             }) {
                                 Label("Save to Photos", systemImage: "photo")
                             }
@@ -61,7 +62,7 @@ struct HistoryDetailInfo: View {
                             .background(Color.blue)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .alert(isPresented: $showSavedAlert) {
+                            .alert(isPresented: $showingSavedAlert) {
                                 Alert(title: Text("Saved to Photos!"))
                             }
                         }
@@ -123,44 +124,46 @@ struct HistoryDetailInfo: View {
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                             
-                            if URL(string: qrCode.text)!.path.isEmpty {
-                                Spacer()
-                                
+                            Spacer()
+                            
+                            Button {
+                                if let url = URL(string: qrCode.text) {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                Label("**Open**", systemImage: "safari")
+                                    .padding(8)
+                                    .foregroundStyle(.white)
+                                    .background(.blue)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        
+                        VStack(alignment: .leading) {
+                            Text(qrCode.text)
+                                .lineLimit(showingFullURL ? nil : 3)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                            
+                            if !showingFullURL {
                                 Button {
-                                    if let url = URL(string: qrCode.text) {
-                                        UIApplication.shared.open(url)
-                                    }
+                                    showingFullURL.toggle()
                                 } label: {
-                                    Label("Open", systemImage: "safari")
+                                    Text("MORE...")
+                                        .fontWeight(.bold)
                                 }
                             }
                         }
                         
-                        if !URL(string: qrCode.text)!.path.isEmpty {
-                            HStack {
-                                Text(URL(string: qrCode.text)!.path)
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                
-                                Spacer()
-                                
-                                Button {
-                                    if let url = URL(string: qrCode.text) {
-                                        UIApplication.shared.open(url)
-                                    }
-                                } label: {
-                                    Label("Open", systemImage: "safari")
-                                }
-                            }
-                        }
+                        Divider()
                     } else {
                         Text(qrCode.text)
                             .font(.largeTitle)
                             .fontWeight(.bold)
                     }
                     
-                    HStack {
-                        Text("Generated on")
+                    HStack(spacing: 0) {
+                        Text("Last updated: ")
                         
                         Text(qrCode.date, format: .dateTime)
                     }
@@ -184,6 +187,7 @@ struct HistoryDetailInfo: View {
                 Button {
                     if isEditing {
                         if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                            qrCode.date = Date.now
                             qrCodeStore.history[idx] = qrCode
                             
                             Task {
@@ -230,7 +234,7 @@ struct HistoryDetailInfo: View {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
         
-        HistoryDetailInfo(qrCode: QRCode(text: "Test"))
+        HistoryDetailInfo(qrCode: QRCode(text: "https://idmsa.apple.com/"))
             .environmentObject(qrCodeStore)
     }
 }
