@@ -17,48 +17,29 @@ struct Home: View {
     @State private var toggleHaptics = true
     @State private var boughtPro = true
     
-    @State private var colorSelection = Color.black
-    
     private var allThemes = ["Orange", "Yellow"]
     
-//    @State private var animateGradient = false
+    //    @State private var animateGradient = false
     
     var body: some View {
         NavigationView {
             ZStack {
-//                RadialGradient(colors: [.gray, .white], center: .center, startRadius: animateGradient ? 400 : 200, endRadius: animateGradient ? 20 : 40)
-////                    .frame(height: UIScreen.main.bounds.height * 0.2)
-//                    .ignoresSafeArea()
-//                    .onAppear {
-//                        withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
-//                            animateGradient.toggle()
-//                        }
-//                    }
+                //                RadialGradient(colors: [.gray, .white], center: .center, startRadius: animateGradient ? 400 : 200, endRadius: animateGradient ? 20 : 40)
+                ////                    .frame(height: UIScreen.main.bounds.height * 0.2)
+                //                    .ignoresSafeArea()
+                //                    .onAppear {
+                //                        withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: true)) {
+                //                            animateGradient.toggle()
+                //                        }
+                //                    }
                 
                 VStack {
-                    ScrollView {
-                        VStack {
-                            NewQRCode()
-                                .environmentObject(qrCodeStore)
-                                .onTapGesture {
-                                    // Dismiss keyboard
-                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                                }
-                            
-//                            Button {
-//                            } label: {
-//                                HStack {
-//                                    Spacer()
-//                                    Text("Get Pro →")
-//                                        .fontWeight(.bold)
-//                                    Spacer()
-//                                }
-//                            }
-//                            .padding()
-//                            .background(Color(UIColor.systemGray6))
-//                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                    NewQRCode(boughtPro: boughtPro)
+                        .environmentObject(qrCodeStore)
+                        .onTapGesture {
+                            // Dismiss keyboard
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                         }
-                    }
                 }
                 .navigationTitle("New QR Code")
                 .navigationBarTitleDisplayMode(.inline)
@@ -92,15 +73,15 @@ struct Home: View {
                                             Button {
                                             } label: {
                                                 HStack {
-//                                                    //                                                    Image(systemName: i.iconURL == "AppIcon" ? "checkmark.circle.fill" : "circle")
-//                                                    //                                                        .font(.title2)
+                                                    //                                                    //                                                    Image(systemName: i.iconURL == "AppIcon" ? "checkmark.circle.fill" : "circle")
+                                                    //                                                    //                                                        .font(.title2)
                                                     Text(i)
                                                 }
                                             }
                                         }
                                     }
-                                        .navigationTitle("App Icons")
-                                        .navigationBarTitleDisplayMode(.inline)
+                                    .navigationTitle("App Icons")
+                                    .navigationBarTitleDisplayMode(.inline)
                                 } label: {
                                     HStack {
                                         Label("App Theme", systemImage: "paintbrush.pointed")
@@ -114,7 +95,7 @@ struct Home: View {
                                     AppIcons()
                                 } label: {
                                     HStack {
-                                        Label("App Icons", systemImage: "square.grid.3x3.square")
+                                        Label("App Icon", systemImage: "square.grid.3x3.square")
                                         Spacer()
                                         Text("Default")
                                             .foregroundStyle(.secondary)
@@ -134,67 +115,6 @@ struct Home: View {
                                 }
                             } header: {
                                 Text("General")
-                            }
-                            
-                            Section {
-                                if !boughtPro {
-                                    HStack {
-                                        Label("Color", systemImage: "paintbrush")
-                                        Spacer()
-                                        Label("Pro Required", systemImage: "lock")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    
-                                    HStack {
-                                        Label("Watermark", systemImage: "water.waves")
-                                        Spacer()
-                                        Label("Pro Required", systemImage: "lock")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    
-                                    HStack {
-                                        Label("Branding Logo", systemImage: "briefcase")
-                                        Spacer()
-                                        Label("Pro Required", systemImage: "lock")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                } else {
-                                    HStack {
-                                        Label("Color", systemImage: "paintbrush")
-                                        Spacer()
-                                        ColorPicker("", selection: $colorSelection)
-                                    }
-                                    
-                                    NavigationLink {
-                                        VStack(alignment: .leading) {
-                                            Text("Coming Soon")
-                                        }
-                                        .navigationTitle("Watermark")
-                                    } label: {
-                                        HStack {
-                                            Label("Watermark", systemImage: "water.waves")
-                                            Spacer()
-                                            Text("Coming Soon")
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    
-                                    NavigationLink {
-                                        VStack(alignment: .leading) {
-                                            Text("Coming Soon")
-                                        }
-                                        .navigationTitle("Branding Logo")
-                                    } label: {
-                                        HStack {
-                                            Label("Branding Logo", systemImage: "briefcase")
-                                            Spacer()
-                                            Text("Coming Soon")
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                }
-                            } header: {
-                                Text("QR Code Settings")
                             }
                             
                             Section {
