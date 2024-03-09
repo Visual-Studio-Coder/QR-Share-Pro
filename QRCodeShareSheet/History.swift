@@ -6,8 +6,7 @@ struct History: View {
     
     @State private var searchText = ""
     @State private var searchTag = "All"
-    @State private var showNewQRCodeSheet = false
-    @State private var showingSearchSheet = false
+    @State private var showingNewQRCodeSheet = false
     @State private var showingDeleteConfirmation = false
     
     private var allSearchTags = ["All", "URL"]
@@ -29,7 +28,7 @@ struct History: View {
     }
     
     var searchResults: [QRCode] {
-        guard !searchText.isEmpty else { return [] }
+        guard !searchText.isEmpty else { return qrCodeStore.history }
         
         return qrCodeStore.history.filter { $0.text.lowercased().contains(searchText.lowercased()) }
     }
@@ -41,8 +40,6 @@ struct History: View {
             return false
         }
     }
-    
-    let domains = "apple.com,stackoverflow.com,github.com".components(separatedBy: ",")
     
     var body: some View {
         NavigationView {
@@ -69,7 +66,7 @@ struct History: View {
                             .padding(.bottom, 30)
                         
                         Button {
-                            showNewQRCodeSheet = true
+                            showingNewQRCodeSheet = true
                         } label: {
                             Label("**New QR Code**", systemImage: "qrcode")
                                 .padding()
@@ -77,7 +74,7 @@ struct History: View {
                                 .foregroundStyle(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                        .sheet(isPresented: $showNewQRCodeSheet) {
+                        .sheet(isPresented: $showingNewQRCodeSheet) {
                             NavigationView {
                                 NewQRCode()
                                     .navigationTitle("New QR Code")
@@ -85,7 +82,7 @@ struct History: View {
                                     .toolbar {
                                         ToolbarItem(placement: .topBarTrailing) {
                                             Button("Done") {
-                                                showNewQRCodeSheet = false
+                                                showingNewQRCodeSheet = false
                                             }
                                         }
                                     }
@@ -95,20 +92,40 @@ struct History: View {
                         Spacer()
                     }
                 } else {
+                    //                    VStack {
+                    //                        ScrollView(.horizontal) {
+                    //                            HStack {
+                    //                                ForEach(allSearchTags, id: \.self) { i in
+                    //                                    Button {
+                    //                                        searchTag = i
+                    //                                    } label: {
+                    //                                        Text(i)
+                    //                                            .padding(.vertical, 13)
+                    //                                            .padding(.horizontal, 25)
+                    //                                            .background(searchTag == i ? .blue : .gray)
+                    //                                            .foregroundStyle(Color.primary)
+                    //                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    //                                    }
+                    //                                }
+                    //                            }
+                    //                        }
+                    //                        .padding(.leading, 8)
+                    //                    }
+                    
                     List {
-                        ForEach(qrCodeStore.history.reversed()) { i in
+                        ForEach(searchResults.reversed()) { i in
                             NavigationLink {
                                 HistoryDetailInfo(qrCode: i)
                                     .environmentObject(qrCodeStore)
                             } label: {
                                 HStack {
                                     if isValidURL(i.text) {
-                                        AsyncImage(url: URL(string: "https://www.google.com/s2/favicons?sz=\(50)&domain=\(i.text)"))
+                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico"))
                                             .padding()
                                             .font(.title)
                                         //                                            .resizable()
                                             .frame(width: 50, height: 50)
-//                                            .background(.blue)
+                                        //                                            .background(.blue)
                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                     } else {
                                         i.qrCode?.toImage()?
@@ -156,91 +173,9 @@ struct History: View {
                         }
                         .onDelete(perform: deleteItems)
                     }
-                }
-            }
-            .navigationTitle("Library")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if !qrCodeStore.history.isEmpty {
-                        Button {
-                            showingSearchSheet = true
-                        } label: {
-                            Label("Search", systemImage: "magnifyingglass")
-                        }
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !qrCodeStore.history.isEmpty {
-                        EditButton()
-                    }
-                }
-            }
-            .sheet(isPresented: $showingSearchSheet) {
-                NavigationView {
-                    VStack {
-                        ScrollView(.horizontal) {
-                            HStack {
-                                ForEach(allSearchTags, id: \.self) { i in
-                                    Button {
-                                        searchTag = i
-                                    } label: {
-                                        Text(i)
-                                            .padding(.vertical, 13)
-                                            .padding(.horizontal, 25)
-                                            .background(searchTag == i ? .blue : .gray)
-                                            .foregroundStyle(Color.primary)
-                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.leading, 8)
-                        
-                        List(searchResults) { i in
-                            NavigationLink {
-                                HistoryDetailInfo(qrCode: i)
-                                    .environmentObject(qrCodeStore)
-                            } label: {
-                                HStack {
-                                    i.qrCode?.toImage()?
-                                        .resizable()
-                                        .frame(width: 50, height: 50)
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(i.text)
-                                            .fontWeight(.bold)
-                                        
-                                        Text(i.date, format: .dateTime)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                            }
-                        }
-                    }
                     .searchable(text: $searchText)
                     .overlay {
-                        if searchText.isEmpty {
-                            VStack {
-                                Image(systemName: "magnifyingglass")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 80)
-                                    .padding(.bottom, 10)
-                                
-                                Text("Search")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .padding(.bottom, 10)
-                                
-                                Text("Search through your library.")
-                                    .font(.subheadline)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal, 50)
-                                    .padding(.bottom, 30)
-                            }
-                        } else if searchResults.isEmpty {
+                        if searchResults.isEmpty {
                             VStack {
                                 Image(systemName: "magnifyingglass")
                                     .resizable()
@@ -261,14 +196,14 @@ struct History: View {
                             }
                         }
                     }
-                    .navigationTitle("Search")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button("Done") {
-                                showingSearchSheet = false
-                            }
-                        }
+                }
+            }
+            .navigationTitle("Library")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !qrCodeStore.history.isEmpty {
+                        EditButton()
                     }
                 }
             }
