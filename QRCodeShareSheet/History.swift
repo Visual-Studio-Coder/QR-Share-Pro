@@ -54,7 +54,7 @@ struct History: View {
                             .frame(height: 80)
                             .padding(.bottom, 10)
                         
-                        Text("No QR Codes Yet")
+                        Text("Your Library")
                             .font(.title)
                             .fontWeight(.bold)
                             .padding(.bottom, 10)

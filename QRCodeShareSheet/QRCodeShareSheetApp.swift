@@ -84,7 +84,7 @@ struct QRCodeApp: App {
                 .environmentObject(storeKit)
                 .splashView {
                     ZStack {
-                        LinearGradient(colors: [Color(#colorLiteral(red: 0.384, green: 0.714, blue: 0.937, alpha: 1)), Color(#colorLiteral(red: 0.5606167912, green: 0.8587760329, blue: 0.9991238713, alpha: 1))], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1)), Color(#colorLiteral(red: 0.5606167912, green: 0.8587760329, blue: 0.9991238713, alpha: 1))], startPoint: .topLeading, endPoint: .bottomTrailing)
                             .ignoresSafeArea()
                         
                         VStack {
