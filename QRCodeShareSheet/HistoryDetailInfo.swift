@@ -31,6 +31,14 @@ struct HistoryDetailInfo: View {
         }
     }
     
+    func isValidURL(_ string: String) -> Bool {
+        if let url = URLComponents(string: string) {
+            return url.scheme != nil && !url.scheme!.isEmpty
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
         ScrollView {
             if isEditing {
@@ -98,17 +106,67 @@ struct HistoryDetailInfo: View {
                         .resizable()
                         .aspectRatio(1, contentMode: .fit)
                     
-                    Text(qrCode.text)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                    if isValidURL(qrCode.text) {
+                        HStack {
+                            AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
+                                i
+                                    .resizable()
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            
+                            Text(URL(string: qrCode.text)!.host!)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                            
+                            if URL(string: qrCode.text)!.path.isEmpty {
+                                Spacer()
+                                
+                                Button {
+                                    if let url = URL(string: qrCode.text) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                } label: {
+                                    Label("Open", systemImage: "safari")
+                                }
+                            }
+                        }
+                        
+                        if !URL(string: qrCode.text)!.path.isEmpty {
+                            HStack {
+                                Text(URL(string: qrCode.text)!.path)
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                
+                                Spacer()
+                                
+                                Button {
+                                    if let url = URL(string: qrCode.text) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                } label: {
+                                    Label("Open", systemImage: "safari")
+                                }
+                            }
+                        }
+                    } else {
+                        Text(qrCode.text)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                    }
                     
                     HStack {
                         Text("Generated on")
-
+                        
                         Text(qrCode.date, format: .dateTime)
                     }
                     .foregroundStyle(.secondary)
                 }
+                .padding(.horizontal)
             }
         }
         .navigationTitle(qrCode.text)

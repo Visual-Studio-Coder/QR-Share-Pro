@@ -55,27 +55,19 @@ struct QRCodeApp: App {
     @StateObject private var storeKit = StoreKitManager()
     
 //    struct SplashView: View {
-//        
-//        // 1.
 //        @State var isActive:Bool = false
 //        
 //        var body: some View {
 //            VStack {
-//                // 2.
 //                if self.isActive {
-//                    // 3.
 //                    HomeView()
 //                } else {
-//                    // 4.
 //                    Text("Awesome Splash Screen!")
-//                        .font(Font.largeTitle)
+//                        .font(.largeTitle)
 //                }
 //            }
-//            // 5.
 //            .onAppear {
-//                // 6.
 //                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-//                    // 7.
 //                    withAnimation {
 //                        self.isActive = true
 //                    }
@@ -103,7 +95,7 @@ struct QRCodeApp: App {
                             Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
                                 .resizable()
                                 .frame(width: 150, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .clipShape(RoundedRectangle(cornerRadius: 32))
                                 .shadow(radius: 50)
                             
                             Text("QR Share")
@@ -118,11 +110,6 @@ struct QRCodeApp: App {
                             Text("© Copyright 2024 The [X] Company.")
                                 .foregroundStyle(.white)
                                 .padding(.bottom)
-                            
-                            ProgressView()
-                                .controlSize(.large)
-                                .tint(.white)
-                                .shadow(radius: 50)
                             
                             Spacer()
                         }
