@@ -8,6 +8,32 @@
 import SwiftUI
 import CoreImage.CIFilterBuiltins
 
+struct ClearButton: ViewModifier
+{
+    @Binding var text: String
+    
+    public func body(content: Content) -> some View
+    {
+        ZStack(alignment: .trailing)
+        {
+            content
+            
+            if !text.isEmpty
+            {
+                Button(action:
+                        {
+                    self.text = ""
+                })
+                {
+                    Image(systemName: "delete.left")
+                        .foregroundColor(Color(UIColor.opaqueSeparator))
+                }
+                .padding(.trailing, 8)
+            }
+        }
+    }
+}
+
 struct NewQRCode: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
@@ -59,26 +85,19 @@ struct NewQRCode: View {
             }
         }
         
-        ZStack(alignment: .topTrailing) {
-            TextEditor(text: $text)
-                .frame(minHeight: 150)
+        VStack {
+            TextField("Start typing...", text: $text)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
-                .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 0.5))
+                .keyboardType(.webSearch)
+                .autocapitalization(.none)
+                .font(.custom("SF Pro", size: 34))
+                .modifier(ClearButton(text: $text))
                 .onChange(of: text) { newValue in
                     generateQRCode(from: newValue)
                     addedToLibrary = false
                     savedToPhotos = false
                 }
-                .font(.custom("Helvetica", size: 34))
-            
-            Button(action: {
-                text = ""
-                qrCodeImage = nil
-            }) {
-                Image(systemName: "xmark.circle.fill")
-                    .padding()
-            }
-            .padding()
         }
         .padding()
         
