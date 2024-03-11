@@ -1,30 +1,80 @@
 import SwiftUI
 
+@MainActor
+struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
+    // Input dependencies
+    var url: URL?
+    @ViewBuilder var content: (Image) -> ImageView
+    @ViewBuilder var placeholder: () -> PlaceholderView
+    
+    // Downloaded image
+    @State var image: UIImage? = nil
+    
+    init(
+        url: URL?,
+        @ViewBuilder content: @escaping (Image) -> ImageView,
+        @ViewBuilder placeholder: @escaping () -> PlaceholderView
+    ) {
+        self.url = url
+        self.content = content
+        self.placeholder = placeholder
+    }
+    
+    var body: some View {
+        VStack {
+            if let uiImage = image {
+                content(Image(uiImage: uiImage))
+            } else {
+                placeholder()
+                    .onAppear {
+                        Task {
+                            image = await downloadPhoto()
+                        }
+                    }
+            }
+        }
+    }
+    
+    // Downloads if the image is not cached already
+    // Otherwise returns from the cache
+    private func downloadPhoto() async -> UIImage? {
+        do {
+            guard let url else { return nil }
+            
+            // Check if the image is cached already
+            if let cachedResponse = URLCache.shared.cachedResponse(for: .init(url: url)) {
+                return UIImage(data: cachedResponse.data)
+            } else {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                
+                // Save returned image data into the cache
+                URLCache.shared.storeCachedResponse(.init(response: response, data: data), for: .init(url: url))
+                
+                guard let image = UIImage(data: data) else {
+                    return nil
+                }
+                
+                return image
+            }
+        } catch {
+            print("Error downloading: \(error)")
+            return nil
+        }
+    }
+}
+
 struct History: View {
     @Environment(\.editMode) private var editMode
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
     @State private var searchText = ""
     @State private var searchTag = "All"
-    @State private var showingNewQRCodeSheet = false
     @State private var showingDeleteConfirmation = false
     
-    private var allSearchTags = ["All", "URL"]
+    private var allSearchTags = ["All", "URL", "Text"]
     
     func save() async throws {
         try await qrCodeStore.save(history: qrCodeStore.history)
-    }
-    
-    private func deleteItems(at offsets: IndexSet) {
-        qrCodeStore.history.remove(atOffsets: offsets)
-        
-        Task {
-            do {
-                try await save()
-            } catch {
-                fatalError(error.localizedDescription)
-            }
-        }
     }
     
     var searchResults: [QRCode] {
@@ -41,6 +91,14 @@ struct History: View {
         }
     }
     
+    func getTypeOf(type: String) -> String {
+        if isValidURL(type) {
+            return "URL"
+        } else {
+            return "Text"
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -54,73 +112,61 @@ struct History: View {
                             .frame(height: 80)
                             .padding(.bottom, 10)
                         
-                        Text("Your Library")
+                        Text("Library")
                             .font(.title)
                             .fontWeight(.bold)
                             .padding(.bottom, 10)
                         
-                        Text("Saved QR codes appear here.")
+                        Text("Save QR codes to your **Library**,\nand they'll appear here.")
                             .font(.subheadline)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 50)
                             .padding(.bottom, 30)
                         
-                        Button {
-                            showingNewQRCodeSheet = true
-                        } label: {
-                            Label("**New QR Code**", systemImage: "qrcode")
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundStyle(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .sheet(isPresented: $showingNewQRCodeSheet) {
-                            NavigationView {
-                                NewQRCode()
-                                    .navigationTitle("New QR Code")
-                                    .navigationBarTitleDisplayMode(.inline)
-                                    .toolbar {
-                                        ToolbarItem(placement: .topBarTrailing) {
-                                            Button("Done") {
-                                                showingNewQRCodeSheet = false
-                                            }
-                                        }
-                                    }
-                            }
-                        }
-                        
                         Spacer()
                     }
                 } else {
-                    //                    VStack {
-                    //                        ScrollView(.horizontal) {
-                    //                            HStack {
-                    //                                ForEach(allSearchTags, id: \.self) { i in
-                    //                                    Button {
-                    //                                        searchTag = i
-                    //                                    } label: {
-                    //                                        Text(i)
-                    //                                            .padding(.vertical, 13)
-                    //                                            .padding(.horizontal, 25)
-                    //                                            .background(searchTag == i ? .blue : .gray)
-                    //                                            .foregroundStyle(Color.primary)
-                    //                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    //                                    }
-                    //                                }
-                    //                            }
-                    //                        }
-                    //                        .padding(.leading, 8)
-                    //                    }
+                    if !searchText.isEmpty {
+                        Picker("Search Filter", selection: $searchTag) {
+                            ForEach(allSearchTags, id: \.self) {
+                                Text($0)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.vertical)
+                    }
+                    
+                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ searchTag == "All" ? true : getTypeOf(type: $0.text) == searchTag })
+                    
+                    if x.isEmpty {
+                        VStack {
+                            Image(systemName: "magnifyingglass")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 80)
+                                .padding(.bottom, 10)
+                                .foregroundStyle(.secondary)
+                            
+                            Text("No Results")
+                                .font(.title)
+                                .fontWeight(.bold)
+                            
+                            Text("Check the spelling or try a new search.")
+                                .font(.subheadline)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.top, 50)
+                    }
                     
                     List {
-                        ForEach(searchResults.reversed()) { i in
+                        ForEach(x) { i in
                             NavigationLink {
                                 HistoryDetailInfo(qrCode: i)
                                     .environmentObject(qrCodeStore)
                             } label: {
                                 HStack {
                                     if isValidURL(i.text) {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
                                             i
                                                 .resizable()
                                                 .aspectRatio(1, contentMode: .fit)
@@ -146,27 +192,30 @@ struct History: View {
                                 }
                             }
                             .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
+                                Button {
                                     showingDeleteConfirmation = true
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                             .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
                                 Button("Delete QR Code", role: .destructive) {
-                                    if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
-                                        qrCodeStore.history.remove(at: idx)
-                                        
-                                        Task {
-                                            do {
-                                                try await save()
-                                            } catch {
-                                                print(error)
+                                    withAnimation {
+                                        if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                            qrCodeStore.history.remove(at: idx)
+                                            
+                                            Task {
+                                                do {
+                                                    try await save()
+                                                } catch {
+                                                    print(error)
+                                                }
                                             }
                                         }
+                                        
+                                        showingDeleteConfirmation = false
                                     }
-                                    
-                                    showingDeleteConfirmation = false
                                 }
                                 
                                 Button("Cancel", role: .cancel) {
@@ -174,34 +223,19 @@ struct History: View {
                                 }
                             }
                         }
-                        .onDelete(perform: deleteItems)
+                        .onDelete { indexSet in
+                            showingDeleteConfirmation = true
+                        }
                     }
                     .searchable(text: $searchText)
-                    .overlay {
-                        if searchResults.isEmpty {
-                            VStack {
-                                Image(systemName: "magnifyingglass")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 80)
-                                    .padding(.bottom, 10)
-                                
-                                Text("No Results")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .padding(.bottom, 10)
-                                
-                                Text(searchTag != "All" ? "Check your spelling or try again." : "Check your spelling or remove the search tag.")
-                                    .font(.subheadline)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal, 50)
-                                    .padding(.bottom, 30)
-                            }
+                    .onChange(of: searchText) { phase in
+                        if searchText.isEmpty {
+                            searchTag = "All"
                         }
                     }
                 }
             }
-            .navigationTitle("Library")
+            .navigationTitle(qrCodeStore.history.isEmpty ? "" : "Library")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

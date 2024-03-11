@@ -62,7 +62,6 @@ struct GetPro: View {
                             
                             Section {
                                 Label("Lifetime purchase", systemImage: "checkmark")
-                                Label("Custom watermark", systemImage: "checkmark")
                                 Label("Custom QR code color", systemImage: "checkmark")
                                 Label("Custom branding logo", systemImage: "checkmark")
                                 Label("Family Sharing, up to 6 people", systemImage: "checkmark")

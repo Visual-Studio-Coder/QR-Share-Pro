@@ -10,7 +10,6 @@
 		78F2F2412B91677000CDF3EC /* QRCodeShareSheetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F2F2402B91677000CDF3EC /* QRCodeShareSheetApp.swift */; };
 		78F2F2452B91677300CDF3EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2442B91677300CDF3EC /* Assets.xcassets */; };
 		78F2F2482B91677300CDF3EC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */; };
-		8B25D7672B9965770081423F /* NewQRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B25D7662B9965770081423F /* NewQRCode.swift */; };
 		8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */; };
 		8B2EE4B62B981066001C7997 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B52B981066001C7997 /* Home.swift */; };
 		8B2EE4B82B9810B1001C7997 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B72B9810B1001C7997 /* History.swift */; };
@@ -23,7 +22,6 @@
 		8BB6E1692B99575C0094D652 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1682B99575C0094D652 /* Base */; };
 		8BB6E16D2B99575C0094D652 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BB6E1632B99575C0094D652 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8BB6E1742B995A8E0094D652 /* QRSharePro.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1732B995A8E0094D652 /* QRSharePro.storekit */; };
-		8BD228592B9A83FD00357794 /* AppIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD228582B9A83FD00357794 /* AppIcons.swift */; };
 		8BD2285B2B9AAD1900357794 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD2285A2B9AAD1900357794 /* Haptics.swift */; };
 /* End PBXBuildFile section */
 
@@ -57,7 +55,6 @@
 		78F2F2402B91677000CDF3EC /* QRCodeShareSheetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeShareSheetApp.swift; sourceTree = "<group>"; };
 		78F2F2442B91677300CDF3EC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		8B25D7662B9965770081423F /* NewQRCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewQRCode.swift; sourceTree = "<group>"; };
 		8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8B2EE4B52B981066001C7997 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		8B2EE4B72B9810B1001C7997 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
@@ -71,7 +68,6 @@
 		8BB6E1682B99575C0094D652 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		8BB6E16A2B99575C0094D652 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8BB6E1732B995A8E0094D652 /* QRSharePro.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = QRSharePro.storekit; sourceTree = "<group>"; };
-		8BD228582B9A83FD00357794 /* AppIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcons.swift; sourceTree = "<group>"; };
 		8BD2285A2B9AAD1900357794 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,7 +114,6 @@
 				78F2F2402B91677000CDF3EC /* QRCodeShareSheetApp.swift */,
 				8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */,
 				8B2EE4B52B981066001C7997 /* Home.swift */,
-				8B25D7662B9965770081423F /* NewQRCode.swift */,
 				8B2EE4EC2B990CBF001C7997 /* GetPro.swift */,
 				8B2EE4B72B9810B1001C7997 /* History.swift */,
 				8B2EE4EA2B9822BF001C7997 /* HistoryDetailInfo.swift */,
@@ -128,7 +123,6 @@
 				8BB6E14B2B9955750094D652 /* StoreKitManager.swift */,
 				78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */,
 				78F2F2442B91677300CDF3EC /* Assets.xcassets */,
-				8BD228582B9A83FD00357794 /* AppIcons.swift */,
 				8BD2285A2B9AAD1900357794 /* Haptics.swift */,
 			);
 			path = QRCodeShareSheet;
@@ -250,8 +244,6 @@
 				8B2EE4BA2B981229001C7997 /* QRCode.swift in Sources */,
 				8B2EE4B82B9810B1001C7997 /* History.swift in Sources */,
 				8BD2285B2B9AAD1900357794 /* Haptics.swift in Sources */,
-				8BD228592B9A83FD00357794 /* AppIcons.swift in Sources */,
-				8B25D7672B9965770081423F /* NewQRCode.swift in Sources */,
 				8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */,
 				8B2EE4EB2B9822BF001C7997 /* HistoryDetailInfo.swift in Sources */,
 				8BB6E14C2B9955750094D652 /* StoreKitManager.swift in Sources */,
