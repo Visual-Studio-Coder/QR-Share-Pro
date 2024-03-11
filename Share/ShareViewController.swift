@@ -25,6 +25,7 @@ class ShareViewController: UIViewController {
     }
 }
 
+@MainActor
 struct ShareView: View {
     @State private var qrCodeImage: UIImage?
     var extensionContext: NSExtensionContext?
