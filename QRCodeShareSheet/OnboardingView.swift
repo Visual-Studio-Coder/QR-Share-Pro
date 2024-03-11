@@ -39,7 +39,7 @@ struct OnboardingView: View {
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
-    @State private var selection: Tab = .Home
+    @State private var selection: Tab = .History
     
     enum Tab {
         case Home
