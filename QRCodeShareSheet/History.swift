@@ -92,11 +92,7 @@ struct History: View {
     }
     
     func getTypeOf(type: String) -> String {
-        if isValidURL(type) {
-            return "URL"
-        } else {
-            return "Text"
-        }
+        return isValidURL(type) ? "URL" : "Text"
     }
     
     var body: some View {
@@ -126,16 +122,6 @@ struct History: View {
                         Spacer()
                     }
                 } else {
-                    if !searchText.isEmpty {
-                        Picker("Search Filter", selection: $searchTag) {
-                            ForEach(allSearchTags, id: \.self) {
-                                Text($0)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.vertical)
-                    }
-                    
                     let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ searchTag == "All" ? true : getTypeOf(type: $0.text) == searchTag })
                     
                     if x.isEmpty {
@@ -151,7 +137,7 @@ struct History: View {
                                 .font(.title)
                                 .fontWeight(.bold)
                             
-                            Text("Check the spelling or try a new search.")
+                            Text(searchTag != "All" ? "Check the spelling or remove the filter." : "Check the spelling or try a new search.")
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
                         }
@@ -159,85 +145,118 @@ struct History: View {
                     }
                     
                     List {
-                        ForEach(x) { i in
-                            NavigationLink {
-                                HistoryDetailInfo(qrCode: i)
-                                    .environmentObject(qrCodeStore)
-                            } label: {
-                                HStack {
-                                    if isValidURL(i.text) {
-                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
-                                            i
-                                                .resizable()
-                                                .aspectRatio(1, contentMode: .fit)
-                                                .frame(width: 50, height: 50)
-                                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        } placeholder: {
-                                            ProgressView()
-                                        }
-                                    } else {
-                                        i.qrCode?.toImage()?
-                                            .resizable()
-                                            .frame(width: 50, height: 50)
-                                    }
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(i.text)
-                                            .fontWeight(.bold)
-                                            .lineLimit(searchText.isEmpty ? 2 : 3)
-                                        
-                                        Text(i.date, format: .dateTime)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button {
-                                    showingDeleteConfirmation = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                .tint(.red)
-                            }
-                            .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
-                                Button("Delete QR Code", role: .destructive) {
-                                    withAnimation {
-                                        if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
-                                            qrCodeStore.history.remove(at: idx)
-                                            
-                                            Task {
-                                                do {
-                                                    try await save()
-                                                } catch {
-                                                    print(error)
+                        if !x.isEmpty {
+                            Section {
+                                ForEach(x) { i in
+                                    NavigationLink {
+                                        HistoryDetailInfo(qrCode: i)
+                                            .environmentObject(qrCodeStore)
+                                    } label: {
+                                        HStack {
+                                            if isValidURL(i.text) {
+                                                AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                    i
+                                                        .resizable()
+                                                        .aspectRatio(1, contentMode: .fit)
+                                                        .frame(width: 50, height: 50)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                } placeholder: {
+                                                    ProgressView()
                                                 }
+                                            } else {
+                                                i.qrCode?.toImage()?
+                                                    .resizable()
+                                                    .frame(width: 50, height: 50)
+                                            }
+                                            
+                                            VStack(alignment: .leading) {
+                                                Text(i.text)
+                                                    .fontWeight(.bold)
+                                                    .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                
+                                                Text(i.date, format: .dateTime)
+                                                    .foregroundStyle(.secondary)
                                             }
                                         }
+                                    }
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            showingDeleteConfirmation = true
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                    .swipeActions(edge: .trailing) {
+                                        Button {
+                                            showingDeleteConfirmation = true
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                        .tint(.red)
+                                    }
+                                    .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+                                        Button("Delete QR Code", role: .destructive) {
+                                            if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                                qrCodeStore.history.remove(at: idx)
+                                                
+                                                Task {
+                                                    do {
+                                                        try await save()
+                                                    } catch {
+                                                        print(error)
+                                                    }
+                                                }
+                                            }
+                                            
+                                            showingDeleteConfirmation = false
+                                        }
                                         
-                                        showingDeleteConfirmation = false
+                                        Button("Cancel", role: .cancel) {
+                                            showingDeleteConfirmation = false
+                                        }
                                     }
                                 }
-                                
-                                Button("Cancel", role: .cancel) {
-                                    showingDeleteConfirmation = false
+                                .onDelete { indexSet in
+                                    showingDeleteConfirmation = true
+                                }
+                            } header: {
+                                if searchTag == "URL" {
+                                    Text(x.count == 1 ? "1 URL" : "\(x.count) URLs")
+                                } else if searchTag == "Text" {
+                                    Text(x.count == 1 ? "1 QR Code Found" : "\(x.count) QR Codes Found")
+                                } else {
+                                    Text(x.count == 1 ? "1 QR Code" : "\(x.count) QR Codes")
                                 }
                             }
                         }
-                        .onDelete { indexSet in
-                            showingDeleteConfirmation = true
-                        }
                     }
-                    .searchable(text: $searchText)
-                    .onChange(of: searchText) { phase in
-                        if searchText.isEmpty {
-                            searchTag = "All"
-                        }
-                    }
+                    .searchable(text: $searchText, prompt: "Search Library")
                 }
             }
             .navigationTitle(qrCodeStore.history.isEmpty ? "" : "Library")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        ForEach(allSearchTags, id: \.self) { i in
+                            Button {
+                                searchTag = i
+                            } label: {
+                                HStack {
+                                    Text(i)
+                                    
+                                    if searchTag == i {
+                                        Spacer()
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: searchTag == "All" ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                    }
+                }
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     if !qrCodeStore.history.isEmpty {
                         EditButton()
