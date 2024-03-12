@@ -11,6 +11,11 @@ struct HistoryDetailInfo: View {
     @State var qrCode: QRCode
     @State var originalText = ""
     
+    @State var boughtPro = true
+    @State private var colorSelection = Color.black
+    @State private var showingBrandingLogoSheet = false
+    @State private var brandingImage: Image?
+    
     func save() async throws {
         try await qrCodeStore.save(history: qrCodeStore.history)
     }
@@ -41,16 +46,36 @@ struct HistoryDetailInfo: View {
     }
     
     var body: some View {
-        ScrollView {
+        VStack {
             if isEditing {
-                VStack {
+                Form {
                     if !qrCode.text.isEmpty {
                         if let qrCodeImage = qrCodeImage {
-                            Image(uiImage: qrCodeImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                                .padding()
+                            if let brandingImage = brandingImage {
+                                Image(uiImage: qrCodeImage)
+                                    .interpolation(.none)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .overlay(
+                                        brandingImage
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                    )
+                            } else {
+                                Image(uiImage: qrCodeImage)
+                                    .interpolation(.none)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .overlay(
+                                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                    )
+                            }
                             
                             Button(action: {
                                 UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
@@ -58,40 +83,67 @@ struct HistoryDetailInfo: View {
                             }) {
                                 Label("Save to Photos", systemImage: "photo")
                             }
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
                             .alert(isPresented: $showingSavedAlert) {
                                 Alert(title: Text("Saved to Photos!"))
                             }
                         }
                     }
                     
-                    ZStack(alignment: .topTrailing) {
-                        TextEditor(text: $qrCode.text)
-                            .frame(minHeight: 200)
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 0.5))
-                            .onChange(of: qrCode.text) { newValue in
-                                generateQRCode(from: newValue)
-                            }
-                        
-                        Button(action: {
-                            qrCode.text = ""
-                            qrCodeImage = nil
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .padding()
+                    TextField("Start typing...", text: $qrCode.text)
+                        .keyboardType(.webSearch)
+                        .autocapitalization(.none)
+                        .modifier(ClearButton(text: $qrCode.text))
+                        .onChange(of: qrCode.text) { newValue in
+                            generateQRCode(from: newValue)
                         }
-                        .padding()
+                    
+                    Section {
+                        if !boughtPro {
+                            HStack {
+                                Label("Color", systemImage: "paintbrush")
+                                Spacer()
+                                Label("Pro Required", systemImage: "lock")
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            HStack {
+                                Label("Branding Logo", systemImage: "briefcase")
+                                Spacer()
+                                Label("Pro Required", systemImage: "lock")
+                                    .foregroundStyle(.secondary)
+                            }
+                        } else {
+                            HStack {
+                                Label("Color", systemImage: "paintbrush")
+                                Spacer()
+                                ColorPicker("", selection: $colorSelection)
+                            }
+                            
+                            Button {
+                                showingBrandingLogoSheet = true
+                            } label: {
+                                HStack {
+                                    Label("Branding Logo", systemImage: "briefcase")
+                                    Spacer()
+                                    Text("Choose")
+                                        .foregroundStyle(.secondary)
+                                    Image(systemName: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            .sheet(isPresented: $showingBrandingLogoSheet) {
+                                ImagePicker(selectedImage: $brandingImage)
+                            }
+                        }
+                    } header: {
+                        Text("QR Code Theme")
                     }
                 }
-                .padding()
-                .onTapGesture {
-                    // Dismiss keyboard
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                }
+                //                .onTapGesture {
+                //                    // Dismiss keyboard
+                //                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                //                }
                 .onAppear {
                     Task {
                         if let data = qrCode.qrCode, let uiImage = UIImage(data: data) {
@@ -102,79 +154,88 @@ struct HistoryDetailInfo: View {
                     }
                 }
             } else {
-                VStack(alignment: .leading) {
-                    qrCode.qrCode?.toImage()?
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                    
-                    if isValidURL(qrCode.text) {
-                        HStack {
-                            AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
-                                i
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                            } placeholder: {
-                                ProgressView()
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        qrCode.qrCode?.toImage()?
+                            .resizable()
+                            .aspectRatio(1, contentMode: .fit)
+                        
+                        if isValidURL(qrCode.text) {
+                            HStack {
+                                AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
+                                    i
+                                        .resizable()
+                                        .aspectRatio(1, contentMode: .fit)
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                
+                                Text(URL(string: qrCode.text)!.host!)
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .lineLimit(1)
+                                
+                                Spacer()
+                                
+                                Button {
+                                    if let url = URL(string: qrCode.text) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                } label: {
+                                    Label("**Open**", systemImage: "safari")
+                                        .padding(8)
+                                        .foregroundStyle(.white)
+                                        .background(.blue)
+                                        .clipShape(Capsule())
+                                }
                             }
                             
-                            Text(URL(string: qrCode.text)!.host!)
+                            VStack(alignment: .leading) {
+                                Text(qrCode.text)
+                                    .lineLimit(showingFullURL ? nil : 3)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                
+                                if !showingFullURL {
+                                    Button {
+                                        showingFullURL.toggle()
+                                    } label: {
+                                        Text("MORE...")
+                                            .fontWeight(.bold)
+                                    }
+                                }
+                            }
+                            
+                            Divider()
+                        } else {
+                            Text(qrCode.text)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                                .lineLimit(1)
-                            
-                            Spacer()
-                            
-                            Button {
-                                if let url = URL(string: qrCode.text) {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                Label("**Open**", systemImage: "safari")
-                                    .padding(8)
-                                    .foregroundStyle(.white)
-                                    .background(.blue)
-                                    .clipShape(Capsule())
-                            }
                         }
                         
-                        VStack(alignment: .leading) {
-                            Text(qrCode.text)
-                                .lineLimit(showingFullURL ? nil : 3)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
+                        HStack(spacing: 0) {
+                            Text("Last updated: ")
                             
-                            if !showingFullURL {
-                                Button {
-                                    showingFullURL.toggle()
-                                } label: {
-                                    Text("MORE...")
-                                        .fontWeight(.bold)
-                                }
-                            }
+                            Text(qrCode.date, format: .dateTime)
                         }
-                        
-                        Divider()
-                    } else {
-                        Text(qrCode.text)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                        .foregroundStyle(.secondary)
                     }
-                    
-                    HStack(spacing: 0) {
-                        Text("Last updated: ")
-                        
-                        Text(qrCode.date, format: .dateTime)
-                    }
-                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
         }
         .navigationTitle(qrCode.text)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            }
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingDeleteConfirmation = true
@@ -234,7 +295,9 @@ struct HistoryDetailInfo: View {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
         
-        HistoryDetailInfo(qrCode: QRCode(text: "https://idmsa.apple.com/"))
-            .environmentObject(qrCodeStore)
+        NavigationView {
+            HistoryDetailInfo(qrCode: QRCode(text: "https://idmsa.apple.com/"))
+                .environmentObject(qrCodeStore)
+        }
     }
 }

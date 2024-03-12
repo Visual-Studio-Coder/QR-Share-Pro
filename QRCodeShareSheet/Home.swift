@@ -85,11 +85,10 @@ struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @EnvironmentObject var storeKit: StoreKitManager
     
-    @State private var showingSettingsSheet = false
+    @State private var showingAboutAppSheet = false
     @State private var showingGetProSheet = false
     
-    @State private var toggleAppIconTinting = true
-    @State private var boughtPro = true
+    @State private var boughtPro = false
     
     @State private var text = ""
     @State private var showSavedAlert = false
@@ -142,6 +141,14 @@ struct Home: View {
         }
     }
     
+    func appVersion(in bundle: Bundle = .main) -> String {
+        guard let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else {
+            fatalError("CFBundleShortVersionString missing from info dictionary")
+        }
+        
+        return version
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -181,11 +188,6 @@ struct Home: View {
                                             .scaledToFit()
                                             .frame(width: 50, height: 50)
                                     )
-                            }
-                            
-                            Button {
-                            } label: {
-                                Label("Share", systemImage: "square.and.arrow.up")
                             }
                         }
                     }
@@ -286,18 +288,24 @@ struct Home: View {
                 .navigationTitle("New QR Code")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {} label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                    }
+                    
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            showingSettingsSheet = true
+                            showingAboutAppSheet = true
                         } label: {
-                            Label("Settings", systemImage: "gearshape.fill")
+                            Label("About QR Share", systemImage: "info.circle.fill")
                         }
                     }
                 }
                 .sheet(isPresented: $showingBrandingLogoSheet) {
                     ImagePicker(selectedImage: $brandingImage)
                 }
-                .sheet(isPresented: $showingSettingsSheet) {
+                .sheet(isPresented: $showingAboutAppSheet) {
                     NavigationView {
                         List {
                             if !boughtPro {
@@ -312,92 +320,8 @@ struct Home: View {
                             }
                             
                             Section {
-                                NavigationLink {
-                                    List {
-                                        Section {
-                                            ForEach(allIcons.filter { !$0.proRequired }) { i in
-                                                Button {
-                                                    changeAppIcon(to: i.iconURL)
-                                                    currentlySelected = i.iconURL
-                                                } label: {
-                                                    HStack {
-                                                        Image(systemName: i.iconURL == currentlySelected ? "checkmark.circle.fill" : "circle")
-                                                            .font(.title2)
-                                                        
-                                                        Image(uiImage: #imageLiteral(resourceName: i.iconURL))
-                                                            .resizable()
-                                                            .frame(width: 50, height: 50)
-                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                            .shadow(radius: 50)
-                                                        
-                                                        Text(i.iconName)
-                                                    }
-                                                }
-                                            }
-                                        } header: {
-                                            Text("Free Icons")
-                                        }
-                                        
-                                        Section {
-                                            ForEach(allIcons.filter { $0.proRequired }) { i in
-                                                Button {
-                                                    //                        changeAppIcon(to: i.iconURL)
-                                                    //                        currentlySelected = i.iconURL
-                                                } label: {
-                                                    HStack {
-                                                        //                            Image(systemName: i.iconURL == currentlySelected ? "checkmark.circle.fill" : "circle")
-                                                        //                                .font(.title2)
-                                                        
-                                                        Image(systemName: "lock")
-                                                        
-                                                        Image(uiImage: #imageLiteral(resourceName: i.iconURL))
-                                                            .resizable()
-                                                            .frame(width: 50, height: 50)
-                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                            .shadow(radius: 50)
-                                                        
-                                                        Text(i.iconName)
-                                                        
-                                                        Spacer()
-                                                        
-                                                        Text("Pro Required")
-                                                    }
-                                                }
-                                                .foregroundStyle(.secondary)
-                                            }
-                                        } header: {
-                                            Text("Pro Icons")
-                                        }
-                                    }
-                                    .navigationTitle("App Icon")
-                                    .navigationBarTitleDisplayMode(.inline)
-                                } label: {
-                                    HStack {
-                                        Label("App Icon", systemImage: "square.grid.3x3.square")
-                                        Spacer()
-                                        Text("Default")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                
-                                Toggle(isOn: $toggleAppIconTinting) {
-                                    Label("App Icon Tinting for Icons", systemImage: "drop.halffull")
-                                }
-                            } header: {
-                                Text("App Icon")
-                            }
-                            
-                            Section {
-                                Toggle(isOn: $boughtPro) {
-                                    Label("Enable Pro Features", systemImage: "hammer")
-                                }
-                            } header: {
-                                Text("Developer")
-                            }
-                            
-                            Section {
                                 HStack {
-                                    Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                    Image(uiImage: #imageLiteral(resourceName: currentlySelected))
                                         .resizable()
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -405,9 +329,7 @@ struct Home: View {
                                     VStack(alignment: .leading) {
                                         Text(boughtPro ? "QR Share Pro" : "QR Share")
                                             .bold()
-                                        Text("Version 0.0.1")
-                                            .foregroundStyle(.secondary)
-                                        Text("The [X] Company")
+                                        Text("Version \(appVersion())")
                                             .foregroundStyle(.secondary)
                                     }
                                 }
@@ -428,13 +350,51 @@ struct Home: View {
                             } header: {
                                 Text(boughtPro ? "QR Share Pro" : "QR Share")
                             }
+                            
+                            Section {
+                                ForEach(allIcons) { i in
+                                    Button {
+                                        changeAppIcon(to: i.iconURL)
+                                        currentlySelected = i.iconURL
+                                    } label: {
+                                        HStack {
+                                            if i.proRequired {
+                                                Image(systemName: "lock")
+                                                    .font(.title2)
+                                                    .tint(.secondary)
+                                            } else {
+                                                Image(systemName: i.iconURL == currentlySelected ? "checkmark.circle.fill" : "circle")
+                                                    .font(.title2)
+                                                    .tint(.blue)
+                                            }
+                                            
+                                            Image(uiImage: #imageLiteral(resourceName: i.iconURL))
+                                                .resizable()
+                                                .frame(width: 50, height: 50)
+                                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                .shadow(radius: 50)
+                                            
+                                            Text(i.iconName)
+                                                .tint(.primary)
+                                            
+                                            if i.proRequired {
+                                                Spacer()
+                                                Text("Pro Required")
+                                                    .tint(.secondary)
+                                            }
+                                        }
+                                    }
+                                }
+                            } header: {
+                                Text("App Icon")
+                            }
                         }
-                        .navigationBarTitle("Settings")
+                        .navigationBarTitle("About QR Share")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .topBarTrailing) {
                                 Button {
-                                    showingSettingsSheet = false
+                                    showingAboutAppSheet = false
                                 } label: {
                                     Text("Done")
                                 }
@@ -453,6 +413,15 @@ struct Home: View {
         .onChange(of: storeKit.purchasedPlan) { course in
             Task {
                 boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
+            }
+        }
+        .onAppear {
+            Task {
+                if !storeKit.storeProducts.isEmpty {
+                    boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
+                } else {
+                    boughtPro = true // Xcode Preview
+                }
             }
         }
     }

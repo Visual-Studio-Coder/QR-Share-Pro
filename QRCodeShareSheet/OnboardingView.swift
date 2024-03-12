@@ -39,9 +39,10 @@ struct OnboardingView: View {
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
-    @State private var selection: Tab = .History
+    @State private var selection: Tab = .Home
     
     enum Tab {
+        case Scanner
         case Home
         case History
     }
@@ -49,6 +50,17 @@ struct OnboardingView: View {
     var body: some View {
         if isOnboardingDone {
             TabView(selection: $selection) {
+                Scanner()
+                    .tabItem {
+                        Label("Scan", systemImage: "qrcode.viewfinder")
+                    }
+                    .onAppear {
+                        Task {
+                            try await qrCodeStore.load()
+                        }
+                    }
+                    .tag(Tab.Scanner)
+                
                 Home()
                     .environmentObject(qrCodeStore)
                     .environmentObject(storeKit)
