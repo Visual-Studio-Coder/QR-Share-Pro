@@ -161,43 +161,41 @@ struct Home: View {
                 //                    }
                 
                 Form {
-                    if !text.isEmpty {
-                        if let qrCodeImage = qrCodeImage {
-                            if let brandingImage = brandingImage {
-                                Image(uiImage: qrCodeImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .overlay(
-                                        brandingImage
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    )
-                            } else {
-                                Image(uiImage: qrCodeImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .overlay(
-                                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    )
-                            }
+                    if let qrCodeImage = qrCodeImage {
+                        if let brandingImage = brandingImage {
+                            Image(uiImage: qrCodeImage)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
+                                .overlay(
+                                    brandingImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 50, height: 50)
+                                )
+                        } else {
+                            Image(uiImage: qrCodeImage)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
+                                .overlay(
+                                    Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 50, height: 50)
+                                )
                         }
                     }
                     
                     TextField("Start typing...", text: $text)
-                    //                        .keyboardType(.webSearch)
+                        .keyboardType(.webSearch)
                         .autocapitalization(.none)
                         .autocorrectionDisabled()
                     //                        .autocorrectionType(.none)
-                    //                        .modifier(ClearButton(text: $text))
-                    //                        .focused(true)
+                        .modifier(ClearButton(text: $text))
+                    //                                            .focused(true)
                         .onChange(of: text) { newValue in
                             generateQRCode(from: newValue)
                         }
@@ -246,52 +244,51 @@ struct Home: View {
                         Text("QR Code Theme")
                     }
                     
-                    if !text.isEmpty {
-                        Section {
-                            Button {
-                                showSaveAlert = true
-                            } label: {
-                                Label("Save", systemImage: "square.and.arrow.down")
-                            }
-                            .tint(.primary)
-                            .alert("Choose Save Location", isPresented: $showSaveAlert) {
-                                HStack {
-                                    Button("Photos") {
-                                        if let qrCodeImage = qrCodeImage {
-                                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                            showSavedAlert = true
-                                        }
-                                    }
-                                    Button("QR Share Library") {
-                                        if let qrCodeImage = qrCodeImage {
-                                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                                            
-                                            qrCodeStore.history.append(newCode)
-                                            
-                                            Task {
-                                                do {
-                                                    try await save()
-                                                } catch {
-                                                    fatalError(error.localizedDescription)
-                                                }
-                                            }
-                                            
-                                            showHistorySavedAlert = true
-                                        }
+                    Section {
+                        Button {
+                            showSaveAlert = true
+                        } label: {
+                            Label("Save", systemImage: "square.and.arrow.down")
+                        }
+                        .tint(.primary)
+                        .disabled(text.isEmpty)
+                        .alert("Choose Save Location", isPresented: $showSaveAlert) {
+                            HStack {
+                                Button("Photos") {
+                                    if let qrCodeImage = qrCodeImage {
+                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                        showSavedAlert = true
                                     }
                                 }
-                                
-                                Button("Cancel", role: .cancel) {}
+                                Button("QR Share Library") {
+                                    if let qrCodeImage = qrCodeImage {
+                                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                                        
+                                        qrCodeStore.history.append(newCode)
+                                        
+                                        Task {
+                                            do {
+                                                try await save()
+                                            } catch {
+                                                fatalError(error.localizedDescription)
+                                            }
+                                        }
+                                        
+                                        showHistorySavedAlert = true
+                                    }
+                                }
                             }
-                            .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                                Button("OK", role: .cancel) {}
-                            }
-                            .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
-                                Button("OK", role: .cancel) {}
-                            }
-                        } header: {
-                            Text("Save")
+                            
+                            Button("Cancel", role: .cancel) {}
                         }
+                        .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                            Button("OK", role: .cancel) {}
+                        }
+                        .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
+                            Button("OK", role: .cancel) {}
+                        }
+                    } header: {
+                        Text("Save")
                     }
                 }
                 .navigationTitle("New QR Code")
@@ -436,6 +433,8 @@ struct Home: View {
                 if !storeKit.storeProducts.isEmpty {
                     boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
                 }
+                
+                generateQRCode(from: " ")
                 
 #if targetEnvironment(simulator)
                 boughtPro = true
