@@ -63,7 +63,7 @@ struct QRScanner: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> QRScannerController {
         let controller = QRScannerController()
         controller.delegate = context.coordinator
-     
+        
         return controller
     }
     
@@ -89,9 +89,7 @@ class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         // Get the metadata object.
         let metadataObj = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
         
-        if metadataObj.type == AVMetadataObject.ObjectType.qr,
-           let result = metadataObj.stringValue {
-            
+        if metadataObj.type == AVMetadataObject.ObjectType.qr, let result = metadataObj.stringValue {
             scanResult = result
         }
     }

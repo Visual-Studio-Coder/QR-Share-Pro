@@ -276,15 +276,11 @@ struct HistoryDetailInfo: View {
                         do {
                             try await save()
                         } catch {
-                            print(error)
+//                            print(error)
                         }
                     }
                 }
                 
-                showingDeleteConfirmation = false
-            }
-            
-            Button("Cancel", role: .cancel) {
                 showingDeleteConfirmation = false
             }
         }

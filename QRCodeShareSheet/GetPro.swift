@@ -33,7 +33,6 @@ struct StoreItem: View {
 }
 
 struct GetPro: View {
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var storeKit: StoreKitManager
 
     var body: some View {
@@ -104,15 +103,6 @@ struct GetPro: View {
         }
         .navigationBarTitle("QR Share Pro")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Done")
-                }
-            }
-        }
     }
 }
 
