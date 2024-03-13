@@ -4,6 +4,7 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 import MobileCoreServices
 import UniformTypeIdentifiers
+import ColorfulX
 
 class ShareViewController: UIViewController {
     var hostingView: UIHostingController<ShareView>!
@@ -32,6 +33,7 @@ struct ShareView: View {
     @State private var isBackgroundVisible = false
     @State private var receivedText: String = ""
     @State private var showAlert = false
+    @State private var colors: [Color] = [.gray, .orange, .yellow, .green, .blue, .white, .purple, .pink, .gray, .white]
     
     var shareLabel: String {
         if URL(string: receivedText) != nil {
@@ -43,8 +45,8 @@ struct ShareView: View {
     
     var body: some View {
         ZStack {
-            AnimatedRainbowBackground()
-                .transition(.opacity)
+            ColorfulView(color: $colors)
+                    .ignoresSafeArea()
             if let qrCodeImage = qrCodeImage {
                 VStack {
                     Image(uiImage: qrCodeImage)
@@ -73,7 +75,7 @@ struct ShareView: View {
                         }
                     }, perform: {})
                     .buttonStyle(.borderedProminent)
-                    .padding(16)
+                    .padding(.horizontal, 16)
                     .tint(Color(UIColor(red: 0.11, green: 0.14, blue: 0.79, alpha: 1.0)))
                     
                     HStack {
@@ -240,43 +242,6 @@ struct ShareView: View {
     }
 }
 
-struct BouncingCircle: View {
-    let color: Color
-    @State private var position = CGPoint(x: CGFloat.random(in: 0...UIScreen.main.bounds.width), y: CGFloat.random(in: 0...UIScreen.main.bounds.height))
-    @State private var direction = CGSize(width: CGFloat.random(in: -1...1), height: CGFloat.random(in: -1...1))
-    
-    var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: 400, height: 400)
-            .position(position)
-            .blur(radius: 60)
-            .onAppear {
-                Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-                    position = CGPoint(x: max(min(position.x + direction.width * 10, UIScreen.main.bounds.width), 0), y: max(min(position.y + direction.height * 10, UIScreen.main.bounds.height), 0))
-                    if position.x == 0 || position.x == UIScreen.main.bounds.width {
-                        direction.width *= -1
-                    }
-                    if position.y == 0 || position.y == UIScreen.main.bounds.height {
-                        direction.height *= -1
-                    }
-                }
-            }
-    }
-}
-
-struct AnimatedRainbowBackground: View {
-    let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink, .gray, .white, .brown, .cyan, .yellow, .red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink, .gray, .white, .brown, .cyan]
-    
-    var body: some View {
-        ZStack {
-            ForEach(colors.indices) { index in
-                BouncingCircle(color: colors[index])
-                    .animation(Animation.easeInOut(duration: 0.5).delay(Double(index) * 0.1))
-            }
-        }
-    }
-}
 class MyPrintPageRenderer: UIPrintPageRenderer {
     let myText: String
     let myImage: UIImage
