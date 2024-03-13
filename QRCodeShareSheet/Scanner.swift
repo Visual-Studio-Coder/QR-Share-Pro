@@ -7,7 +7,7 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
     var qrCodeFrameView: UIView?
     
     weak var delegate: QRScannerControllerDelegate?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -46,13 +46,13 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
         super.viewDidLayoutSubviews()
         videoPreviewLayer?.frame = view.layer.bounds.inset(by: view.safeAreaInsets)
     }
-
+    
     func startScanning() {
         if !captureSession.isRunning {
             captureSession.startRunning()
         }
     }
-
+    
     func stopScanning() {
         if captureSession.isRunning {
             captureSession.stopRunning()
@@ -75,23 +75,23 @@ protocol QRScannerControllerDelegate: AnyObject {
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var detectedQRCode: String?
     let scannerController = QRScannerController()
-
+    
     init() {
         scannerController.delegate = self
     }
-
+    
     func startScanning() {
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.startScanning()
         }
     }
-
+    
     func stopScanning() {
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.stopScanning()
         }
     }
-
+    
     func didDetectQRCode(code: String) {
         DispatchQueue.main.async {
             self.detectedQRCode = code
@@ -101,7 +101,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
 
 class FaviconLoader: ObservableObject {
     @Published var image: UIImage?
-
+    
     func load(from url: URL) {
         let faviconURL = url.appendingPathComponent("favicon.ico")
         let task = URLSession.shared.dataTask(with: faviconURL) { data, _, _ in
@@ -118,11 +118,11 @@ class FaviconLoader: ObservableObject {
 struct QRScanner: UIViewControllerRepresentable {
     @Binding var result: String
     @ObservedObject var viewModel: QRScannerViewModel
-
+    
     func makeUIViewController(context: Context) -> QRScannerController {
         return viewModel.scannerController
     }
-
+    
     func updateUIViewController(_ uiViewController: QRScannerController, context: Context) {
     }
 }
@@ -154,7 +154,7 @@ class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
 struct Scanner: View {
     @State var scanResult = "No QR code detected"
     @StateObject var viewModel = QRScannerViewModel()
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             QRScanner(result: $scanResult, viewModel: viewModel)
@@ -205,4 +205,8 @@ struct VisualEffectView: UIViewRepresentable {
     var effect: UIVisualEffect?
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIVisualEffectView { UIVisualEffectView() }
     func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) { uiView.effect = effect }
+}
+
+#Preview {
+    Scanner()
 }
