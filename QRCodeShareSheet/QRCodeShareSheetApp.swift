@@ -1,6 +1,6 @@
 import SwiftUI
 
-private let defaultTimeout: TimeInterval = 0.5
+private let defaultTimeout: TimeInterval = 0.25
 
 struct SplashView<SplashContent: View>: ViewModifier {
     private let timeout: TimeInterval
@@ -107,7 +107,7 @@ struct QRCodeApp: App {
                             
                             Spacer()
                             
-                            Text("**from**\n\nThe [X] Company")
+                            Text("Why did the QR code go to school?\nTo improve its scan-ability!")
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(.white)
                                 .padding(.bottom)
