@@ -2,19 +2,13 @@ import SwiftUI
 
 @MainActor
 struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
-    // Input dependencies
     var url: URL?
     @ViewBuilder var content: (Image) -> ImageView
     @ViewBuilder var placeholder: () -> PlaceholderView
     
-    // Downloaded image
     @State var image: UIImage? = nil
     
-    init(
-        url: URL?,
-        @ViewBuilder content: @escaping (Image) -> ImageView,
-        @ViewBuilder placeholder: @escaping () -> PlaceholderView
-    ) {
+    init(url: URL?, @ViewBuilder content: @escaping (Image) -> ImageView, @ViewBuilder placeholder: @escaping () -> PlaceholderView) {
         self.url = url
         self.content = content
         self.placeholder = placeholder
@@ -35,19 +29,15 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
         }
     }
     
-    // Downloads if the image is not cached already
-    // Otherwise returns from the cache
     private func downloadPhoto() async -> UIImage? {
         do {
             guard let url else { return nil }
             
-            // Check if the image is cached already
             if let cachedResponse = URLCache.shared.cachedResponse(for: .init(url: url)) {
                 return UIImage(data: cachedResponse.data)
             } else {
                 let (data, response) = try await URLSession.shared.data(from: url)
                 
-                // Save returned image data into the cache
                 URLCache.shared.storeCachedResponse(.init(response: response, data: data), for: .init(url: url))
                 
                 guard let image = UIImage(data: data) else {
@@ -64,8 +54,9 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
 }
 
 struct History: View {
-    @Environment(\.editMode) private var editMode
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    
+    @State private var editMode = false
     
     @State private var searchText = ""
     @State private var searchTag = "All"
@@ -200,15 +191,6 @@ struct History: View {
                                     }
                                 }
                                 .onDelete { indexSet in
-//                                    qrCodeStore.history.remove(atOffsets: indexSet)
-//                                    
-//                                    Task {
-//                                        do {
-//                                            try await save()
-//                                        } catch {
-//                                            print(error)
-//                                        }
-//                                    }
                                 }
                                 .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
                                     Button("Delete QR Code", role: .destructive) {
@@ -243,6 +225,7 @@ struct History: View {
                     .searchable(text: $searchText, prompt: "Search Library")
                 }
             }
+            .environment(\.editMode, Binding(get: { editMode ? .active : .inactive }, set: { editMode = ($0 == .active) }))
             .navigationTitle(qrCodeStore.history.isEmpty ? "" : "Library")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -252,13 +235,10 @@ struct History: View {
                             Button {
                                 searchTag = i
                             } label: {
-                                HStack {
+                                if searchTag == i {
+                                    Label(i, systemImage: "checkmark")
+                                } else {
                                     Text(i)
-                                    
-                                    if searchTag == i {
-                                        Spacer()
-                                        Image(systemName: "checkmark")
-                                    }
                                 }
                             }
                         }
@@ -269,9 +249,18 @@ struct History: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     if !qrCodeStore.history.isEmpty {
-                        EditButton()
+                        Button {
+                            withAnimation {
+                                editMode.toggle()
+                            }
+                        } label: {
+                            Text(editMode ? "Done" : "Edit")
+                        }
                     }
                 }
+            }
+            .onDisappear {
+                editMode = false
             }
         }
     }
