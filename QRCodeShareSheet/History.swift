@@ -69,7 +69,9 @@ struct History: View {
     
     @State private var searchText = ""
     @State private var searchTag = "All"
+    @State private var showingEditButtonDeleteConfirmation = false
     @State private var showingDeleteConfirmation = false
+    @State private var currentQRCode = QRCode(text: "")
     
     private var allSearchTags = ["All", "URL", "Text"]
     
@@ -83,7 +85,7 @@ struct History: View {
         return qrCodeStore.history.filter { $0.text.lowercased().contains(searchText.lowercased()) }
     }
     
-    func isValidURL(_ string: String) -> Bool {
+    private func isValidURL(_ string: String) -> Bool {
         if let url = URLComponents(string: string) {
             return url.scheme != nil && !url.scheme!.isEmpty
         } else {
@@ -91,7 +93,7 @@ struct History: View {
         }
     }
     
-    func getTypeOf(type: String) -> String {
+    private func getTypeOf(type: String) -> String {
         return isValidURL(type) ? "URL" : "Text"
     }
     
@@ -181,6 +183,7 @@ struct History: View {
                                     }
                                     .contextMenu {
                                         Button(role: .destructive) {
+                                            currentQRCode = i
                                             showingDeleteConfirmation = true
                                         } label: {
                                             Label("Delete", systemImage: "trash")
@@ -188,15 +191,29 @@ struct History: View {
                                     }
                                     .swipeActions(edge: .trailing) {
                                         Button {
+                                            currentQRCode = i
                                             showingDeleteConfirmation = true
                                         } label: {
                                             Label("Delete", systemImage: "trash")
                                         }
                                         .tint(.red)
                                     }
-                                    .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
-                                        Button("Delete QR Code", role: .destructive) {
-                                            if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                }
+                                .onDelete { indexSet in
+//                                    qrCodeStore.history.remove(atOffsets: indexSet)
+//                                    
+//                                    Task {
+//                                        do {
+//                                            try await save()
+//                                        } catch {
+//                                            print(error)
+//                                        }
+//                                    }
+                                }
+                                .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+                                    Button("Delete QR Code", role: .destructive) {
+                                        if let idx = qrCodeStore.indexOfQRCode(withID: currentQRCode.id) {
+                                            withAnimation {
                                                 qrCodeStore.history.remove(at: idx)
                                                 
                                                 Task {
@@ -206,18 +223,11 @@ struct History: View {
                                                         print(error)
                                                     }
                                                 }
+                                                
+                                                showingDeleteConfirmation = false
                                             }
-                                            
-                                            showingDeleteConfirmation = false
-                                        }
-                                        
-                                        Button("Cancel", role: .cancel) {
-                                            showingDeleteConfirmation = false
                                         }
                                     }
-                                }
-                                .onDelete { indexSet in
-                                    showingDeleteConfirmation = true
                                 }
                             } header: {
                                 if searchTag == "URL" {

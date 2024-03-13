@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 import CoreImage.CIFilterBuiltins
+import StoreKit
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var selectedImage: Image?
@@ -91,12 +92,10 @@ struct Home: View {
     @State private var boughtPro = false
     
     @State private var text = ""
+    @State private var showSaveAlert = false
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage?
-    
-    @State private var savedToPhotos = false
-    @State private var addedToLibrary = false
     
     @State private var showingBrandingLogoSheet = false
     
@@ -193,13 +192,14 @@ struct Home: View {
                     }
                     
                     TextField("Start typing...", text: $text)
-                        .keyboardType(.webSearch)
+                    //                        .keyboardType(.webSearch)
                         .autocapitalization(.none)
-                        .modifier(ClearButton(text: $text))
+                        .autocorrectionDisabled()
+                    //                        .autocorrectionType(.none)
+                    //                        .modifier(ClearButton(text: $text))
+                    //                        .focused(true)
                         .onChange(of: text) { newValue in
                             generateQRCode(from: newValue)
-                            addedToLibrary = false
-                            savedToPhotos = false
                         }
                     //                        .onTapGesture {
                     //                            // Dismiss keyboard
@@ -247,41 +247,50 @@ struct Home: View {
                     }
                     
                     if !text.isEmpty {
-                        Button {
-                            if let qrCodeImage = qrCodeImage {
-                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                savedToPhotos = true
-                                showSavedAlert = true
+                        Section {
+                            Button {
+                                showSaveAlert = true
+                            } label: {
+                                Label("Save", systemImage: "square.and.arrow.down")
                             }
-                        } label: {
-                            Label(savedToPhotos ? "Saved to Photos" : "Save to Photos", systemImage: savedToPhotos ? "checkmark" : "square.and.arrow.down.fill")
-                        }
-                        
-                        Button {
-                            if let qrCodeImage = qrCodeImage {
-                                let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                                
-                                qrCodeStore.history.append(newCode)
-                                
-                                Task {
-                                    do {
-                                        try await save()
-                                    } catch {
-                                        fatalError(error.localizedDescription)
+                            .tint(.primary)
+                            .alert("Choose Save Location", isPresented: $showSaveAlert) {
+                                HStack {
+                                    Button("Photos") {
+                                        if let qrCodeImage = qrCodeImage {
+                                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                            showSavedAlert = true
+                                        }
+                                    }
+                                    Button("QR Share Library") {
+                                        if let qrCodeImage = qrCodeImage {
+                                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                                            
+                                            qrCodeStore.history.append(newCode)
+                                            
+                                            Task {
+                                                do {
+                                                    try await save()
+                                                } catch {
+                                                    fatalError(error.localizedDescription)
+                                                }
+                                            }
+                                            
+                                            showHistorySavedAlert = true
+                                        }
                                     }
                                 }
                                 
-                                addedToLibrary = true
-                                showHistorySavedAlert = true
+                                Button("Cancel", role: .cancel) {}
                             }
-                        } label: {
-                            Label(addedToLibrary ? "Added to Library" : "Add to Library", systemImage: addedToLibrary ? "checkmark" : "plus")
-                        }
-                        .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                            Button("OK", role: .cancel) {}
-                        }
-                        .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
-                            Button("OK", role: .cancel) {}
+                            .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                                Button("OK", role: .cancel) {}
+                            }
+                            .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
+                                Button("OK", role: .cancel) {}
+                            }
+                        } header: {
+                            Text("Save")
                         }
                     }
                 }
@@ -334,12 +343,19 @@ struct Home: View {
                                     }
                                 }
                                 
-                                HStack {
-                                    Label("Rate App", systemImage: "star")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
+                                Button {
+                                } label: {
+                                    HStack {
+                                        Label("Rate App", systemImage: "star")
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right")
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
+                                //                                .buttonStyle(.bordered)
+                                //                                           .tint(.teal) // set the tint
+                                //                                           .controlSize(.large)
+                                //                                           .controlProminence(.increased) // increase the prominence
                                 
                                 HStack {
                                     Label("Share App", systemImage: "square.and.arrow.up")
@@ -419,9 +435,11 @@ struct Home: View {
             Task {
                 if !storeKit.storeProducts.isEmpty {
                     boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
-                } else {
-                    boughtPro = true // Xcode Preview
                 }
+                
+#if targetEnvironment(simulator)
+                boughtPro = true
+#endif
             }
         }
     }
