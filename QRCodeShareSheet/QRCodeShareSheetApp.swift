@@ -56,7 +56,7 @@ struct QRCodeApp: App {
     
 //    struct SplashView: View {
 //        @State var isActive:Bool = false
-//        
+//
 //        var body: some View {
 //            VStack {
 //                if self.isActive {
@@ -74,7 +74,7 @@ struct QRCodeApp: App {
 //                }
 //            }
 //        }
-//        
+//
 //    }
     
     var body: some Scene {

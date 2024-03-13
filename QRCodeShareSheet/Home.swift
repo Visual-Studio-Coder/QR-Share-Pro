@@ -83,6 +83,7 @@ struct ClearButton: ViewModifier
 }
 
 struct Home: View {
+    @AppStorage("appIcon") private var appIcon = "AppIcon"
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @EnvironmentObject var storeKit: StoreKitManager
     
@@ -105,8 +106,6 @@ struct Home: View {
     //    @State private var animateGradient = false
     
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default", proRequired: false), AppIcon(iconURL: "AppIcon2", iconName: "Terminal", proRequired: false), AppIcon(iconURL: "AppIcon3", iconName: "Hologram", proRequired: false), AppIcon(iconURL: "AppIcon3", iconName: "Pro 1"), AppIcon(iconURL: "AppIcon2", iconName: "Pro 2"), AppIcon(iconURL: "AppIcon", iconName: "Pro 3")]
-    
-    @State private var currentlySelected = "AppIcon"
     
     private func changeAppIcon(to iconURL: String) {
         let iconName = iconURL == "AppIcon" ? nil : iconURL
@@ -183,7 +182,7 @@ struct Home: View {
                                     .scaledToFit()
                                     .frame(width: 200, height: 200)
                                     .overlay(
-                                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                        Image(uiImage: #imageLiteral(resourceName: appIcon))
                                             .resizable()
                                             .scaledToFit()
                                             .frame(width: 50, height: 50)
@@ -328,7 +327,11 @@ struct Home: View {
                                 Label("Both", systemImage: "square.and.arrow.down")
                             }
                         } label: {
-                            Label("Save", systemImage: "square.and.arrow.down")
+                            HStack {
+                                Label("Save", systemImage: "square.and.arrow.down")
+                                    .tint(.primary)
+                                Spacer()
+                            }
                         }
                         .disabled(text.isEmpty)
                     }
@@ -375,7 +378,7 @@ struct Home: View {
                             
                             Section {
                                 HStack {
-                                    Image(uiImage: #imageLiteral(resourceName: currentlySelected))
+                                    Image(uiImage: #imageLiteral(resourceName: appIcon))
                                         .resizable()
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -417,7 +420,7 @@ struct Home: View {
                                 ForEach(allIcons) { i in
                                     Button {
                                         changeAppIcon(to: i.iconURL)
-                                        currentlySelected = i.iconURL
+                                        appIcon = i.iconURL
                                     } label: {
                                         HStack {
                                             if i.proRequired {
@@ -425,7 +428,7 @@ struct Home: View {
                                                     .font(.title2)
                                                     .tint(.secondary)
                                             } else {
-                                                Image(systemName: i.iconURL == currentlySelected ? "checkmark.circle.fill" : "circle")
+                                                Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
                                                     .font(.title2)
                                                     .tint(.blue)
                                             }
