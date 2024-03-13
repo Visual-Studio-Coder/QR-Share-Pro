@@ -107,7 +107,8 @@ struct QRCodeApp: App {
                             
                             Spacer()
                             
-                            Text("© Copyright 2024 The [X] Company.")
+                            Text("**from**\n\nThe [X] Company")
+                                .multilineTextAlignment(.center)
                                 .foregroundStyle(.white)
                                 .padding(.bottom)
                             
