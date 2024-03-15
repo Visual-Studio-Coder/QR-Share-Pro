@@ -53,7 +53,7 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
     }
 }
 
-struct History: View {
+struct Library: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
     @State private var editMode = false
@@ -270,7 +270,7 @@ struct History: View {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
         
-        History()
+        Library()
             .environmentObject(qrCodeStore)
     }
 }

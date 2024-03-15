@@ -44,7 +44,7 @@ struct OnboardingView: View {
     enum Tab {
         case Scanner
         case Home
-        case History
+        case Library
     }
     
     var body: some View {
@@ -74,7 +74,7 @@ struct OnboardingView: View {
                     }
                     .tag(Tab.Home)
                 
-                History()
+                Library()
                     .environmentObject(qrCodeStore)
                     .tabItem {
                         Label("Library", systemImage: "books.vertical.fill")
@@ -84,7 +84,7 @@ struct OnboardingView: View {
                             try await qrCodeStore.load()
                         }
                     }
-                    .tag(Tab.History)
+                    .tag(Tab.Library)
             }
         } else {
             TabView {
