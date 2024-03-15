@@ -55,7 +55,6 @@ struct AppIcon: Identifiable {
     var id = UUID()
     var iconURL: String
     var iconName: String
-    var proRequired: Bool = true
 }
 
 struct ClearButton: ViewModifier
@@ -85,13 +84,8 @@ struct ClearButton: ViewModifier
 struct Home: View {
     @AppStorage("appIcon") private var appIcon = "AppIcon"
     @EnvironmentObject var qrCodeStore: QRCodeStore
-    @EnvironmentObject var storeKit: StoreKitManager
     
     @State private var showingAboutAppSheet = false
-    @State private var showingGetProSheet = false
-    
-    @State private var boughtPro = false
-    
     @State private var text = ""
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
@@ -103,7 +97,7 @@ struct Home: View {
     
     @State private var brandingImage: Image?
     
-    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default", proRequired: false), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
+    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
     
     private func changeAppIcon(to iconURL: String) {
         let iconName = iconURL == "AppIcon" ? nil : iconURL
@@ -311,22 +305,6 @@ struct Home: View {
                     //                            // Dismiss keyboard
                     //                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     //                        }
-                    
-//                    if !boughtPro {
-//                        HStack {
-//                            Label("Color", systemImage: "paintbrush")
-//                            Spacer()
-//                            Label("Pro Required", systemImage: "lock")
-//                                .foregroundStyle(.secondary)
-//                        }
-//                        
-//                        HStack {
-//                            Label("Branding Logo", systemImage: "briefcase")
-//                            Spacer()
-//                            Label("Pro Required", systemImage: "lock")
-//                                .foregroundStyle(.secondary)
-//                        }
-//                    }
                     //                            HStack {
                     //                                Label("Color", systemImage: "paintbrush")
                     //                                Spacer()
@@ -335,6 +313,9 @@ struct Home: View {
                 }
                 .navigationTitle("New QR Code")
                 .navigationBarTitleDisplayMode(.inline)
+                .onAppear {
+                    generateQRCode(from: "never gonna give you up")
+                }
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {} label: {
@@ -356,17 +337,6 @@ struct Home: View {
                 .sheet(isPresented: $showingAboutAppSheet) {
                     NavigationView {
                         List {
-                            if !boughtPro {
-                                Section {
-                                    NavigationLink {
-                                        GetPro()
-                                            .environmentObject(storeKit)
-                                    } label: {
-                                        Label("**QR Share Pro** - $1.99", systemImage: "crown.fill")
-                                    }
-                                }
-                            }
-                            
                             Section {
                                 HStack {
                                     Image(uiImage: #imageLiteral(resourceName: appIcon))
@@ -375,7 +345,7 @@ struct Home: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                     
                                     VStack(alignment: .leading) {
-                                        Text(boughtPro ? "QR Share Pro" : "QR Share")
+                                        Text("QR Share")
                                             .bold()
                                         Text("Version \(appVersion())")
                                             .foregroundStyle(.secondary)
@@ -404,7 +374,7 @@ struct Home: View {
                                         .foregroundStyle(.secondary)
                                 }
                             } header: {
-                                Text(boughtPro ? "QR Share Pro" : "QR Share")
+                                Text("QR Share")
                             }
                             
                             Section {
@@ -414,15 +384,9 @@ struct Home: View {
                                         appIcon = i.iconURL
                                     } label: {
                                         HStack {
-                                            if i.proRequired {
-                                                Image(systemName: "lock")
-                                                    .font(.title2)
-                                                    .tint(.secondary)
-                                            } else {
-                                                Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
-                                                    .font(.title2)
-                                                    .tint(.blue)
-                                            }
+                                            Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
+                                                .font(.title2)
+                                                .tint(.blue)
                                             
                                             Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                                                 .resizable()
@@ -432,12 +396,6 @@ struct Home: View {
                                             
                                             Text(i.iconName)
                                                 .tint(.primary)
-                                            
-                                            if i.proRequired {
-                                                Spacer()
-                                                Text("Pro Required")
-                                                    .tint(.secondary)
-                                            }
                                         }
                                     }
                                 }
@@ -458,30 +416,6 @@ struct Home: View {
                         }
                     }
                 }
-                .sheet(isPresented: $showingGetProSheet) {
-                    NavigationView {
-                        GetPro()
-                            .environmentObject(storeKit)
-                    }
-                }
-            }
-        }
-        .onChange(of: storeKit.purchasedPlan) { course in
-            Task {
-                boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
-            }
-        }
-        .onAppear {
-            Task {
-                if !storeKit.storeProducts.isEmpty {
-                    boughtPro = (try? await storeKit.isPurchased(storeKit.storeProducts[0])) ?? false
-                }
-                
-                generateQRCode(from: " ")
-                
-#if targetEnvironment(simulator)
-                boughtPro = true
-#endif
             }
         }
     }
@@ -490,10 +424,8 @@ struct Home: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-        @StateObject var storeKit = StoreKitManager()
         
         Home()
             .environmentObject(qrCodeStore)
-            .environmentObject(storeKit)
     }
 }
