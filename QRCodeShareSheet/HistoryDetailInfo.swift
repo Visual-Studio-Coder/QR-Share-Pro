@@ -9,7 +9,6 @@ struct HistoryDetailInfo: View {
     
     @State var qrCode: QRCode
     
-    @State var boughtPro = true
     @State private var colorSelection = Color.black
     @State private var showingBrandingLogoSheet = false
     @State private var brandingImage: Image?
@@ -88,68 +87,52 @@ struct HistoryDetailInfo: View {
                         }
                     
                     Section {
-                        if !boughtPro {
-                            //                            HStack {
-                            //                                Label("Color", systemImage: "paintbrush")
-                            //                                Spacer()
-                            //                                Label("Pro Required", systemImage: "lock")
-                            //                                    .foregroundStyle(.secondary)
-                            //                            }
+                        //                            HStack {
+                        //                                Label("Color", systemImage: "paintbrush")
+                        //                                Spacer()
+                        //                                ColorPicker("", selection: $colorSelection)
+                        //                            }
+                        
+                        Menu {
+                            Button {
+                                showingBrandingLogoSheet = true
+                            } label: {
+                                HStack {
+                                    Label("Choose from Photos", systemImage: "photo.stack")
+                                    Spacer()
+                                    Text("Choose")
+                                        .foregroundStyle(.secondary)
+                                    Image(systemName: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                             
+                            Button {
+                                showingBrandingLogoSheet = true
+                            } label: {
+                                HStack {
+                                    Label("Choose from Files", systemImage: "doc")
+                                    Spacer()
+                                    Text("Choose")
+                                        .foregroundStyle(.secondary)
+                                    Image(systemName: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        } label: {
                             HStack {
                                 Label("Branding Logo", systemImage: "briefcase")
                                 Spacer()
-                                Label("Pro Required", systemImage: "lock")
-                                    .foregroundStyle(.secondary)
-                            }
-                        } else {
-                            //                            HStack {
-                            //                                Label("Color", systemImage: "paintbrush")
-                            //                                Spacer()
-                            //                                ColorPicker("", selection: $colorSelection)
-                            //                            }
-                            
-                            Menu {
-                                Button {
-                                    showingBrandingLogoSheet = true
-                                } label: {
-                                    HStack {
-                                        Label("Choose from Photos", systemImage: "photo.stack")
-                                        Spacer()
-                                        Text("Choose")
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "arrow.up.right")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
                                 
-                                Button {
-                                    showingBrandingLogoSheet = true
-                                } label: {
-                                    HStack {
-                                        Label("Choose from Files", systemImage: "doc")
-                                        Spacer()
-                                        Text("Choose")
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "arrow.up.right")
-                                            .foregroundStyle(.secondary)
-                                    }
+                                if brandingImage == nil {
+                                    Label("Choose", systemImage: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    Label("Chosen", systemImage: "checkmark.circle.fill")
+                                        .foregroundStyle(.secondary)
                                 }
-                            } label: {
-                                HStack {
-                                    Label("Branding Logo", systemImage: "briefcase")
-                                    Spacer()
-                                    
-                                    if brandingImage == nil {
-                                        Label("Choose", systemImage: "arrow.up.right")
-                                            .foregroundStyle(.secondary)
-                                    } else {
-                                        Label("Chosen", systemImage: "checkmark.circle.fill")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .tint(.primary)
                             }
+                            .tint(.primary)
                         }
                     }
                     
@@ -221,7 +204,7 @@ struct HistoryDetailInfo: View {
                             }
                             
                             VStack(alignment: .leading) {
-//                                TODO: https://stackoverflow.com/questions/59485532/swiftui-how-know-number-of-lines-in-text
+                                //                                TODO: https://stackoverflow.com/questions/59485532/swiftui-how-know-number-of-lines-in-text
                                 Text(qrCode.text)
                                     .lineLimit(5)
                                     .font(.footnote)

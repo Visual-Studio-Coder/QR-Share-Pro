@@ -2,7 +2,7 @@
 //    @State var scanResult = "No QR code detected"
 //    @State private var x: CGFloat = 1
 //    @StateObject var viewModel = QRScannerViewModel()
-//    
+//
 //    var body: some View {
 //        ZStack(alignment: .bottom) {
 //            QRScanner(result: $scanResult, viewModel: viewModel)
@@ -13,7 +13,7 @@
 //                    viewModel.stopScanning()
 //                }
 //                .scaleEffect(x)
-//            
+//
 //            HStack {
 //                Button {
 //                    x -= 0.5
@@ -25,7 +25,7 @@
 //                        .background(.blue)
 //                        .clipShape(Circle())
 //                }
-//                
+//
 //                if let url = URL(string: viewModel.detectedQRCode ?? ""), UIApplication.shared.canOpenURL(url) {
 //                    Button(action: {
 //                        UIApplication.shared.open(url)
@@ -55,7 +55,7 @@
 //                        .foregroundColor(Color.white)
 //                        .cornerRadius(10)
 //                }
-//                
+//
 //                Button {
 //                    x += 0.5
 //                } label: {
@@ -151,7 +151,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var isScanning = false
     @Published var isLoading = false
     let scannerController = QRScannerController()
-
+    
     init() {
         scannerController.delegate = self
     }
@@ -171,17 +171,17 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     }
     
     var lastDetectedURL: URL?
-
+    
     func didDetectQRCode(url: URL) {
         // Check if the newly detected URL is the same as the last one detected
         if url == lastDetectedURL {
             // If it is, simply return without doing anything
             return
         }
-
+        
         // Update the last detected URL
         lastDetectedURL = url
-
+        
         DispatchQueue.main.async {
             self.detectedURL = url
             self.isScanning = false
@@ -220,9 +220,9 @@ struct QRScanner: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: QRScannerController, context: Context) {
     }
-
+    
     var lastScannedURL: URL?
-
+    
     mutating func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
@@ -233,10 +233,10 @@ struct QRScanner: UIViewControllerRepresentable {
                 // If it is, simply return without doing anythinga
                 return
             }
-
+            
             // Update the last scanned URL
             lastScannedURL = url
-
+            
             viewModel.didDetectQRCode(url: url)
         } else {
             viewModel.didFailToDetectQRCode()
@@ -246,7 +246,7 @@ struct QRScanner: UIViewControllerRepresentable {
 
 struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel()
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             QRScanner(viewModel: viewModel)
@@ -258,25 +258,25 @@ struct Scanner: View {
                 }
             VStack {
                 if viewModel.isLoading {
-    VisualEffectView(effect: UIBlurEffect(style: .dark))
-        .frame(width: 50, height: 50)
-        .overlay(
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                .scaleEffect(1.5)
-        )
-        .cornerRadius(10)
-} else if let url = viewModel.unshortenedURL {
+                    VisualEffectView(effect: UIBlurEffect(style: .dark))
+                        .frame(width: 50, height: 50)
+                        .overlay(
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+                        )
+                        .cornerRadius(10)
+                } else if let url = viewModel.unshortenedURL {
                     Menu {
                         Section(header: Text("Open Original URL:")) {
-                        if let originalURL = viewModel.detectedURL {
-                            Button(action: {
-                                UIApplication.shared.open(originalURL)
-                            }) {
-                                Text("\(originalURL.absoluteString)")
-                                    .foregroundColor(.blue)
+                            if let originalURL = viewModel.detectedURL {
+                                Button(action: {
+                                    UIApplication.shared.open(originalURL)
+                                }) {
+                                    Text("\(originalURL.absoluteString)")
+                                        .foregroundColor(.blue)
+                                }
                             }
-                        }
                         }
                     } label: {
                         HStack {
