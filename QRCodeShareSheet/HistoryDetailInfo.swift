@@ -3,13 +3,11 @@ import SwiftUI
 struct HistoryDetailInfo: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @State private var isEditing = false
-    @State private var showingFullURL = false
     @State private var showingDeleteConfirmation = false
-    @State private var showingSavedAlert = false
-    @State private var qrCodeImage: UIImage?
+    @State private var showSavedAlert = false
+    @State private var qrCodeImage: UIImage = UIImage()
     
     @State var qrCode: QRCode
-    @State var originalText = ""
     
     @State var boughtPro = true
     @State private var colorSelection = Color.black
@@ -49,62 +47,54 @@ struct HistoryDetailInfo: View {
         VStack {
             if isEditing {
                 Form {
-                    if !qrCode.text.isEmpty {
-                        if let qrCodeImage = qrCodeImage {
-                            if let brandingImage = brandingImage {
-                                Image(uiImage: qrCodeImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .overlay(
-                                        brandingImage
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    )
-                            } else {
-                                Image(uiImage: qrCodeImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .overlay(
-                                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    )
-                            }
-                            
-                            Button(action: {
-                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                showingSavedAlert = true
-                            }) {
-                                Label("Save to Photos", systemImage: "photo")
-                            }
-                            .alert(isPresented: $showingSavedAlert) {
-                                Alert(title: Text("Saved to Photos!"))
-                            }
+                    HStack {
+                        Spacer()
+                        
+                        if let brandingImage = brandingImage {
+                            Image(uiImage: qrCodeImage)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
+                                .overlay(
+                                    brandingImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 50, height: 50)
+                                )
+                        } else {
+                            Image(uiImage: qrCodeImage)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
+                                .overlay(
+                                    Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 50, height: 50)
+                                )
                         }
+                        
+                        Spacer()
                     }
                     
                     TextField("Start typing...", text: $qrCode.text)
                         .keyboardType(.webSearch)
                         .autocapitalization(.none)
-                        .modifier(ClearButton(text: $qrCode.text))
+                        .autocorrectionDisabled()
                         .onChange(of: qrCode.text) { newValue in
                             generateQRCode(from: newValue)
                         }
                     
                     Section {
                         if !boughtPro {
-                            HStack {
-                                Label("Color", systemImage: "paintbrush")
-                                Spacer()
-                                Label("Pro Required", systemImage: "lock")
-                                    .foregroundStyle(.secondary)
-                            }
+                            //                            HStack {
+                            //                                Label("Color", systemImage: "paintbrush")
+                            //                                Spacer()
+                            //                                Label("Pro Required", systemImage: "lock")
+                            //                                    .foregroundStyle(.secondary)
+                            //                            }
                             
                             HStack {
                                 Label("Branding Logo", systemImage: "briefcase")
@@ -113,53 +103,91 @@ struct HistoryDetailInfo: View {
                                     .foregroundStyle(.secondary)
                             }
                         } else {
-                            HStack {
-                                Label("Color", systemImage: "paintbrush")
-                                Spacer()
-                                ColorPicker("", selection: $colorSelection)
-                            }
+                            //                            HStack {
+                            //                                Label("Color", systemImage: "paintbrush")
+                            //                                Spacer()
+                            //                                ColorPicker("", selection: $colorSelection)
+                            //                            }
                             
-                            Button {
-                                showingBrandingLogoSheet = true
+                            Menu {
+                                Button {
+                                    showingBrandingLogoSheet = true
+                                } label: {
+                                    HStack {
+                                        Label("Choose from Photos", systemImage: "photo.stack")
+                                        Spacer()
+                                        Text("Choose")
+                                            .foregroundStyle(.secondary)
+                                        Image(systemName: "arrow.up.right")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                
+                                Button {
+                                    showingBrandingLogoSheet = true
+                                } label: {
+                                    HStack {
+                                        Label("Choose from Files", systemImage: "doc")
+                                        Spacer()
+                                        Text("Choose")
+                                            .foregroundStyle(.secondary)
+                                        Image(systemName: "arrow.up.right")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                             } label: {
                                 HStack {
                                     Label("Branding Logo", systemImage: "briefcase")
                                     Spacer()
-                                    Text("Choose")
-                                        .foregroundStyle(.secondary)
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
+                                    
+                                    if brandingImage == nil {
+                                        Label("Choose", systemImage: "arrow.up.right")
+                                            .foregroundStyle(.secondary)
+                                    } else {
+                                        Label("Chosen", systemImage: "checkmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
-                            }
-                            .tint(.primary)
-                            .sheet(isPresented: $showingBrandingLogoSheet) {
-                                ImagePicker(selectedImage: $brandingImage)
+                                .tint(.primary)
                             }
                         }
-                    } header: {
-                        Text("QR Code Theme")
+                    }
+                    
+                    Section {
+                        Button {
+                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                            showSavedAlert = true
+                        } label: {
+                            Label("Save to Photos", systemImage: "square.and.arrow.down")
+                                .tint(.primary)
+                        }
+                        .disabled(qrCode.text.isEmpty)
                     }
                 }
                 //                .onTapGesture {
                 //                    // Dismiss keyboard
                 //                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 //                }
-                .onAppear {
-                    Task {
-                        if let data = qrCode.qrCode, let uiImage = UIImage(data: data) {
-                            qrCodeImage = uiImage
-                        }
-                        
-                        originalText = qrCode.text
-                    }
+                .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                    Button("OK", role: .cancel) {}
+                }
+                .sheet(isPresented: $showingBrandingLogoSheet) {
+                    ImagePicker(selectedImage: $brandingImage)
                 }
             } else {
                 ScrollView {
+                    Image(uiImage: qrCodeImage)
+                        .interpolation(.none)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
+                        .overlay(
+                            Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                        )
+                    
                     VStack(alignment: .leading) {
-                        qrCode.qrCode?.toImage()?
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                        
                         if isValidURL(qrCode.text) {
                             HStack {
                                 AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
@@ -193,27 +221,19 @@ struct HistoryDetailInfo: View {
                             }
                             
                             VStack(alignment: .leading) {
+//                                TODO: https://stackoverflow.com/questions/59485532/swiftui-how-know-number-of-lines-in-text
                                 Text(qrCode.text)
-                                    .lineLimit(showingFullURL ? nil : 3)
+                                    .lineLimit(5)
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
-                                
-                                if !showingFullURL {
-                                    Button {
-                                        showingFullURL.toggle()
-                                    } label: {
-                                        Text("MORE...")
-                                            .fontWeight(.bold)
-                                    }
-                                }
                             }
-                            
-                            Divider()
                         } else {
                             Text(qrCode.text)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                         }
+                        
+                        Divider()
                         
                         HStack(spacing: 0) {
                             Text("Last updated: ")
@@ -224,6 +244,11 @@ struct HistoryDetailInfo: View {
                     }
                     .padding(.horizontal)
                 }
+            }
+        }
+        .onAppear {
+            Task {
+                generateQRCode(from: qrCode.text)
             }
         }
         .navigationTitle(qrCode.text)
@@ -246,22 +271,24 @@ struct HistoryDetailInfo: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    if isEditing {
-                        if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
-                            qrCode.date = Date.now
-                            qrCodeStore.history[idx] = qrCode
-                            
-                            Task {
-                                do {
-                                    try await save()
-                                } catch {
-                                    print(error)
+                    withAnimation {
+                        if isEditing {
+                            if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                                qrCode.date = Date.now
+                                qrCodeStore.history[idx] = qrCode
+                                
+                                Task {
+                                    do {
+                                        try await save()
+                                    } catch {
+                                        print(error)
+                                    }
                                 }
                             }
                         }
+                        
+                        isEditing.toggle()
                     }
-                    
-                    isEditing.toggle()
                 } label: {
                     Text(isEditing ? "Done" : "Edit")
                 }
@@ -276,7 +303,7 @@ struct HistoryDetailInfo: View {
                         do {
                             try await save()
                         } catch {
-//                            print(error)
+                            print(error)
                         }
                     }
                 }
@@ -292,7 +319,7 @@ struct HistoryDetailInfo: View {
         @StateObject var qrCodeStore = QRCodeStore()
         
         NavigationView {
-            HistoryDetailInfo(qrCode: QRCode(text: "https://idmsa.apple.com/"))
+            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
                 .environmentObject(qrCodeStore)
         }
     }
