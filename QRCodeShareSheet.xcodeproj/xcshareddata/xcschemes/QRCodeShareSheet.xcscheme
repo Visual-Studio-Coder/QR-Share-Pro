@@ -61,9 +61,6 @@
             isEnabled = "YES">
          </AdditionalOption>
       </AdditionalOptions>
-      <StoreKitConfigurationFileReference
-         identifier = "../../QRCodeShareSheet/QRSharePro.storekit">
-      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

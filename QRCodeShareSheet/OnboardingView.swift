@@ -35,7 +35,6 @@ struct OnboardingPageView: View {
 
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
-    @EnvironmentObject var storeKit: StoreKitManager
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
@@ -63,7 +62,6 @@ struct OnboardingView: View {
                 
                 Home()
                     .environmentObject(qrCodeStore)
-                    .environmentObject(storeKit)
                     .tabItem {
                         Label("New QR Code", systemImage: "qrcode")
                     }
@@ -117,10 +115,8 @@ struct OnboardingView: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-        @StateObject var storeKit = StoreKitManager()
         
         OnboardingView()
             .environmentObject(qrCodeStore)
-            .environmentObject(storeKit)
     }
 }
