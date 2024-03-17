@@ -152,7 +152,7 @@ struct Home: View {
                                     brandingImage
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 50, height: 50)
+                                        .frame(width: 100, height: 100)
                                 )
                         } else {
                             Image(uiImage: qrCodeImage)
@@ -163,7 +163,7 @@ struct Home: View {
                                     Image(uiImage: #imageLiteral(resourceName: appIcon))
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 50, height: 50)
+                                        .frame(width: 100, height: 100)
                                 )
                         }
                     }
