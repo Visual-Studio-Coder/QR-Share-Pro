@@ -149,6 +149,8 @@
 				8BB6E16C2B99575C0094D652 /* PBXTargetDependency */,
 			);
 			name = QRCodeShareSheet;
+			packageProductDependencies = (
+			);
 			productName = QRCodeShareSheet;
 			productReference = 78F2F23D2B91677000CDF3EC /* QRCodeShareSheet.app */;
 			productType = "com.apple.product-type.application";
