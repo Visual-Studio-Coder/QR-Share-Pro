@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HistoryDetailInfo: View {
+    @State private var showingAboutAppSheet = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @State private var isEditing = false
     @State private var showingDeleteConfirmation = false
@@ -45,117 +46,89 @@ struct HistoryDetailInfo: View {
     var body: some View {
         VStack {
             if isEditing {
-                Form {
-                    HStack {
-                        Spacer()
-                        
-                        if let brandingImage = brandingImage {
-                            Image(uiImage: qrCodeImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                                .overlay(
-                                    brandingImage
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 50, height: 50)
-                                )
-                        } else {
-                            Image(uiImage: qrCodeImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                                .overlay(
-                                    Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 50, height: 50)
-                                )
-                        }
-                        
-                        Spacer()
-                    }
-                    
-                    TextField("Start typing...", text: $qrCode.text)
-                        .keyboardType(.webSearch)
-                        .autocapitalization(.none)
-                        .autocorrectionDisabled()
-                        .onChange(of: qrCode.text) { newValue in
-                            generateQRCode(from: newValue)
-                        }
-                    
-                    Section {
-                        //                            HStack {
-                        //                                Label("Color", systemImage: "paintbrush")
-                        //                                Spacer()
-                        //                                ColorPicker("", selection: $colorSelection)
-                        //                            }
-                        
-                        Menu {
-                            Button {
-                                showingBrandingLogoSheet = true
-                            } label: {
-                                HStack {
-                                    Label("Choose from Photos", systemImage: "photo.stack")
-                                    Spacer()
-                                    Text("Choose")
-                                        .foregroundStyle(.secondary)
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
-                                }
+                NavigationView {
+                    Form {
+                        HStack {
+                            Spacer()
+                            
+                            if let brandingImage = brandingImage {
+                                Image(uiImage: qrCodeImage)
+                                    .interpolation(.none)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .overlay(
+                                        brandingImage
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                    )
+                            } else {
+                                Image(uiImage: qrCodeImage)
+                                    .interpolation(.none)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 200, height: 200)
+                                    .overlay(
+                                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50, height: 50)
+                                    )
                             }
                             
-                            Button {
-                                showingBrandingLogoSheet = true
-                            } label: {
-                                HStack {
-                                    Label("Choose from Files", systemImage: "doc")
-                                    Spacer()
-                                    Text("Choose")
-                                        .foregroundStyle(.secondary)
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $qrCode.text)
+                                .keyboardType(.webSearch)
+                                .autocapitalization(.none)
+                                .autocorrectionDisabled()
+                                .onChange(of: qrCode.text) { newValue in
+                                    generateQRCode(from: newValue)
                                 }
-                            }
-                        } label: {
-                            HStack {
-                                Label("Branding Logo", systemImage: "briefcase")
-                                Spacer()
+                            Text(qrCode.text.isEmpty ? "Enter text here…" : "")
+                                .foregroundColor(.gray)
+                                .opacity(qrCode.text.isEmpty ? 1 : 0)
+                                .padding(.all, 8) // Add padding
+                                .font(.system(size: 16)) // Adjust font size
+                        }
+                        
+                        Section {
+                            Menu {
+                                Button {
+                                    showingBrandingLogoSheet = true
+                                } label: {
+                                    Label("Choose from Photos", systemImage: "photo.stack")
+                                }
                                 
-                                if brandingImage == nil {
-                                    Label("Choose", systemImage: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
-                                } else {
-                                    Label("Chosen", systemImage: "checkmark.circle.fill")
-                                        .foregroundStyle(.secondary)
+                                Button {
+                                    showingBrandingLogoSheet = true
+                                } label: {
+                                    Label("Choose from Files", systemImage: "doc")
                                 }
+                            } label: {
+                                Label("Branding Logo", systemImage: "briefcase")
                             }
-                            .tint(.primary)
+                        }
+                        
+                        Section {
+                            Button {
+                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                showSavedAlert = true
+                            } label: {
+                                Label("Save to Photos", systemImage: "square.and.arrow.down")
+                            }
+                            .disabled(qrCode.text.isEmpty)
                         }
                     }
-                    
-                    Section {
-                        Button {
-                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                            showSavedAlert = true
-                        } label: {
-                            Label("Save to Photos", systemImage: "square.and.arrow.down")
-                                .tint(.primary)
-                        }
-                        .disabled(qrCode.text.isEmpty)
+                    .sheet(isPresented: $showingBrandingLogoSheet) {
+                        ImagePicker(selectedImage: $brandingImage)
                     }
                 }
-                //                .onTapGesture {
-                //                    // Dismiss keyboard
-                //                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                //                }
-                .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                    Button("OK", role: .cancel) {}
-                }
-                .sheet(isPresented: $showingBrandingLogoSheet) {
-                    ImagePicker(selectedImage: $brandingImage)
+                .onTapGesture {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
             } else {
                 ScrollView {
