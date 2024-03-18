@@ -1,77 +1,3 @@
-//struct Scanner: View {
-//    @State var scanResult = "No QR code detected"
-//    @State private var x: CGFloat = 1
-//    @StateObject var viewModel = QRScannerViewModel()
-//
-//    var body: some View {
-//        ZStack(alignment: .bottom) {
-//            QRScanner(result: $scanResult, viewModel: viewModel)
-//                .onAppear {
-//                    viewModel.startScanning()
-//                }
-//                .onDisappear {
-//                    viewModel.stopScanning()
-//                }
-//                .scaleEffect(x)
-//
-//            HStack {
-//                Button {
-//                    x -= 0.5
-//                } label: {
-//                    Image(systemName: "plus")
-//                        .padding()
-//                        .font(.largeTitle)
-//                        .foregroundStyle(.white)
-//                        .background(.blue)
-//                        .clipShape(Circle())
-//                }
-//
-//                if let url = URL(string: viewModel.detectedQRCode ?? ""), UIApplication.shared.canOpenURL(url) {
-//                    Button(action: {
-//                        UIApplication.shared.open(url)
-//                    }) {
-//                        HStack {
-//                            AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(url.host!).ico")) { i in
-//                                i
-//                                    .resizable()
-//                                    .aspectRatio(contentMode: .fit)
-//                                    .frame(width: 20, height: 20)
-//                            } placeholder: {
-//                                ProgressView()
-//                            }
-//                            Text(url.absoluteString)
-//                                .foregroundColor(.blue)
-//                                .underline()
-//                        }
-//                        .padding()
-//                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-//                        .foregroundColor(Color.white)
-//                        .cornerRadius(10)
-//                    }
-//                } else {
-//                    Text(viewModel.detectedQRCode ?? "No QR code detected")
-//                        .padding()
-//                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-//                        .foregroundColor(Color.white)
-//                        .cornerRadius(10)
-//                }
-//
-//                Button {
-//                    x += 0.5
-//                } label: {
-//                    Image(systemName: "plus")
-//                        .font(.largeTitle)
-//                        .foregroundStyle(.white)
-//                        .background(.blue)
-//                        .clipShape(Circle())
-//                }
-//            }
-//            .padding(.bottom)
-//        }
-//        .background(Color.black)
-//    }
-//}
-
 import SwiftUI
 import AVFoundation
 
@@ -258,33 +184,13 @@ struct Scanner: View {
                 }
             VStack {
                 if viewModel.isLoading {
-                    VisualEffectView(effect: UIBlurEffect(style: .dark))
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .scaleEffect(1.5)
-                        )
-                        .cornerRadius(10)
-                } else if let url = viewModel.unshortenedURL {
-                    Menu {
-                        Section(header: Text("Open Original URL:")) {
-                            if let originalURL = viewModel.detectedURL {
-                                Button(action: {
-                                    UIApplication.shared.open(originalURL)
-                                }) {
-                                    Text("\(originalURL.absoluteString)")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack {
+                    HStack {
+                        if let originalURL = viewModel.detectedURL {
                             Button(action: {
-                                UIApplication.shared.open(url)
+                                UIApplication.shared.open(originalURL)
                             }) {
                                 HStack {
-                                    if let host = url.host {
+                                    if let host = originalURL.host {
                                         AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
                                             image.resizable()
                                         } placeholder: {
@@ -292,12 +198,71 @@ struct Scanner: View {
                                         }
                                         .frame(width: 16, height: 16)
                                     }
-                                    Text(url.absoluteString)
+                                    Text(originalURL.absoluteString)
                                 }
                             }
+                            .foregroundColor(.blue)
+                        }
+                    }
+                    .padding()
+                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                    .cornerRadius(10)
+                } else if let url = viewModel.unshortenedURL, url.host != viewModel.detectedURL?.host {
+                    HStack {
+                        Button(action: {
+                            UIApplication.shared.open(url)
+                        }) {
+                            HStack {
+                                if let host = url.host {
+                                    AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                        image.resizable()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: 16, height: 16)
+                                }
+                                Text(url.absoluteString)
+                            }
+                        }
+                        .foregroundColor(.blue)
+                        
+                        Menu {
+                            Section(header: Text("Open Original URL:")) {
+                                if let originalURL = viewModel.detectedURL {
+                                    Button(action: {
+                                        UIApplication.shared.open(originalURL)
+                                    }) {
+                                        Text("\(originalURL.absoluteString)")
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                            }
+                        } label: {
                             Image(systemName: "chevron.down")
                                 .foregroundColor(.white)
                         }
+                    }
+                    .padding()
+                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                    .cornerRadius(10)
+                } else if let originalURL = viewModel.detectedURL {
+                    HStack {
+                        Button(action: {
+                            UIApplication.shared.open(originalURL)
+                        }) {
+                            HStack {
+                                if let host = originalURL.host {
+                                    AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                        image.resizable()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: 16, height: 16)
+                                }
+                                Text(originalURL.absoluteString)
+                            }
+                        }
+                        .foregroundColor(.blue)
                     }
                     .padding()
                     .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
