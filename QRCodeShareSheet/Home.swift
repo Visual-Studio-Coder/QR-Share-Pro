@@ -84,6 +84,7 @@ struct ClearButton: ViewModifier
 struct Home: View {
     @AppStorage("appIcon") private var appIcon = "AppIcon"
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    @Environment(\.colorScheme) var colorScheme
     
     @State private var showingAboutAppSheet = false
     @State private var text = ""
@@ -92,6 +93,8 @@ struct Home: View {
     @State private var qrCodeImage: UIImage?
     
     @State private var showingBrandingLogoSheet = false
+    
+    @State private var forceUpdate: Bool = false
     
     //    @State private var colorSelection = Color.black
     
@@ -141,7 +144,7 @@ struct Home: View {
     var body: some View {
         NavigationView {
             ZStack {
-                ScrollView {
+                Form {
                     if let qrCodeImage = qrCodeImage {
                         if let brandingImage = brandingImage {
                             Image(uiImage: qrCodeImage)
@@ -152,7 +155,7 @@ struct Home: View {
                                     brandingImage
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 100, height: 100)
+                                        .frame(width: 50, height: 50)
                                 )
                         } else {
                             Image(uiImage: qrCodeImage)
@@ -163,153 +166,100 @@ struct Home: View {
                                     Image(uiImage: #imageLiteral(resourceName: appIcon))
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 100, height: 100)
+                                        .frame(width: 50, height: 50)
                                 )
                         }
                     }
                     
-                    VStack(alignment: .center) {
-                        HStack {
-                            Menu {
-                                Button {
-                                } label: {
-                                    HStack {
-                                        Label("Clear Logo", systemImage: "xmark")
-                                        Spacer()
-                                        Text("Choose")
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "arrow.up.right")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                
-                                Divider()
-                                
-                                Button {
-                                    showingBrandingLogoSheet = true
-                                } label: {
-                                    HStack {
-                                        Label("Choose from Photos", systemImage: "photo.stack")
-                                        Spacer()
-                                        Text("Choose")
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "arrow.up.right")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                
-                                Button {
-                                    showingBrandingLogoSheet = true
-                                } label: {
-                                    HStack {
-                                        Label("Choose from Files", systemImage: "doc")
-                                        Spacer()
-                                        Text("Choose")
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "arrow.up.right")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                            } label: {
-                                Label("Branding Logo", systemImage: "briefcase")
-                                    .padding()
-                                    .background(Color(UIColor.systemGray6))
-                                    .tint(.primary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    ZStack(alignment: .topLeading) {
+                        TextEditor(text: $text)
+                            .keyboardType(.webSearch)
+                            .autocapitalization(.none)
+                            .autocorrectionDisabled()
+                            .onChange(of: text) { newValue in
+                                generateQRCode(from: newValue)
                             }
-                            .frame(width: 200)
-                            
-                            Menu {
-                                Button {
-                                    if let qrCodeImage = qrCodeImage {
-                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                        showSavedAlert = true
-                                    }
-                                } label: {
-                                    Label("Save", systemImage: "photo.stack")
-                                }
-                                
-                                Button {
-                                    if let qrCodeImage = qrCodeImage {
-                                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                                        
-                                        qrCodeStore.history.append(newCode)
-                                        
-                                        Task {
-                                            do {
-                                                try await save()
-                                            } catch {
-                                                fatalError(error.localizedDescription)
-                                            }
-                                        }
-                                        
-                                        showHistorySavedAlert = true
-                                    }
-                                } label: {
-                                    Label("QR Share Library", systemImage: "books.vertical.fill")
-                                }
-                                
-                                Divider()
-                                
-                                Button {
-                                    if let qrCodeImage = qrCodeImage {
-                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                        
-                                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                                        qrCodeStore.history.append(newCode)
-                                        
-                                        Task {
-                                            do {
-                                                try await save()
-                                            } catch {
-                                                fatalError(error.localizedDescription)
-                                            }
-                                        }
-                                        
-                                        showSavedAlert = true
-                                        showHistorySavedAlert = true
-                                    }
-                                } label: {
-                                    Label("Both", systemImage: "square.and.arrow.down")
-                                }
-                            } label: {
-                                Label("Save", systemImage: "square.and.arrow.down")
-                                    .padding()
-                                    .background(Color(UIColor.systemGray6))
-                                    .tint(.primary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                            .frame(width: 200)
-                            .disabled(text.isEmpty)
-                        }
-                    }
-                    .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                        Button("OK", role: .cancel) {}
-                    }
-                    .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
-                        Button("OK", role: .cancel) {}
+                        Text(text.isEmpty ? "Enter text here…" : "")
+                            .foregroundColor(.gray)
+                            .opacity(text.isEmpty ? 1 : 0)
+                            .padding(.all, 8) // Add padding
+                            .font(.system(size: 16)) // Adjust font size
                     }
                     
-                    TextField("Start typing...", text: $text)
-                        .keyboardType(.webSearch)
-                        .autocapitalization(.none)
-                        .autocorrectionDisabled()
-                    //                        .autocorrectionType(.none)
-                        .modifier(ClearButton(text: $text))
-                    //                                            .focused(true)
-                        .onChange(of: text) { newValue in
-                            generateQRCode(from: newValue)
+                    
+                    Section(header: Text("Branding Logo")) {
+                        Menu {
+                            Button(action: {
+                                brandingImage = nil
+                                forceUpdate.toggle()
+                            }) {
+                                Label("Clear Logo", systemImage: "xmark")
+                            }
+                            Button(action: {
+                                showingBrandingLogoSheet = true
+                            }) {
+                                Label("Choose from Photos", systemImage: "photo.stack")
+                            }
+                            Button(action: {
+                                showingBrandingLogoSheet = true
+                            }) {
+                                Label("Choose from Files", systemImage: "doc")
+                            }
+                        } label: {
+                            Label("Choose Branding Logo", systemImage: "photo.stack")
                         }
-                        .padding(.horizontal)
-                    //                        .onTapGesture {
-                    //                            // Dismiss keyboard
-                    //                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    //                        }
-                    //                            HStack {
-                    //                                Label("Color", systemImage: "paintbrush")
-                    //                                Spacer()
-                    //                                ColorPicker("", selection: $colorSelection)
-                    //                            }
+                    }
+                    
+                    Section(header: Text("Save")) {
+                        Menu {
+                            Button(action: {
+                                if let qrCodeImage = qrCodeImage {
+                                    UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                    showSavedAlert = true
+                                }
+                            }) {
+                                Label("Save to Photos", systemImage: "photo.stack")
+                            }
+                            
+                            Button(action: {
+                                if let qrCodeImage = qrCodeImage {
+                                    let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                                    qrCodeStore.history.append(newCode)
+                                    Task {
+                                        do {
+                                            try await save()
+                                        } catch {
+                                            fatalError(error.localizedDescription)
+                                        }
+                                    }
+                                    showHistorySavedAlert = true
+                                }
+                            }) {
+                                Label("QR Share Library", systemImage: "books.vertical.fill")
+                            }
+                            
+                            Button(action: {
+                                if let qrCodeImage = qrCodeImage {
+                                    UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                    let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                                    qrCodeStore.history.append(newCode)
+                                    Task {
+                                        do {
+                                            try await save()
+                                        } catch {
+                                            fatalError(error.localizedDescription)
+                                        }
+                                    }
+                                    showSavedAlert = true
+                                    showHistorySavedAlert = true
+                                }
+                            }) {
+                                Label("Both", systemImage: "square.and.arrow.down")
+                            }
+                        } label: {
+                            Label("Save Options", systemImage: "square.and.arrow.down")
+                        }
+                    }
                 }
                 .navigationTitle("New QR Code")
                 .navigationBarTitleDisplayMode(.inline)
@@ -362,16 +312,33 @@ struct Home: View {
                                             .foregroundStyle(.secondary)
                                     }
                                 }
-                                //                                .buttonStyle(.bordered)
-                                //                                           .tint(.teal) // set the tint
-                                //                                           .controlSize(.large)
-                                //                                           .controlProminence(.increased) // increase the prominence
                                 
-                                HStack {
-                                    Label("Share App", systemImage: "square.and.arrow.up")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
+                                Button(action: {
+                                    // Add your action here
+                                }) {
+                                    HStack {
+                                        Label("Share App", systemImage: "square.and.arrow.up")
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                
+                                Button(action: {
+                                    // Add your action here
+                                }) {
+                                    HStack {
+                                        Label {
+                                            Text("Github")
+                                        } icon: {
+                                            Image(decorative: colorScheme == .dark ? "github-mark-white" : "github-mark")
+                                                .resizable()
+                                                .scaledToFit()
+                                        }
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right")
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             } header: {
                                 Text("QR Share")
@@ -417,6 +384,8 @@ struct Home: View {
                     }
                 }
             }
+        }.onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
     }
 }
