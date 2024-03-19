@@ -344,7 +344,11 @@ struct Home: View {
                         
                         Section {
                             Button {
-                                SKStoreReviewController.requestReview()
+                                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                                    DispatchQueue.main.async {
+                                        SKStoreReviewController.requestReview(in: scene)
+                                    }
+                                }
                             } label: {
                                 HStack {
                                     Label("Rate App", systemImage: "star")
