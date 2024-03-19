@@ -151,81 +151,79 @@ struct Home: View {
                         generateQRCode(from: newValue)
                     }
                 
-                Section {
-                    Menu {
-                        Button {
-                            brandingImage = nil
-                        } label: {
-                            Label("Clear Logo", systemImage: "xmark")
-                        }
-                        Button {
-                            showingBrandingLogoSheet = true
-                        } label: {
-                            Label("Choose from Photos", systemImage: "photo.stack")
-                        }
-                        Button {
-                            showingBrandingLogoSheet = true
-                        } label: {
-                            Label("Choose from Files", systemImage: "doc")
-                        }
+                Section {}
+                
+                Menu {
+                    Button {
+                        brandingImage = nil
                     } label: {
-                        Label("Choose Branding Logo", systemImage: "photo.stack")
+                        Label("Clear Logo", systemImage: "xmark")
                     }
-                } header: {
-                    Text("Branding Logo")
+                    
+                    Divider()
+                    
+                    Button {
+                        showingBrandingLogoSheet = true
+                    } label: {
+                        Label("Choose from Photos", systemImage: "photo.stack")
+                    }
+                    
+                    Button {
+                        showingBrandingLogoSheet = true
+                    } label: {
+                        Label("Choose from Files", systemImage: "doc")
+                    }
+                } label: {
+                    Label("Choose Branding Logo", systemImage: "photo.stack")
                 }
                 
-                Section {
-                    Menu {
-                        Button {
-                            if let qrCodeImage = qrCodeImage {
-                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                showSavedAlert = true
-                            }
-                        } label: {
-                            Label("Save to Photos", systemImage: "photo.stack")
-                        }
-                        
-                        Button {
-                            if let qrCodeImage = qrCodeImage {
-                                let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                                qrCodeStore.history.append(newCode)
-                                Task {
-                                    do {
-                                        try await save()
-                                    } catch {
-                                        fatalError(error.localizedDescription)
-                                    }
-                                }
-                                showHistorySavedAlert = true
-                            }
-                        } label: {
-                            Label("QR Share Library", systemImage: "books.vertical.fill")
-                        }
-                        
-                        Button(action: {
-                            if let qrCodeImage = qrCodeImage {
-                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                                qrCodeStore.history.append(newCode)
-                                Task {
-                                    do {
-                                        try await save()
-                                    } catch {
-                                        fatalError(error.localizedDescription)
-                                    }
-                                }
-                                showSavedAlert = true
-                                showHistorySavedAlert = true
-                            }
-                        }) {
-                            Label("Both", systemImage: "square.and.arrow.down")
+                Menu {
+                    Button {
+                        if let qrCodeImage = qrCodeImage {
+                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                            showSavedAlert = true
                         }
                     } label: {
-                        Label("Save", systemImage: "square.and.arrow.down")
+                        Label("Save to Photos", systemImage: "photo.stack")
                     }
-                } header: {
-                    Text("Save")
+                    
+                    Button {
+                        if let qrCodeImage = qrCodeImage {
+                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                            qrCodeStore.history.append(newCode)
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    fatalError(error.localizedDescription)
+                                }
+                            }
+                            showHistorySavedAlert = true
+                        }
+                    } label: {
+                        Label("QR Share Library", systemImage: "books.vertical.fill")
+                    }
+                    
+                    Button(action: {
+                        if let qrCodeImage = qrCodeImage {
+                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                            qrCodeStore.history.append(newCode)
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    fatalError(error.localizedDescription)
+                                }
+                            }
+                            showSavedAlert = true
+                            showHistorySavedAlert = true
+                        }
+                    }) {
+                        Label("Both", systemImage: "square.and.arrow.down")
+                    }
+                } label: {
+                    Label("Save", systemImage: "square.and.arrow.down")
                 }
             }
             .navigationTitle("New QR Code")
@@ -269,6 +267,82 @@ struct Home: View {
                                 }
                             }
                             
+                            Label("Environment: Xcode Simulator", systemImage: "globe.americas.fill")
+                        } header: {
+                            Text("About QR Share")
+                        }
+                        
+                        Section {
+                            NavigationLink {
+                                List {
+                                    Section {
+                                        ForEach(allIcons) { i in
+                                            Button {
+                                                changeAppIcon(to: i.iconURL)
+                                                appIcon = i.iconURL
+                                            } label: {
+                                                HStack {
+                                                    Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
+                                                        .font(.title2)
+                                                        .tint(.blue)
+                                                    
+                                                    Image(uiImage: #imageLiteral(resourceName: i.iconURL))
+                                                        .resizable()
+                                                        .frame(width: 50, height: 50)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                        .shadow(radius: 50)
+                                                    
+                                                    Text(i.iconName)
+                                                        .tint(.primary)
+                                                }
+                                            }
+                                        }
+                                    } header: {
+                                        Text("All App Icons")
+                                    }
+                                }
+                                .navigationTitle("App Icon")
+                                .navigationBarTitleDisplayMode(.inline)
+                            } label: {
+                                Label("App Icon", systemImage: "square.grid.3x3.square")
+                            }
+                        } header: {
+                            Text("App Icon")
+                        }
+                        
+                        Section {
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Aaron Ma", systemImage: "person.fill")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Vaibhav Satishkumar", systemImage: "person.fill")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                        } header: {
+                            Text("Credits")
+                        }
+                        
+                        Section {
                             Button {
                                 SKStoreReviewController.requestReview()
                             } label: {
@@ -279,6 +353,7 @@ struct Home: View {
                                         .foregroundStyle(.secondary)
                                 }
                             }
+                            .tint(.primary)
                             
                             Button {} label: {
                                 HStack {
@@ -288,49 +363,23 @@ struct Home: View {
                                         .foregroundStyle(.secondary)
                                 }
                             }
+                            .tint(.primary)
                             
-                            Button {} label: {
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
                                 HStack {
-                                    Label {
-                                        Text("GitHub")
-                                    } icon: {
-                                        Image(systemName: "curlybraces.square")
-                                            .resizable()
-                                            .scaledToFit()
-                                    }
+                                    Label("Contribute (GitHub)", systemImage: "curlybraces")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
+                                        .tint(.secondary)
                                 }
                             }
+                            .tint(.primary)
                         } header: {
-                            Text("QR Share")
-                        }
-                        
-                        Section {
-                            ForEach(allIcons) { i in
-                                Button {
-                                    changeAppIcon(to: i.iconURL)
-                                    appIcon = i.iconURL
-                                } label: {
-                                    HStack {
-                                        Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
-                                            .font(.title2)
-                                            .tint(.blue)
-                                        
-                                        Image(uiImage: #imageLiteral(resourceName: i.iconURL))
-                                            .resizable()
-                                            .frame(width: 50, height: 50)
-                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                            .shadow(radius: 50)
-                                        
-                                        Text(i.iconName)
-                                            .tint(.primary)
-                                    }
-                                }
-                            }
-                        } header: {
-                            Text("App Icon")
+                            Text("Support Us")
                         }
                     }
                     .navigationBarTitle("About QR Share")
