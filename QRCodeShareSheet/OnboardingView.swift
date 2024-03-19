@@ -33,6 +33,82 @@ struct OnboardingPageView: View {
     }
 }
 
+enum Tab: String, CaseIterable {
+    case Scanner
+    case Home
+    case Library
+}
+
+struct CustomTabView: View {
+    @Binding var selection: Tab
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(Tab.allCases, id: \.self) { tab in
+                Button {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        selection = tab
+                    }
+                } label: {
+                    Image(systemName: getImage(tab: tab))
+                        .renderingMode(.template)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: getImage(tab: tab) == "house.fill" ? 25 : 20, height: getImage(tab: tab) == "house.fill" ? 25 : 20)
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(selection == tab ? .white : .gray)
+                        .scaleEffect(selection == tab ? 1.5 : 1)
+                }
+                .background {
+                    if tab == selection {
+                        withAnimation(.easeOut(duration: 0.1).delay(0.07)) {
+                            Circle()
+                                .fill(.green)
+                                .frame(width: 50, height: 50)
+                                .shadow(color: .green, radius: 10)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 30)
+        .padding(.bottom, 10)
+        .padding([.horizontal, .top])
+    }
+    
+    func indicatorOffset(width: CGFloat) -> CGFloat{
+        let index = CGFloat(getIndex())
+        if index == 0 {
+            return 0
+        }
+        let buttonWidth = width / CGFloat(Tab.allCases.count)
+        return index * buttonWidth
+    }
+    
+    func getIndex() -> Int{
+        switch selection {
+        case .Scanner:
+            return 0
+        case .Home:
+            return 1
+        case .Library:
+            return 2
+        }
+    }
+    
+    func getImage(tab: Tab) -> String{
+        switch tab {
+        case .Scanner:
+            return "qrcode.viewfinder"
+        case .Home:
+            return "house.fill"
+        case .Library:
+            return "books.vertical.fill"
+        }
+    }
+}
+
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
@@ -40,50 +116,24 @@ struct OnboardingView: View {
     
     @State private var selection: Tab = .Home
     
-    enum Tab {
-        case Scanner
-        case Home
-        case Library
-    }
-    
     var body: some View {
         if isOnboardingDone {
-            TabView(selection: $selection) {
-                Scanner()
-                    .tabItem {
-                        Label("Scan", systemImage: "qrcode.viewfinder")
-                    }
-                    .onAppear {
-                        Task {
-                            try await qrCodeStore.load()
-                        }
-                    }
-                    .tag(Tab.Scanner)
-                
-                Home()
-                    .environmentObject(qrCodeStore)
-                    .tabItem {
-                        Label("New QR Code", systemImage: "plus")
-                    }
-                    .onAppear {
-                        Task {
-                            try await qrCodeStore.load()
-                        }
-                    }
-                    .tag(Tab.Home)
-                
-                Library()
-                    .environmentObject(qrCodeStore)
-                    .tabItem {
-                        Label("Library", systemImage: "books.vertical.fill")
-                    }
-                    .onAppear {
-                        Task {
-                            try await qrCodeStore.load()
-                        }
-                    }
-                    .tag(Tab.Library)
+            VStack {
+                if selection == .Scanner {
+                    Scanner()
+                } else if selection == .Home {
+                    Home()
+                } else {
+                    Library()
+                }
             }
+            .onAppear {
+                Task {
+                    try await qrCodeStore.load()
+                }
+            }
+            
+            CustomTabView(selection: $selection)
         } else {
             TabView {
                 OnboardingPageView(image: Image("AppIcon"), title: "QR Code Generator", description: "This app allows you to generate QR codes from text.")
