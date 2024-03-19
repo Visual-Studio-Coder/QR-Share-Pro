@@ -69,8 +69,6 @@ struct Home: View {
     
     @State private var showingBrandingLogoSheet = false
     
-    //    @State private var colorSelection = Color.black
-    
     @State private var brandingImage: Image?
     
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]

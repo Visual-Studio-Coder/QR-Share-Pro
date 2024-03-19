@@ -230,20 +230,22 @@ struct Library: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Menu {
-                        ForEach(allSearchTags, id: \.self) { i in
-                            Button {
-                                searchTag = i
-                            } label: {
-                                if searchTag == i {
-                                    Label(i, systemImage: "checkmark")
-                                } else {
-                                    Text(i)
+                    if !qrCodeStore.history.isEmpty {
+                        Menu {
+                            ForEach(allSearchTags, id: \.self) { i in
+                                Button {
+                                    searchTag = i
+                                } label: {
+                                    if searchTag == i {
+                                        Label(i, systemImage: "checkmark")
+                                    } else {
+                                        Text(i)
+                                    }
                                 }
                             }
+                        } label: {
+                            Image(systemName: searchTag == "All" ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
                         }
-                    } label: {
-                        Image(systemName: searchTag == "All" ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
                     }
                 }
                 
