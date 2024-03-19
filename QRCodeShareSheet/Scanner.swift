@@ -105,6 +105,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             return
         }
         
+        AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+        
         // Update the last detected URL
         lastDetectedURL = url
         
