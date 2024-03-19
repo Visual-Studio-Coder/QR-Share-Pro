@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		78B575732BA9F1C20057A709 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 78B575722BA9F1C20057A709 /* ColorfulX */; };
 		78F2F2412B91677000CDF3EC /* QRCodeShareSheetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F2F2402B91677000CDF3EC /* QRCodeShareSheetApp.swift */; };
 		78F2F2452B91677300CDF3EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2442B91677300CDF3EC /* Assets.xcassets */; };
 		78F2F2482B91677300CDF3EC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */; };
@@ -15,7 +16,6 @@
 		8B2EE4B82B9810B1001C7997 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B72B9810B1001C7997 /* History.swift */; };
 		8B2EE4BA2B981229001C7997 /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B92B981229001C7997 /* QRCode.swift */; };
 		8B2EE4EB2B9822BF001C7997 /* HistoryDetailInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4EA2B9822BF001C7997 /* HistoryDetailInfo.swift */; };
-		8BA9A0802BA166D600F058C1 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BA9A07F2BA166D600F058C1 /* ColorfulX */; };
 		8BB42EF82B9EB9FC00CE3DC6 /* Scanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB42EF72B9EB9FC00CE3DC6 /* Scanner.swift */; };
 		8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E1652B99575C0094D652 /* ShareViewController.swift */; };
 		8BB6E1692B99575C0094D652 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1682B99575C0094D652 /* Base */; };
@@ -78,7 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BA9A0802BA166D600F058C1 /* ColorfulX in Frameworks */,
+				78B575732BA9F1C20057A709 /* ColorfulX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,7 +169,7 @@
 			);
 			name = Share;
 			packageProductDependencies = (
-				8BA9A07F2BA166D600F058C1 /* ColorfulX */,
+				78B575722BA9F1C20057A709 /* ColorfulX */,
 			);
 			productName = Share;
 			productReference = 8BB6E1632B99575C0094D652 /* Share.appex */;
@@ -203,7 +203,7 @@
 			);
 			mainGroup = 78F2F2342B91676F00CDF3EC;
 			packageReferences = (
-				8BA9A07E2BA166D600F058C1 /* XCRemoteSwiftPackageReference "ColorfulX" */,
+				78B575712BA9F1C20057A709 /* XCRemoteSwiftPackageReference "ColorfulX" */,
 			);
 			productRefGroup = 78F2F23E2B91677000CDF3EC /* Products */;
 			projectDirPath = "";
@@ -571,20 +571,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8BA9A07E2BA166D600F058C1 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
+		78B575712BA9F1C20057A709 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Lakr233/ColorfulX.git";
+			repositoryURL = "https://github.com/Lakr233/ColorfulX";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.4;
+				kind = exactVersion;
+				version = 2.4.5;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8BA9A07F2BA166D600F058C1 /* ColorfulX */ = {
+		78B575722BA9F1C20057A709 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8BA9A07E2BA166D600F058C1 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 78B575712BA9F1C20057A709 /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
 /* End XCSwiftPackageProductDependency section */
