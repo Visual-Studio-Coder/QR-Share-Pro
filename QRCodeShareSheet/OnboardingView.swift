@@ -63,7 +63,7 @@ struct OnboardingView: View {
                 Home()
                     .environmentObject(qrCodeStore)
                     .tabItem {
-                        Label("New QR Code", systemImage: "qrcode")
+                        Label("New QR Code", systemImage: "plus")
                     }
                     .onAppear {
                         Task {
