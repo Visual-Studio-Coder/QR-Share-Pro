@@ -30,7 +30,7 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
         captureSession.addOutput(captureMetadataOutput)
         
         captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-        captureMetadataOutput.metadataObjectTypes = [ .qr ]
+        captureMetadataOutput.metadataObjectTypes = [.qr]
         
         videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
