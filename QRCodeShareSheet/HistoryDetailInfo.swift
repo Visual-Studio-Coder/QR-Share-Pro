@@ -10,7 +10,6 @@ struct HistoryDetailInfo: View {
     
     @State var qrCode: QRCode
     
-    @State private var colorSelection = Color.black
     @State private var showingBrandingLogoSheet = false
     @State private var brandingImage: Image?
     
@@ -89,7 +88,7 @@ struct HistoryDetailInfo: View {
                                     generateQRCode(from: newValue)
                                 }
                             Text(qrCode.text.isEmpty ? "Enter text here…" : "")
-                                .foregroundColor(.gray)
+                                .foregroundStyle(.gray)
                                 .opacity(qrCode.text.isEmpty ? 1 : 0)
                                 .padding(.all, 8) // Add padding
                                 .font(.system(size: 16)) // Adjust font size
