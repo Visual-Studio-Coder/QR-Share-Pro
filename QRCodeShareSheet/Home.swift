@@ -202,6 +202,8 @@ struct Home: View {
                         Label("QR Share Library", systemImage: "books.vertical.fill")
                     }
                     
+                    Divider()
+                    
                     Button(action: {
                         if let qrCodeImage = qrCodeImage {
                             UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
@@ -314,11 +316,13 @@ struct Home: View {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
-                                HStack {
-                                    Label("Aaron Ma", systemImage: "person.fill")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
+                                VStack {
+                                    HStack {
+                                        Label("Aaron Ma", systemImage: "person.fill")
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right")
+                                            .tint(.secondary)
+                                    }
                                 }
                             }
                             .tint(.primary)
@@ -368,12 +372,12 @@ struct Home: View {
                             .tint(.primary)
                             
                             Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet") {
+                                if let url = URL(string: "https://aaronhma.com") {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
                                 HStack {
-                                    Label("Contribute (GitHub)", systemImage: "curlybraces")
+                                    Label("Feature Request", systemImage: "star.bubble")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
@@ -382,6 +386,68 @@ struct Home: View {
                             .tint(.primary)
                         } header: {
                             Text("Support Us")
+                        }
+                        
+                        Section {
+                            Label("Copyright © 2024 Aaron Ma, Vaibhav Satishkumar. All Rights Reserved.", systemImage: "quote.opening")
+                            
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("MIT License", systemImage: "text.quote")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Source Code", systemImage: "curlybraces")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Terms of Service", systemImage: "newspaper.fill")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Privacy Policy", systemImage: "lock.shield.fill")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                        } header: {
+                            Text("Legal & Copyright")
                         }
                     }
                     .navigationBarTitle("About QR Share")

@@ -76,6 +76,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var unshortenedURL: URL?
     @Published var isScanning = false
     @Published var isLoading = false
+    @Published var cameraError = false
+    
     let scannerController = QRScannerController()
     
     init() {
@@ -135,6 +137,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     func didFailToDetectQRCode() {
         DispatchQueue.main.async {
             self.isScanning = false
+            self.cameraError = true
         }
     }
 }
@@ -184,13 +187,16 @@ struct Scanner: View {
                 .onDisappear {
                     viewModel.stopScanning()
                 }
-            VStack {
+            
+            HStack {
+                Spacer()
+                
                 if viewModel.isLoading {
                     HStack {
                         if let originalURL = viewModel.detectedURL {
-                            Button(action: {
+                            Button {
                                 UIApplication.shared.open(originalURL)
-                            }) {
+                            } label: {
                                 HStack {
                                     if let host = originalURL.host {
                                         AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
@@ -203,7 +209,7 @@ struct Scanner: View {
                                     Text(originalURL.absoluteString)
                                 }
                             }
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                         }
                     }
                     .padding()
@@ -211,9 +217,9 @@ struct Scanner: View {
                     .cornerRadius(10)
                 } else if let url = viewModel.unshortenedURL, url.host != viewModel.detectedURL?.host {
                     HStack {
-                        Button(action: {
+                        Button {
                             UIApplication.shared.open(url)
-                        }) {
+                        } label: {
                             HStack {
                                 if let host = url.host {
                                     AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
@@ -226,22 +232,24 @@ struct Scanner: View {
                                 Text(url.absoluteString)
                             }
                         }
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                         
                         Menu {
-                            Section(header: Text("Open Original URL:")) {
+                            Section {
                                 if let originalURL = viewModel.detectedURL {
-                                    Button(action: {
+                                    Button {
                                         UIApplication.shared.open(originalURL)
-                                    }) {
+                                    } label: {
                                         Text("\(originalURL.absoluteString)")
-                                            .foregroundColor(.blue)
+                                            .foregroundStyle(.blue)
                                     }
                                 }
+                            } header: {
+                                Text("Original URL")
                             }
                         } label: {
                             Image(systemName: "chevron.down")
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                         }
                     }
                     .padding()
@@ -249,9 +257,9 @@ struct Scanner: View {
                     .cornerRadius(10)
                 } else if let originalURL = viewModel.detectedURL {
                     HStack {
-                        Button(action: {
+                        Button {
                             UIApplication.shared.open(originalURL)
-                        }) {
+                        } label: {
                             HStack {
                                 if let host = originalURL.host {
                                     AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
@@ -264,17 +272,47 @@ struct Scanner: View {
                                 Text(originalURL.absoluteString)
                             }
                         }
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                     }
                     .padding()
                     .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
                     .cornerRadius(10)
+                } else if viewModel.cameraError {
+                    Text("To scan QR codes, you need to enable camera permissions.")
+                    
+                    Button {} label: {
+                        Text("Enable Camera Access")
+                    }
+                    .background(.indigo)
+                    .foregroundStyle(.white)
                 } else {
                     Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding()
                         .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
                         .cornerRadius(10)
+                }
+                
+                Spacer()
+                
+                VStack {
+                    Button {} label: {
+                        Image(systemName: "plus.magnifyingglass")
+                            .font(.headline)
+                            .tint(.white)
+                    }
+                    .padding(10)
+                    .background(.blue)
+                    .clipShape(Circle())
+                    
+                    Button {} label: {
+                        Image(systemName: "minus.magnifyingglass")
+                            .font(.headline)
+                            .tint(.white)
+                    }
+                    .padding(10)
+                    .background(.blue)
+                    .clipShape(Circle())
                 }
             }
             .padding(.bottom)

@@ -35,78 +35,8 @@ struct OnboardingPageView: View {
 
 enum Tab: String, CaseIterable {
     case Scanner
-    case Home
+    case NewQRCode
     case Library
-}
-
-struct CustomTabView: View {
-    @Binding var selection: Tab
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach(Tab.allCases, id: \.self) { tab in
-                Button {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        selection = tab
-                    }
-                } label: {
-                    Image(systemName: getImage(tab: tab))
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: getImage(tab: tab) == "house.fill" ? 25 : 20, height: getImage(tab: tab) == "house.fill" ? 25 : 20)
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(selection == tab ? .white : .gray)
-                        .scaleEffect(selection == tab ? 1.5 : 1)
-                }
-                .background {
-                    if tab == selection {
-                        withAnimation(.easeOut(duration: 0.1).delay(0.07)) {
-                            Circle()
-                                .fill(.green)
-                                .frame(width: 50, height: 50)
-                                .shadow(color: .green, radius: 10)
-                        }
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 30)
-        .padding(.bottom, 10)
-        .padding([.horizontal, .top])
-    }
-    
-    func indicatorOffset(width: CGFloat) -> CGFloat{
-        let index = CGFloat(getIndex())
-        if index == 0 {
-            return 0
-        }
-        let buttonWidth = width / CGFloat(Tab.allCases.count)
-        return index * buttonWidth
-    }
-    
-    func getIndex() -> Int{
-        switch selection {
-        case .Scanner:
-            return 0
-        case .Home:
-            return 1
-        case .Library:
-            return 2
-        }
-    }
-    
-    func getImage(tab: Tab) -> String{
-        switch tab {
-        case .Scanner:
-            return "qrcode.viewfinder"
-        case .Home:
-            return "house.fill"
-        case .Library:
-            return "books.vertical.fill"
-        }
-    }
 }
 
 struct OnboardingView: View {
@@ -114,14 +44,25 @@ struct OnboardingView: View {
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
-    @State private var selection: Tab = .Home
+    @State private var selection: Tab = .NewQRCode
+    
+    func getImage(tab: Tab) -> String{
+        switch tab {
+        case .Scanner:
+            return "qrcode.viewfinder"
+        case .NewQRCode:
+            return "plus"
+        case .Library:
+            return "books.vertical.fill"
+        }
+    }
     
     var body: some View {
         if isOnboardingDone {
             VStack {
                 if selection == .Scanner {
                     Scanner()
-                } else if selection == .Home {
+                } else if selection == .NewQRCode {
                     Home()
                 } else {
                     Library()
@@ -133,7 +74,38 @@ struct OnboardingView: View {
                 }
             }
             
-            CustomTabView(selection: $selection)
+            HStack(spacing: 0) {
+                ForEach(Tab.allCases, id: \.self) { tab in
+                    Button {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            selection = tab
+                        }
+                    } label: {
+                        Image(systemName: getImage(tab: tab))
+                            .renderingMode(.template)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 15, height: 15)
+                            .frame(maxWidth: .infinity)
+                            .foregroundStyle(selection == tab ? .white : .gray)
+                            .scaleEffect(selection == tab ? 1.5 : 1)
+                    }
+                    .background {
+                        if tab == selection {
+                            withAnimation(.easeOut(duration: 0.1).delay(0.07)) {
+                                Circle()
+                                    .fill(.indigo)
+                                    .frame(width: 40, height: 40)
+                                    .shadow(color: .green, radius: 10)
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 2)
+            .padding(.bottom, 10)
+            .padding([.horizontal, .top])
         } else {
             TabView {
                 OnboardingPageView(image: Image("AppIcon"), title: "QR Code Generator", description: "This app allows you to generate QR codes from text.")
