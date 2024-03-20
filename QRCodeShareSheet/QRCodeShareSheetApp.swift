@@ -36,9 +36,33 @@ struct QRCodeApp: App {
     @StateObject private var qrCodeStore = QRCodeStore()
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
+    //    struct SplashView: View {
+    //        @State var isActive:Bool = false
+    //
+    //        var body: some View {
+    //            VStack {
+    //                if self.isActive {
+    //                    HomeView()
+    //                } else {
+    //                    Text("Awesome Splash Screen!")
+    //                        .font(.largeTitle)
+    //                }
+    //            }
+    //            .onAppear {
+    //                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+    //                    withAnimation {
+    //                        self.isActive = true
+    //                    }
+    //                }
+    //            }
+    //        }
+    //
+    //    }
+    
     var body: some Scene {
         WindowGroup {
             OnboardingView()
+                .accentColor(accentColorManager.accentColor)
                 .environmentObject(qrCodeStore)
                 .accentColor(accentColorManager.accentColor)
                 .splashView {
