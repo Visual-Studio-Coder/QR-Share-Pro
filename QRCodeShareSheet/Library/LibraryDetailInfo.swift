@@ -1,6 +1,13 @@
+//
+//  LibraryDetailInfo.swift
+//  QRCodeShareSheet
+//
+//  Created by Aaron Ma on 3/21/24.
+//
+
 import SwiftUI
 
-struct HistoryDetailInfo: View {
+struct LibraryDetailInfo: View {
     @State private var showingAboutAppSheet = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @State private var isEditing = false
@@ -274,7 +281,7 @@ struct HistoryDetailInfo: View {
         @StateObject var qrCodeStore = QRCodeStore()
         
         NavigationView {
-            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
+            LibraryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
                 .environmentObject(qrCodeStore)
         }
     }

@@ -1,3 +1,10 @@
+//
+//  Library.swift
+//  QRCodeShareSheet
+//
+//  Created by Aaron Ma on 3/21/24.
+//
+
 import SwiftUI
 
 @MainActor
@@ -64,7 +71,11 @@ struct Library: View {
     @State private var showingDeleteConfirmation = false
     @State private var currentQRCode = QRCode(text: "")
     
+    @State private var showOfflineText = true
+    
     private var allSearchTags = ["All", "URL", "Text"]
+    
+    private let monitor = NetworkMonitor()
     
     func save() async throws {
         try await qrCodeStore.save(history: qrCodeStore.history)
@@ -138,23 +149,48 @@ struct Library: View {
                     }
                     
                     List {
+                        if !monitor.isActive && showOfflineText {
+                            Section("Network") {
+                                Button {
+                                    showOfflineText = false
+                                } label: {
+                                    HStack {
+                                        Label("You're offline.", systemImage: "network.slash")
+                                        Spacer()
+                                        Image(systemName: "multiply.circle.fill")
+                                            .foregroundStyle(Color.gray)
+                                    }
+                                }
+                            }
+                        }
+                        
                         if !x.isEmpty {
                             Section {
                                 ForEach(x) { i in
                                     NavigationLink {
-                                        HistoryDetailInfo(qrCode: i)
+                                        LibraryDetailInfo(qrCode: i)
                                             .environmentObject(qrCodeStore)
                                     } label: {
                                         HStack {
                                             if isValidURL(i.text) {
-                                                AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
-                                                    i
-                                                        .resizable()
-                                                        .aspectRatio(1, contentMode: .fit)
+                                                if !monitor.isActive {
+                                                    Image(systemName: "network")
+                                                        .foregroundStyle(.white)
+                                                        .font(.largeTitle)
+                                                        .padding()
+                                                        .background(Color.accentColor)
                                                         .frame(width: 50, height: 50)
                                                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                } placeholder: {
-                                                    ProgressView()
+                                                } else {
+                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                        i
+                                                            .resizable()
+                                                            .aspectRatio(1, contentMode: .fit)
+                                                            .frame(width: 50, height: 50)
+                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                    } placeholder: {
+                                                        ProgressView()
+                                                    }
                                                 }
                                             } else {
                                                 i.qrCode?.toImage()?
