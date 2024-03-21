@@ -1,16 +1,11 @@
 import SwiftUI
 
-private let defaultTimeout: TimeInterval = 0.25
-
 struct SplashView<SplashContent: View>: ViewModifier {
-    private let timeout: TimeInterval
     private let splashContent: () -> SplashContent
     
     @State private var isActive = true
     
-    init(timeout: TimeInterval = defaultTimeout,
-         @ViewBuilder splashContent: @escaping () -> SplashContent) {
-        self.timeout = timeout
+    init(@ViewBuilder splashContent: @escaping () -> SplashContent) {
         self.splashContent = splashContent
     }
     
@@ -18,7 +13,7 @@ struct SplashView<SplashContent: View>: ViewModifier {
         if isActive {
             splashContent()
                 .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                         withAnimation {
                             self.isActive = false
                         }
@@ -31,21 +26,8 @@ struct SplashView<SplashContent: View>: ViewModifier {
 }
 
 extension View {
-    func splashView<SplashContent: View>(
-        timeout: TimeInterval = defaultTimeout,
-        @ViewBuilder splashContent: @escaping () -> SplashContent
-    ) -> some View {
-        self.modifier(SplashView(timeout: timeout, splashContent: splashContent))
-    }
-    
-    @ViewBuilder
-    func stretchable(in geo: GeometryProxy) -> some View {
-        let width = geo.size.width
-        let height = geo.size.height
-        let minY = geo.frame(in: .global).minY
-        let useStandard = minY <= 0
-        self.frame(width: width, height: height + (useStandard ? 0 : minY))
-            .offset(y: useStandard ? 0 : -minY)
+    func splashView<SplashContent: View>(@ViewBuilder splashContent: @escaping () -> SplashContent) -> some View {
+        self.modifier(SplashView(splashContent: splashContent))
     }
 }
 
@@ -53,29 +35,6 @@ extension View {
 struct QRCodeApp: App {
     @StateObject private var qrCodeStore = QRCodeStore()
     @ObservedObject var accentColorManager = AccentColorManager.shared
-    
-    //    struct SplashView: View {
-    //        @State var isActive:Bool = false
-    //
-    //        var body: some View {
-    //            VStack {
-    //                if self.isActive {
-    //                    HomeView()
-    //                } else {
-    //                    Text("Awesome Splash Screen!")
-    //                        .font(.largeTitle)
-    //                }
-    //            }
-    //            .onAppear {
-    //                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-    //                    withAnimation {
-    //                        self.isActive = true
-    //                    }
-    //                }
-    //            }
-    //        }
-    //
-    //    }
     
     var body: some Scene {
         WindowGroup {
