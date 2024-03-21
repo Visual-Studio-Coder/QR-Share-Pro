@@ -50,6 +50,33 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 }
 
+class AccentColorManager: ObservableObject {
+    static let shared = AccentColorManager()
+    
+    var accentColor: Color {
+        get {
+            let colorData = UserDefaults.standard.data(forKey: "accentColor")
+            let uiColor = colorData != nil ? UIColor.colorWithData(colorData!) : UIColor(Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1)))
+            return Color(uiColor)
+        }
+        set {
+            let uiColor = UIColor(newValue)
+            UserDefaults.standard.set(uiColor.encode(), forKey: "accentColor")
+            objectWillChange.send()
+        }
+    }
+}
+
+extension UIColor {
+    func encode() -> Data {
+        return try! NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: false)
+    }
+    
+    static func colorWithData(_ data: Data) -> UIColor {
+        return try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! UIColor
+    }
+}
+
 struct AppIcon: Identifiable {
     var id = UUID()
     var iconURL: String
@@ -71,6 +98,8 @@ struct Home: View {
     
     @State private var brandingImage: Image?
     
+    @ObservedObject var accentColorManager = AccentColorManager.shared
+    
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
     
     private func changeAppIcon(to iconURL: String) {
@@ -80,6 +109,15 @@ struct Home: View {
             if let error = error {
                 fatalError(error.localizedDescription)
             }
+        }
+        
+        switch iconName {
+        case "AppIcon2":
+            AccentColorManager.shared.accentColor = Color(.green)
+        case "AppIcon3":
+            AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
+        default:
+            AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
         }
     }
     
@@ -284,7 +322,7 @@ struct Home: View {
                                                 HStack {
                                                     Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
                                                         .font(.title2)
-                                                        .tint(.blue)
+                                                        .tint(.accentColor)
                                                     
                                                     Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                                                         .resizable()
@@ -341,7 +379,7 @@ struct Home: View {
                             }
                             .tint(.primary)
                         } header: {
-                            Text("Credits")
+                            Text("Contributors")
                         }
                         
                         Section {
@@ -450,6 +488,7 @@ struct Home: View {
                             Text("Legal & Copyright")
                         }
                     }
+                    .accentColor(accentColorManager.accentColor)
                     .navigationBarTitle("About QR Share")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
