@@ -85,6 +85,7 @@ struct AppIcon: Identifiable {
 
 struct Home: View {
     @AppStorage("appIcon") private var appIcon = "AppIcon"
+    @AppStorage("toggleAppIconTinting") private var toggleAppIconTinting = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
     
@@ -113,7 +114,7 @@ struct Home: View {
         
         switch iconName {
         case "AppIcon2":
-            AccentColorManager.shared.accentColor = Color(.green)
+            AccentColorManager.shared.accentColor = Color.mint
         case "AppIcon3":
             AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
         default:
@@ -290,7 +291,7 @@ struct Home: View {
             .sheet(isPresented: $showingAboutAppSheet) {
                 NavigationView {
                     List {
-                        Section {
+                        Section("About QR Share") {
                             HStack {
                                 Image(uiImage: #imageLiteral(resourceName: appIcon))
                                     .resizable()
@@ -304,13 +305,9 @@ struct Home: View {
                                         .foregroundStyle(.secondary)
                                 }
                             }
-                            
-                            Label("Environment: Xcode Simulator", systemImage: "globe.americas.fill")
-                        } header: {
-                            Text("About QR Share")
                         }
                         
-                        Section {
+                        Section("App Icon") {
                             NavigationLink {
                                 List {
                                     Section {
@@ -344,11 +341,15 @@ struct Home: View {
                             } label: {
                                 Label("App Icon", systemImage: "square.grid.3x3.square")
                             }
-                        } header: {
-                            Text("App Icon")
                         }
                         
-                        Section {
+                        Section("Tinting") {
+                            Toggle(isOn: $toggleAppIconTinting) {
+                                Label("Icon & Button Tinting", systemImage: "drop.halffull")
+                            }
+                        }
+                        
+                        Section("Contributors") {
                             Button {
                                 if let url = URL(string: "https://aaronhma.com") {
                                     UIApplication.shared.open(url)
@@ -378,11 +379,9 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                        } header: {
-                            Text("Contributors")
                         }
                         
-                        Section {
+                        Section("Support Us") {
                             Button {
                                 if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
                                     DispatchQueue.main.async {
@@ -422,11 +421,9 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                        } header: {
-                            Text("Support Us")
                         }
                         
-                        Section {
+                        Section("Legal & Copyright") {
                             Label("Copyright © 2024 Aaron Ma, Vaibhav Satishkumar. All Rights Reserved.", systemImage: "quote.opening")
                             
                             Button {
@@ -484,8 +481,14 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                        } header: {
-                            Text("Legal & Copyright")
+                        }
+                        
+                        Section("Environment") {
+#if targetEnvironment(simulator)
+                            Label("Xcode Simulator", systemImage: "hammer")
+#else
+                            Label("Production", systemImage: "iphone.gen3")
+#endif
                         }
                     }
                     .accentColor(accentColorManager.accentColor)
@@ -501,6 +504,13 @@ struct Home: View {
                         }
                     }
                 }
+            }
+        }
+        .onChange(of: toggleAppIconTinting) { _ in
+            if !toggleAppIconTinting {
+                AccentColorManager.shared.accentColor = Color.blue
+            } else {
+                changeAppIcon(to: appIcon)
             }
         }
         //        .onTapGesture {
