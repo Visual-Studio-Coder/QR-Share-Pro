@@ -91,6 +91,7 @@ struct Home: View {
     
     @State private var showingAboutAppSheet = false
     @State private var text = ""
+    @State private var showSavePhotosQuestionAlert = false
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage?
@@ -171,12 +172,6 @@ struct Home: View {
                             .interpolation(.none)
                             .resizable()
                             .aspectRatio(1, contentMode: .fit)
-                            .overlay(
-                                Image(uiImage: #imageLiteral(resourceName: appIcon))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                            )
                     }
                 }
                 
@@ -214,62 +209,61 @@ struct Home: View {
                     Label("Choose Branding Logo", systemImage: "photo.stack")
                 }
                 
-                Menu {
-                    Button {
-                        if let qrCodeImage = qrCodeImage {
-                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                            showSavedAlert = true
-                        }
-                    } label: {
-                        Label("Save to Photos", systemImage: "photo.stack")
-                    }
-                    
-                    Button {
-                        if let qrCodeImage = qrCodeImage {
-                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                            qrCodeStore.history.append(newCode)
-                            Task {
-                                do {
-                                    try await save()
-                                } catch {
-                                    fatalError(error.localizedDescription)
-                                }
-                            }
-                            showHistorySavedAlert = true
-                        }
-                    } label: {
-                        Label("QR Share Library", systemImage: "books.vertical.fill")
-                    }
-                    
-                    Divider()
-                    
-                    Button(action: {
-                        if let qrCodeImage = qrCodeImage {
-                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                            qrCodeStore.history.append(newCode)
-                            Task {
-                                do {
-                                    try await save()
-                                } catch {
-                                    fatalError(error.localizedDescription)
-                                }
-                            }
-                            showSavedAlert = true
-                            showHistorySavedAlert = true
-                        }
-                    }) {
-                        Label("Both", systemImage: "square.and.arrow.down")
-                    }
+                Button {
+                    showSavePhotosQuestionAlert = true
                 } label: {
                     Label("Save", systemImage: "square.and.arrow.down")
                 }
+                .disabled(text.isEmpty)
             }
             .navigationTitle("New QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 generateQRCode(from: "never gonna give you up")
             }
+            .alert("Save to Photos?", isPresented: $showSavePhotosQuestionAlert) {
+                Button("Yes") {
+                    if let qrCodeImage = qrCodeImage {
+                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                        showSavedAlert = true
+                    }
+                    
+                    if let qrCodeImage = qrCodeImage {
+                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                        qrCodeStore.history.append(newCode)
+                        Task {
+                            do {
+                                try await save()
+                            } catch {
+                                fatalError(error.localizedDescription)
+                            }
+                        }
+                        showHistorySavedAlert = true
+                    }
+                }
+                
+                Button("No") {
+                    if let qrCodeImage = qrCodeImage {
+                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                        qrCodeStore.history.append(newCode)
+                        Task {
+                            do {
+                                try await save()
+                            } catch {
+                                fatalError(error.localizedDescription)
+                            }
+                        }
+                        showHistorySavedAlert = true
+                    }
+                }
+            }
+            .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                Button("OK", role: .cancel) {}
+            }
+            .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
+                Button("OK", role: .cancel) {}
+            }
+            
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {} label: {
