@@ -1,3 +1,10 @@
+//
+//  Storage.swift
+//  QRCodeShareSheet
+//
+
+//
+
 import SwiftUI
 
 struct QRCode: Identifiable, Codable {
