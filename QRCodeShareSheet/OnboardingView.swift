@@ -94,9 +94,10 @@ struct OnboardingView: View {
                         if tab == selection {
                             withAnimation(.easeOut(duration: 0.1).delay(0.07)) {
                                 Circle()
-                                    .fill(.indigo)
+                                    .fill(Color.accentColor)
+                                    .opacity(0.8)
                                     .frame(width: 40, height: 40)
-                                    .shadow(color: .green, radius: 10)
+                                    .shadow(color: .indigo, radius: 10)
                             }
                         }
                     }
