@@ -209,7 +209,7 @@ struct Scanner: View {
                                     Text(originalURL.absoluteString)
                                 }
                             }
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Color.accentColor)
                         }
                     }
                     .padding()
@@ -232,7 +232,7 @@ struct Scanner: View {
                                 Text(url.absoluteString)
                             }
                         }
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color.accentColor)
                         
                         Menu {
                             Section {
@@ -302,7 +302,7 @@ struct Scanner: View {
                             .tint(.white)
                     }
                     .padding(10)
-                    .background(.blue)
+                    .background(Color.accentColor)
                     .clipShape(Circle())
                     
                     Button {} label: {
@@ -311,7 +311,7 @@ struct Scanner: View {
                             .tint(.white)
                     }
                     .padding(10)
-                    .background(.blue)
+                    .background(Color.accentColor)
                     .clipShape(Circle())
                 }
             }

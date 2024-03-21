@@ -170,7 +170,7 @@ struct HistoryDetailInfo: View {
                                     Label("**Open**", systemImage: "safari")
                                         .padding(8)
                                         .foregroundStyle(.white)
-                                        .background(.blue)
+                                        .background(Color.accentColor)
                                         .clipShape(Capsule())
                                 }
                             }
