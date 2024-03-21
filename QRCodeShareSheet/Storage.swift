@@ -1,3 +1,10 @@
+//
+//  Storage.swift
+//  QRCodeShareSheet
+//
+//  Created by   on 3/21/24.
+//
+
 import SwiftUI
 
 struct QRCode: Identifiable, Codable {
