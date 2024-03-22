@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LibraryDetailInfo: View {
+struct HistoryDetailInfo: View {
     @State private var showingAboutAppSheet = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @State private var isEditing = false
@@ -231,7 +231,7 @@ struct LibraryDetailInfo: View {
         @StateObject var qrCodeStore = QRCodeStore()
         
         NavigationView {
-            LibraryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
+            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
                 .environmentObject(qrCodeStore)
         }
     }
