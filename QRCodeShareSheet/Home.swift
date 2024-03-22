@@ -6,49 +6,8 @@
 //
 
 import SwiftUI
-import PhotosUI
 import CoreImage.CIFilterBuiltins
 import StoreKit
-
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: Image?
-    
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var configuration = PHPickerConfiguration()
-        configuration.filter = .images
-        configuration.selectionLimit = 1
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = context.coordinator
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        return Coordinator(parent: self)
-    }
-    
-    class Coordinator: PHPickerViewControllerDelegate {
-        let parent: ImagePicker
-        
-        init(parent: ImagePicker) {
-            self.parent = parent
-        }
-        
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            if let selectedImage = results.first {
-                selectedImage.itemProvider.loadObject(ofClass: UIImage.self) { image, _ in
-                    if let uiImage = image as? UIImage {
-                        DispatchQueue.main.async {
-                            self.parent.selectedImage = Image(uiImage: uiImage)
-                        }
-                    }
-                }
-            }
-            picker.dismiss(animated: true)
-        }
-    }
-}
 
 class AccentColorManager: ObservableObject {
     static let shared = AccentColorManager()
@@ -95,10 +54,6 @@ struct Home: View {
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage?
-    
-    @State private var showingBrandingLogoSheet = false
-    
-    @State private var brandingImage: Image?
     
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
@@ -156,23 +111,10 @@ struct Home: View {
         NavigationView {
             Form {
                 if let qrCodeImage = qrCodeImage {
-                    if let brandingImage = brandingImage {
-                        Image(uiImage: qrCodeImage)
-                            .interpolation(.none)
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                            .overlay(
-                                brandingImage
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                            )
-                    } else {
-                        Image(uiImage: qrCodeImage)
-                            .interpolation(.none)
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                    }
+                    Image(uiImage: qrCodeImage)
+                        .interpolation(.none)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
                 }
                 
                 TextField("Create your own QR code...", text: $text)
@@ -184,30 +126,6 @@ struct Home: View {
                     }
                 
                 Section {}
-                
-                Menu {
-                    Button {
-                        brandingImage = nil
-                    } label: {
-                        Label("Clear Logo", systemImage: "xmark")
-                    }
-                    
-                    Divider()
-                    
-                    Button {
-                        showingBrandingLogoSheet = true
-                    } label: {
-                        Label("Choose from Photos", systemImage: "photo.stack")
-                    }
-                    
-                    Button {
-                        showingBrandingLogoSheet = true
-                    } label: {
-                        Label("Choose from Files", systemImage: "doc")
-                    }
-                } label: {
-                    Label("Choose Branding Logo", systemImage: "photo.stack")
-                }
                 
                 Button {
                     showSavePhotosQuestionAlert = true
@@ -278,9 +196,6 @@ struct Home: View {
                         Label("About QR Share", systemImage: "info.circle")
                     }
                 }
-            }
-            .sheet(isPresented: $showingBrandingLogoSheet) {
-                ImagePicker(selectedImage: $brandingImage)
             }
             .sheet(isPresented: $showingAboutAppSheet) {
                 NavigationView {
