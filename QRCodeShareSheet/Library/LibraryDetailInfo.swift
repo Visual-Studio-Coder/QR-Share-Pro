@@ -17,9 +17,6 @@ struct LibraryDetailInfo: View {
     
     @State var qrCode: QRCode
     
-    @State private var showingBrandingLogoSheet = false
-    @State private var brandingImage: Image?
-    
     func save() async throws {
         try await qrCodeStore.save(history: qrCodeStore.history)
     }
@@ -57,31 +54,11 @@ struct LibraryDetailInfo: View {
                         HStack {
                             Spacer()
                             
-                            if let brandingImage = brandingImage {
-                                Image(uiImage: qrCodeImage)
+                            Image(uiImage: qrCodeImage)
                                     .interpolation(.none)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 200, height: 200)
-                                    .overlay(
-                                        brandingImage
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    )
-                            } else {
-                                Image(uiImage: qrCodeImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .overlay(
-                                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 50, height: 50)
-                                    )
-                            }
                             
                             Spacer()
                         }
@@ -102,24 +79,6 @@ struct LibraryDetailInfo: View {
                         }
                         
                         Section {
-                            Menu {
-                                Button {
-                                    showingBrandingLogoSheet = true
-                                } label: {
-                                    Label("Choose from Photos", systemImage: "photo.stack")
-                                }
-                                
-                                Button {
-                                    showingBrandingLogoSheet = true
-                                } label: {
-                                    Label("Choose from Files", systemImage: "doc")
-                                }
-                            } label: {
-                                Label("Branding Logo", systemImage: "briefcase")
-                            }
-                        }
-                        
-                        Section {
                             Button {
                                 UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                                 showSavedAlert = true
@@ -128,9 +87,6 @@ struct LibraryDetailInfo: View {
                             }
                             .disabled(qrCode.text.isEmpty)
                         }
-                    }
-                    .sheet(isPresented: $showingBrandingLogoSheet) {
-                        ImagePicker(selectedImage: $brandingImage)
                     }
                 }
                 .onTapGesture {
@@ -142,12 +98,6 @@ struct LibraryDetailInfo: View {
                         .interpolation(.none)
                         .resizable()
                         .aspectRatio(1, contentMode: .fit)
-                        .overlay(
-                            Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                        )
                     
                     VStack(alignment: .leading) {
                         if isValidURL(qrCode.text) {
