@@ -28,6 +28,8 @@ class ShareViewController: UIViewController {
 
 @MainActor
 struct ShareView: View {
+    var qrCodeStore = QRCodeStore()
+    
     @State private var qrCodeImage: UIImage?
     var extensionContext: NSExtensionContext?
     @State private var isBackgroundVisible = false
@@ -174,11 +176,29 @@ struct ShareView: View {
                 receivedText = sharedText
                 if let qrImage = generateQRCode(from: sharedText) {
                     qrCodeImage = qrImage
+                    let newCode = QRCode(text: receivedText, qrCode: qrCodeImage?.pngData())
+                    
+                    if let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare") {
+                        let decoder = JSONDecoder()
+                        var history = userDefaults.data(forKey: "history").flatMap { try? decoder.decode([QRCode].self, from: $0) } ?? []
+                        history.append(newCode)
+                        
+                        let encoder = JSONEncoder()
+                        if let encodedHistory = try? encoder.encode(history) {
+    userDefaults.set(encodedHistory, forKey: "history")
+    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+}
+                    }
                 } else {
                     print("Failed to generate QR code")
                 }
             }
         }
+        
+    }
+    
+    func save() async throws {
+        try await qrCodeStore.save(history: qrCodeStore.history)
     }
     
     func dismiss() {
