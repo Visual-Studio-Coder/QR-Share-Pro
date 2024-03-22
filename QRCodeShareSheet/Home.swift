@@ -55,6 +55,8 @@ struct Home: View {
     @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage?
     
+    @State private var showingClearHistoryConfirmation = false
+    
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
@@ -99,12 +101,12 @@ struct Home: View {
         }
     }
     
-    func appVersion(in bundle: Bundle = .main) -> String {
-        guard let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else {
-            fatalError("CFBundleShortVersionString missing from info dictionary")
-        }
-        
-        return version
+    var appVersion: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
+    }
+    
+    var appBuild: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "1"
     }
     
     var body: some View {
@@ -178,7 +180,7 @@ struct Home: View {
             .alert("Saved to Photos!", isPresented: $showSavedAlert) {
                 Button("OK", role: .cancel) {}
             }
-            .alert("Saved to Library!", isPresented: $showHistorySavedAlert) {
+            .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
                 Button("OK", role: .cancel) {}
             }
             
@@ -200,7 +202,7 @@ struct Home: View {
             .sheet(isPresented: $showingAboutAppSheet) {
                 NavigationView {
                     List {
-                        Section("About QR Share") {
+                        Section {
                             HStack {
                                 Image(uiImage: #imageLiteral(resourceName: appIcon))
                                     .resizable()
@@ -210,16 +212,81 @@ struct Home: View {
                                 VStack(alignment: .leading) {
                                     Text("QR Share")
                                         .bold()
-                                    Text("Version \(appVersion())")
+                                    Text("Version \(appVersion) (\(appBuild))")
                                         .foregroundStyle(.secondary)
                                 }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Button {
+                                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                                    DispatchQueue.main.async {
+                                        SKStoreReviewController.requestReview(in: scene)
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Rate App", systemImage: "star")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Privacy Policy", systemImage: "lock.shield")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            HStack {
+#if targetEnvironment(simulator)
+                                Label("Xcode Simulator", systemImage: "hammer")
+#else
+                                Label("iPhone (TestFlight)", systemImage: "iphone")
+#endif
+                                
+                                Spacer()
+                                
+                                if #available(iOS 18, *) {
+                                    Text("iOS 18")
+                                        .foregroundStyle(.secondary)
+                                } else if #available(iOS 17, *) {
+                                    Text("iOS 17")
+                                        .foregroundStyle(.secondary)
+                                } else if #available(iOS 16, *) {
+                                    Text("iOS 16")
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    Text("iOS 15")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            
+                            if #unavailable(iOS 17) {
+                                Text("Update to iOS 17 or later to receive future QR Share updates.")
+                                    .foregroundStyle(.secondary)
                             }
                         }
                         
                         Section("App Icon") {
                             NavigationLink {
                                 List {
-                                    Section {
+                                    Section("All App Icons") {
                                         ForEach(allIcons) { i in
                                             Button {
                                                 changeAppIcon(to: i.iconURL)
@@ -241,8 +308,6 @@ struct Home: View {
                                                 }
                                             }
                                         }
-                                    } header: {
-                                        Text("All App Icons")
                                     }
                                 }
                                 .navigationTitle("App Icon")
@@ -251,10 +316,18 @@ struct Home: View {
                                 Label("App Icon", systemImage: "square.grid.3x3.square")
                             }
                         }
-                        
+
                         Section("Tinting") {
                             Toggle(isOn: $toggleAppIconTinting) {
-                                Label("Icon & Button Tinting", systemImage: "drop.halffull")
+                                Label("Use App Icon for Tinting", systemImage: "drop.halffull")
+                            }
+                        }
+                        
+                        Section("History") {
+                            Button {
+                                showingClearHistoryConfirmation = true
+                            } label: {
+                                Label("Clear History", systemImage: "trash")
                             }
                         }
                         
@@ -266,7 +339,7 @@ struct Home: View {
                             } label: {
                                 VStack {
                                     HStack {
-                                        Label("Aaron Ma", systemImage: "person.fill")
+                                        Label("Aaron Ma", systemImage: "person")
                                         Spacer()
                                         Image(systemName: "arrow.up.right")
                                             .tint(.secondary)
@@ -281,67 +354,7 @@ struct Home: View {
                                 }
                             } label: {
                                 HStack {
-                                    Label("Vaibhav Satishkumar", systemImage: "person.fill")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                        }
-                        
-                        Section("Support Us") {
-                            Button {
-                                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                                    DispatchQueue.main.async {
-                                        SKStoreReviewController.requestReview(in: scene)
-                                    }
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Rate App", systemImage: "star")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {} label: {
-                                HStack {
-                                    Label("Share App", systemImage: "square.and.arrow.up")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Feature Request", systemImage: "star.bubble")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                        }
-                        
-                        Section("Legal & Copyright") {
-                            Label("Copyright © 2024 Aaron Ma, Vaibhav Satishkumar. All Rights Reserved.", systemImage: "quote.opening")
-                            
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("MIT License", systemImage: "text.quote")
+                                    Label("Vaibhav Satishkumar", systemImage: "person")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
@@ -355,49 +368,13 @@ struct Home: View {
                                 }
                             } label: {
                                 HStack {
-                                    Label("Source Code", systemImage: "curlybraces")
+                                    Label("Contribute / Feature Request", systemImage: "star.bubble")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
                                 }
                             }
                             .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Terms of Service", systemImage: "newspaper.fill")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Privacy Policy", systemImage: "lock.shield.fill")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                        }
-                        
-                        Section("Environment") {
-#if targetEnvironment(simulator)
-                            Label("Xcode Simulator", systemImage: "hammer")
-#else
-                            Label("Production", systemImage: "iphone.gen3")
-#endif
                         }
                     }
                     .accentColor(accentColorManager.accentColor)
@@ -412,6 +389,23 @@ struct Home: View {
                             }
                         }
                     }
+                }
+            }
+            .confirmationDialog("Clear History?", isPresented: $showingClearHistoryConfirmation, titleVisibility: .visible) {
+                Button("Clear History", role: .destructive) {
+                        withAnimation {
+                            qrCodeStore.history = []
+                            
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    print(error)
+                                }
+                            }
+                            
+                            showingClearHistoryConfirmation = false
+                        }
                 }
             }
         }

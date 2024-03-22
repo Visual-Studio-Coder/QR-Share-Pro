@@ -29,7 +29,7 @@ struct OnboardingPageView: View {
 enum Tab: String, CaseIterable {
     case Scanner
     case NewQRCode
-    case Library
+    case History
 }
 
 struct OnboardingView: View {
@@ -45,8 +45,8 @@ struct OnboardingView: View {
             return "qrcode.viewfinder"
         case .NewQRCode:
             return "plus"
-        case .Library:
-            return "books.vertical.fill"
+        case .History:
+            return "clock.arrow.circlepath"
         }
     }
     
@@ -58,7 +58,7 @@ struct OnboardingView: View {
                 } else if selection == .NewQRCode {
                     Home()
                 } else {
-                    Library()
+                    History()
                 }
             }
             .onAppear {

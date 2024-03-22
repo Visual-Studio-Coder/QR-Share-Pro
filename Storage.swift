@@ -4,7 +4,6 @@ struct QRCode: Identifiable, Codable {
     var id = UUID()
     var text: String
     var qrCode: Data?
-    var brandingLogo: Data?
     var date = Date.now
 }
 

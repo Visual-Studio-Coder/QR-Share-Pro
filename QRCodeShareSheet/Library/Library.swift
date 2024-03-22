@@ -60,7 +60,7 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
     }
 }
 
-struct Library: View {
+struct History: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
     @State private var editMode = false
@@ -106,18 +106,18 @@ struct Library: View {
                     VStack {
                         Spacer()
                         
-                        Image(systemName: "books.vertical.fill")
+                        Image(systemName: "clock.arrow.circlepath")
                             .resizable()
                             .scaledToFit()
                             .frame(height: 80)
                             .padding(.bottom, 10)
                         
-                        Text("Library")
+                        Text("History")
                             .font(.title)
                             .fontWeight(.bold)
                             .padding(.bottom, 10)
                         
-                        Text("Save QR codes to your **Library**,\nand they'll appear here.")
+                        Text("Scan, create, or share a QR code.")
                             .font(.subheadline)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 50)
@@ -168,7 +168,7 @@ struct Library: View {
                             Section {
                                 ForEach(x) { i in
                                     NavigationLink {
-                                        LibraryDetailInfo(qrCode: i)
+                                        HistoryDetailInfo(qrCode: i)
                                             .environmentObject(qrCodeStore)
                                     } label: {
                                         HStack {
@@ -258,11 +258,11 @@ struct Library: View {
                             }
                         }
                     }
-                    .searchable(text: $searchText, prompt: "Search Library")
+                    .searchable(text: $searchText, prompt: "Search History")
                 }
             }
             .environment(\.editMode, Binding(get: { editMode ? .active : .inactive }, set: { editMode = ($0 == .active) }))
-            .navigationTitle(qrCodeStore.history.isEmpty ? "" : "Library")
+            .navigationTitle(qrCodeStore.history.isEmpty ? "" : "History")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -308,7 +308,7 @@ struct Library: View {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
         
-        Library()
+        History()
             .environmentObject(qrCodeStore)
     }
 }
