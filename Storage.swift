@@ -1,10 +1,3 @@
-//
-//  Storage.swift
-//  QRCodeShareSheet
-//
-//  Created by Aaron Ma on 3/21/24.
-//
-
 import SwiftUI
 
 struct QRCode: Identifiable, Codable {
@@ -28,37 +21,44 @@ extension Data {
 class QRCodeStore: ObservableObject {
     @Published var history: [QRCode] = []
     
-    private static func fileURL() throws -> URL {
-        try FileManager.default.url(for: .documentDirectory,
-                                    in: .userDomainMask,
-                                    appropriateFor: nil,
-                                    create: false)
-        .appendingPathComponent("qrcode.data")
-    }
-    
-    func load() async throws {
-        let task = Task<[QRCode], Error> {
-            let fileURL = try Self.fileURL()
-            guard let data = try? Data(contentsOf: fileURL) else {
-                return []
+    private let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare")
+
+    init() {
+        let notificationName = CFNotificationName("com.click.QRShare.dataChanged" as CFString)
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, { (_, _, _, _, _) in
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NSNotification.Name("com.click.QRShare.dataChanged"), object: nil)
             }
-            let history = try JSONDecoder().decode([QRCode].self, from: data)
-            return history
-        }
-        let history = try await task.value
-        self.history = history
+        }, notificationName.rawValue, nil, .deliverImmediately)
+        NotificationCenter.default.addObserver(self, selector: #selector(load), name: NSNotification.Name("com.click.QRShare.dataChanged"), object: nil)
+        load()
     }
     
-    func save(history: [QRCode]) async throws {
-        let task = Task {
-            let data = try JSONEncoder().encode(history)
-            let outfile = try Self.fileURL()
-            try data.write(to: outfile)
+    @objc func load() {
+        guard let data = userDefaults?.data(forKey: "history") else {
+            return
         }
-        _ = try await task.value
+        let decoder = JSONDecoder()
+        if let loadedHistory = try? decoder.decode([QRCode].self, from: data) {
+            self.history = loadedHistory
+        }
+    }
+    
+    func save(history: [QRCode]) {
+        let encoder = JSONEncoder()
+        if let encodedHistory = try? encoder.encode(history) {
+            userDefaults?.set(encodedHistory, forKey: "history")
+        }
     }
     
     func indexOfQRCode(withID id: UUID) -> Int? {
         return history.firstIndex(where: { $0.id == id })
+    }
+
+    static func myCallBack(center: CFNotificationCenter?, observer: UnsafeMutableRawPointer?, name: CFString?, object: UnsafeRawPointer?, userInfo: CFDictionary?) {
+        let mySelf = Unmanaged<QRCodeStore>.fromOpaque(observer!).takeUnretainedValue()
+        DispatchQueue.main.async {
+            mySelf.load()
+        }
     }
 }

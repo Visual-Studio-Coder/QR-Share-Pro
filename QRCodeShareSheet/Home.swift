@@ -88,7 +88,6 @@ struct Home: View {
     @AppStorage("toggleAppIconTinting") private var toggleAppIconTinting = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
-    @ObservedObject var accentColorManager = AccentColorManager.shared
     
     @State private var showingAboutAppSheet = false
     @State private var text = ""
@@ -106,21 +105,11 @@ struct Home: View {
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
     
     private func changeAppIcon(to iconURL: String) {
-            let iconName = iconURL == "AppIcon" ? nil : iconURL
-
-            UIApplication.shared.setAlternateIconName(iconName) { error in
-                if let error = error {
-                    fatalError(error.localizedDescription)
-                }
-            }
-
-            switch iconName {
-            case "AppIcon2":
-                AccentColorManager.shared.accentColor = Color(.green)
-            case "AppIcon3":
-                AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
-            default:
-                AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
+        let iconName = iconURL == "AppIcon" ? nil : iconURL
+        
+        UIApplication.shared.setAlternateIconName(iconName) { error in
+            if let error = error {
+                fatalError(error.localizedDescription)
             }
         }
         
@@ -356,6 +345,22 @@ struct Home: View {
                         
                         Section("Contributors") {
                             Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                VStack {
+                                    HStack {
+                                        Label("Aaron Ma", systemImage: "person.fill")
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right")
+                                            .tint(.secondary)
+                                    }
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
                                     UIApplication.shared.open(url)
                                 }
@@ -368,21 +373,6 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Aaron Ma", systemImage: "person.fill")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                        } header: {
-                            Text("Contributors")
                         }
                         
                         Section("Support Us") {
@@ -439,7 +429,7 @@ struct Home: View {
                                     Label("MIT License", systemImage: "text.quote")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
+                                        .tint(.secondary)
                                 }
                             }
                             .tint(.primary)
@@ -450,7 +440,35 @@ struct Home: View {
                                 }
                             } label: {
                                 HStack {
-                                    Label("Contribute (GitHub)", systemImage: "curlybraces")
+                                    Label("Source Code", systemImage: "curlybraces")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Terms of Service", systemImage: "newspaper.fill")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Privacy Policy", systemImage: "lock.shield.fill")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
@@ -480,7 +498,6 @@ struct Home: View {
                         }
                     }
                 }
-                .accentColor(accentColorManager.accentColor)
             }
         }
         .onChange(of: toggleAppIconTinting) { _ in
@@ -494,7 +511,6 @@ struct Home: View {
         //            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         //        }
     }
-    
 }
 
 #Preview {
@@ -503,31 +519,5 @@ struct Home: View {
         
         Home()
             .environmentObject(qrCodeStore)
-    }
-}
-class AccentColorManager: ObservableObject {
-    static let shared = AccentColorManager()
-
-    var accentColor: Color {
-        get {
-            let colorData = UserDefaults.standard.data(forKey: "accentColor")
-            let uiColor = colorData != nil ? UIColor.colorWithData(colorData!) : UIColor(Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1)))
-            return Color(uiColor)
-        }
-        set {
-            let uiColor = UIColor(newValue)
-            UserDefaults.standard.set(uiColor.encode(), forKey: "accentColor")
-            objectWillChange.send()
-        }
-    }
-}
-
-extension UIColor {
-    func encode() -> Data {
-        return try! NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: false)
-    }
-
-    static func colorWithData(_ data: Data) -> UIColor {
-        return try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! UIColor
     }
 }

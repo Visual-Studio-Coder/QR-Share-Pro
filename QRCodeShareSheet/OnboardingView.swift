@@ -1,10 +1,3 @@
-//
-//  OnboardingView.swift
-//  QRCodeShareSheet
-//
-//  Created by Aaron Ma on 3/5/24.
-//
-
 import SwiftUI
 
 struct OnboardingPageView: View {
@@ -110,7 +103,7 @@ struct OnboardingView: View {
         } else {
             TabView {
                 OnboardingPageView(image: Image("AppIcon"), title: "QR Code Generator", description: "This app allows you to generate QR codes from text.")
-                OnboardingPageView(image: Image(systemName: "square.and.arrow.up"), title: "Share Sheet", description: "You can add this app to the share sheet to generate QR codes from other apps.")
+                OnboardingPageView(image: Image(systemName: "square.and.arrow.up"), title: "Share Menu", description: "You can add this app to the Share menu to generate QR codes from other apps.")
                 VStack {
                     Text("Get Started")
                         .font(.title)
