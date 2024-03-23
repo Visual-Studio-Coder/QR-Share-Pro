@@ -5,6 +5,7 @@ struct QRCode: Identifiable, Codable {
     var text: String
     var qrCode: Data?
     var date = Date.now
+    var bookmarked: Bool = false
 }
 
 extension Data {
