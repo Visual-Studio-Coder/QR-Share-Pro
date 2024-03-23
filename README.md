@@ -1,6 +1,6 @@
 # QR Share - Share links and text with just a QR code.
 
-Get ready to revolutionize the way you share information with QR Share, the innovative app exclusively for iPhones running iOS 15 or later! Say goodbye to tedious copying and pasting – with QR Share, you can instantly convert web URLs, text, and more into sleek, scannable QR codes.
+Get ready to revolutionize the way you share information with QR Share, the innovative app exclusively for iPhones running iOS 16 or later! Say goodbye to tedious copying and pasting – with QR Share, you can instantly convert web URLs, text, and more into sleek, scannable QR codes.
 
 But that's not all – make a statement with your own custom branding logo by generating unique QR codes that reflect your personal style or business identity. And with our built-in scanner, you can quickly scan any QR code while we automatically remove all trackers for added privacy and peace of mind.
 
