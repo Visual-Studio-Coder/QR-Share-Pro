@@ -216,6 +216,13 @@ struct History: View {
                                             Label("Delete", systemImage: "trash")
                                         }
                                     }
+                                    .swipeActions(edge: .leading) {
+                                        Button {
+                                        } label: {
+                                            Label("Save", systemImage: i.bookmarked ? "bookmark.slash" : "bookmark")
+                                        }
+                                        .tint(.indigo)
+                                    }
                                     .swipeActions(edge: .trailing) {
                                         Button {
                                             currentQRCode = i
