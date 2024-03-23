@@ -65,7 +65,7 @@ struct OnboardingView: View {
             }
             .onAppear {
                 Task {
-                    try await qrCodeStore.load()
+                    qrCodeStore.load()
                 }
                 
 //    #if targetEnvironment(simulator)
@@ -172,7 +172,7 @@ struct OnboardingView: View {
                             .scaledToFit()
                             .padding(50)
                             .padding(.bottom, 50)
-                        Text("Scan codes *Privately* and *Securely*")
+                        Text("Confidently scan QR codes.")
                             .font(.title)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
