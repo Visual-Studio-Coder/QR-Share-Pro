@@ -56,6 +56,8 @@ struct Home: View {
     @State private var showHistorySavedAlert = false
     @State private var qrCodeImage: UIImage = UIImage()
     
+    @FocusState private var isFocused
+    
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
@@ -127,6 +129,13 @@ struct Home: View {
                     .onChange(of: text) { newValue in
                         generateQRCode(from: newValue)
                     }
+                    .onTapGesture {
+                        isFocused = true
+                    }
+                    .onSubmit {
+                        isFocused = false
+                    }
+                    .focused($isFocused)
                 
                 Section {}
                 
@@ -321,9 +330,13 @@ struct Home: View {
                 changeColor(to: appIcon)
             }
         }
-        //        .onTapGesture {
-        //            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        //        }
+        .onChange(of: isFocused) { focus in
+            if focus {
+                DispatchQueue.main.async {
+                    UIApplication.shared.sendAction(#selector(UIResponder.selectAll(_:)), to: nil, from: nil, for: nil)
+                }
+            }
+        }
     }
 }
 
