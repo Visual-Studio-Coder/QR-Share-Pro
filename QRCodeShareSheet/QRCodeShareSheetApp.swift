@@ -33,6 +33,8 @@ extension View {
 
 @main
 struct QRCodeApp: App {
+    @Environment(\.colorScheme) var colorScheme
+    @AppStorage("appIcon") private var appIcon = "AppIcon"
     @StateObject private var qrCodeStore = QRCodeStore()
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
@@ -43,7 +45,7 @@ struct QRCodeApp: App {
                 .environmentObject(qrCodeStore)
                 .splashView {
                     ZStack {
-                        LinearGradient(colors: [Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1)), Color(#colorLiteral(red: 0.5606167912, green: 0.8587760329, blue: 0.9991238713, alpha: 1))], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [colorScheme == .dark ? accentColorManager.accentColor.opacity(0.6) : accentColorManager.accentColor, colorScheme == .dark ? accentColorManager.accentColor.opacity(0.1) : accentColorManager.accentColor.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
                             .ignoresSafeArea()
                         
                         VStack {
@@ -51,11 +53,11 @@ struct QRCodeApp: App {
                             
                             Spacer()
                             
-                            Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                            Image(uiImage: #imageLiteral(resourceName: appIcon))
                                 .resizable()
                                 .frame(width: 150, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 32))
-                                .shadow(radius: 50)
+                                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                                .shadow(color: colorScheme == .dark ? accentColorManager.accentColor : accentColorManager.accentColor.opacity(0.1), radius: 50)
                             
                             Text("QR Share")
                                 .font(.largeTitle)

@@ -18,7 +18,7 @@ struct HistoryDetailInfo: View {
     @State var qrCode: QRCode
     
     func save() async throws {
-        try await qrCodeStore.save(history: qrCodeStore.history)
+        qrCodeStore.save(history: qrCodeStore.history)
     }
     
     let context = CIContext()
