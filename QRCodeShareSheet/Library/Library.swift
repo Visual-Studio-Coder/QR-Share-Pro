@@ -73,6 +73,8 @@ struct History: View {
     
     @State private var showOfflineText = true
     
+    @State private var showingClearHistoryConfirmation = false
+    
     private var allSearchTags = ["All", "URL", "Text"]
     
     private let monitor = NetworkMonitor()
@@ -100,7 +102,7 @@ struct History: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 if qrCodeStore.history.isEmpty {
                     VStack {
@@ -166,6 +168,14 @@ struct History: View {
                         
                         if !x.isEmpty {
                             Section {
+                                if editMode {
+                                    Button {
+                                        showingClearHistoryConfirmation = true
+                                    } label: {
+                                        Label("Clear History", systemImage: "trash")
+                                    }
+                                }
+                                
                                 ForEach(x) { i in
                                     NavigationLink {
                                         HistoryDetailInfo(qrCode: i)
@@ -254,6 +264,23 @@ struct History: View {
                                         }
                                     }
                                 }
+                                .confirmationDialog("Clear History?", isPresented: $showingClearHistoryConfirmation, titleVisibility: .visible) {
+                                    Button("Clear History", role: .destructive) {
+                                        withAnimation {
+                                            qrCodeStore.history = []
+                                            
+                                            Task {
+                                                do {
+                                                    try await save()
+                                                } catch {
+                                                    print(error)
+                                                }
+                                            }
+                                            
+                                            showingClearHistoryConfirmation = false
+                                        }
+                                    }
+                                }
                             } header: {
                                 if searchTag == "URL" {
                                     Text(x.count == 1 ? "1 URL" : "\(x.count) URLs")
@@ -272,8 +299,8 @@ struct History: View {
             .navigationTitle(qrCodeStore.history.isEmpty ? "" : "History")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if !qrCodeStore.history.isEmpty {
+                if !qrCodeStore.history.isEmpty {
+                    ToolbarItem(placement: .topBarLeading) {
                         Menu {
                             ForEach(allSearchTags, id: \.self) { i in
                                 Button {
@@ -292,8 +319,8 @@ struct History: View {
                     }
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !qrCodeStore.history.isEmpty {
+                if !qrCodeStore.history.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             withAnimation {
                                 editMode.toggle()
