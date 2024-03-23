@@ -1,4 +1,5 @@
 import SwiftUI
+import ColorfulX
 
 struct OnboardingPageView: View {
     var image: Image
@@ -38,6 +39,7 @@ struct OnboardingView: View {
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
     @State private var selection: Tab = .NewQRCode
+    @State private var colors: [Color] = [.gray, .orange, .yellow, .green, .blue, .white, .purple, .pink, .gray, .white]
     
     func getImage(tab: Tab) -> String{
         switch tab {
@@ -101,9 +103,84 @@ struct OnboardingView: View {
             .padding(.bottom, 10)
             .padding([.horizontal, .top])
         } else {
+            ZStack {
+                ColorfulView(color: $colors)
+                    .ignoresSafeArea()
+                    .opacity(0.8)
             TabView {
-                OnboardingPageView(image: Image("AppIcon"), title: "QR Code Generator", description: "This app allows you to generate QR codes from text.")
-                OnboardingPageView(image: Image(systemName: "square.and.arrow.up"), title: "Share Menu", description: "You can add this app to the Share menu to generate QR codes from other apps.")
+                VStack {
+                    Spacer()
+                    Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
+                        .resizable()
+                        .clipShape(RoundedRectangle(cornerRadius: 37))
+                        .scaledToFit()
+                        .frame(height: 200)
+                        .padding(.top, 50)
+                        .padding(.bottom, 50)
+                    Text("Welcome to QR Share!")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    Text("Generate QR codes from directly from the Share menu, securely scan codes, and manage your QR code library!")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 50)
+                        .padding(.bottom, 50)
+                    Spacer()
+                }
+                VStack {
+                    Spacer()
+                    Image(systemName: "square.and.arrow.up")
+                        .resizable()
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .scaledToFit()
+                        .frame(height: 200)
+                        .padding(.top, 50)
+                        .padding(.bottom, 50)
+                    Text("Add QR Share to the Share Menu")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                    Text("Generate QR Codes from any app. \nClick \"Show Share Menu,\" scroll through the list of apps, tap \"more,\" and add QR Share!")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 50)
+                        .padding(.bottom, 50)
+                    if #available(iOS 16.0, *) {
+                        ShareLink(item: "https://github.com/") {
+                            Label {
+                                Text("Show Share Menu")
+                            } icon: {
+                                Image(systemName: "gear")
+                            }
+
+                        }
+                        .padding()
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                    } else {
+                        // Fallback on earlier versions
+                    }
+                    Spacer()
+                }
+                VStack {
+                    Spacer()
+                    Image(uiImage: #imageLiteral(resourceName: "QR-Scan-demo"))
+                        .resizable()
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .scaledToFit()
+                        .padding(50)
+                        .padding(.bottom, 50)
+                    Text("Scan codes *Privately* and *Securely*")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                    Text("Some QR codes contain tracking links that collect sensitive info, such as your IP address, before redirecting you. We automatically unshorten these URLs so you know where you're *really* headed.")
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 50)
+                        .padding(.bottom, 50)
+                    Spacer()
+                }
                 VStack {
                     Text("Get Started")
                         .font(.title)
@@ -124,6 +201,7 @@ struct OnboardingView: View {
             }
             .tabViewStyle(PageTabViewStyle())
             .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            }
         }
     }
 }
