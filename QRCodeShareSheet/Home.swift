@@ -339,7 +339,17 @@ struct Home: View {
                             } label: {
                                 VStack {
                                     HStack {
-                                        Label("Aaron Ma", systemImage: "person")
+                                        Image(systemName: "person")
+                                            .font(.largeTitle)
+                                            .tint(.accentColor)
+                                        
+                                        VStack(alignment: .leading) {
+                                            Text("Vaibhav Satishkumar")
+                                                .bold()
+                                            
+                                            Text("App Concept")
+                                                .foregroundStyle(.secondary)
+                                        }
                                         Spacer()
                                         Image(systemName: "arrow.up.right")
                                             .tint(.secondary)
@@ -349,12 +359,22 @@ struct Home: View {
                             .tint(.primary)
                             
                             Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
+                                if let url = URL(string: "https://aaronhma.com") {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
                                 HStack {
-                                    Label("Vaibhav Satishkumar", systemImage: "person")
+                                    Image(systemName: "person")
+                                        .font(.largeTitle)
+                                        .tint(.accentColor)
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text("Aaron Ma")
+                                            .bold()
+                                        
+                                        Text("Lead Developer")
+                                            .foregroundStyle(.secondary)
+                                    }
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
