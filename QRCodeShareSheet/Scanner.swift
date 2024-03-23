@@ -188,9 +188,7 @@ struct Scanner: View {
                     viewModel.stopScanning()
                 }
             
-            HStack {
-                Spacer()
-                
+            VStack {
                 if viewModel.isLoading {
                     HStack {
                         if let originalURL = viewModel.detectedURL {
@@ -291,28 +289,6 @@ struct Scanner: View {
                         .padding()
                         .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
                         .cornerRadius(10)
-                }
-                
-                Spacer()
-                
-                VStack {
-                    Button {} label: {
-                        Image(systemName: "plus.magnifyingglass")
-                            .font(.headline)
-                            .tint(.white)
-                    }
-                    .padding(10)
-                    .background(Color.accentColor)
-                    .clipShape(Circle())
-                    
-                    Button {} label: {
-                        Image(systemName: "minus.magnifyingglass")
-                            .font(.headline)
-                            .tint(.white)
-                    }
-                    .padding(10)
-                    .background(Color.accentColor)
-                    .clipShape(Circle())
                 }
             }
             .padding(.bottom)

@@ -60,6 +60,17 @@ struct Home: View {
     
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
     
+    private func changeColor(to iconName: String) {
+        switch iconName {
+        case "AppIcon2":
+            AccentColorManager.shared.accentColor = Color.mint
+        case "AppIcon3":
+            AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
+        default:
+            AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
+        }
+    }
+    
     private func changeAppIcon(to iconURL: String) {
         let iconName = iconURL == "AppIcon" ? nil : iconURL
         
@@ -69,14 +80,7 @@ struct Home: View {
             }
         }
         
-        switch iconName {
-        case "AppIcon2":
-            AccentColorManager.shared.accentColor = Color.mint
-        case "AppIcon3":
-            AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
-        default:
-            AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
-        }
+        changeColor(to: iconName ?? "AppIcon")
     }
     
     let context = CIContext()
@@ -217,7 +221,7 @@ struct Home: View {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.title)
                                         .bold()
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(.secondary)
                                 }
                                 .tint(.primary)
                             }
@@ -237,7 +241,7 @@ struct Home: View {
                         
                         Section("App Icon & Tinting") {
                             Toggle(isOn: $toggleAppIconTinting) {
-                                Label("Use Tinting from App Icon", systemImage: "drop")
+                                Label("Use App Icon for Tinting", systemImage: "eyedropper.halffull")
                             }
                             
                             ForEach(allIcons) { i in
@@ -263,7 +267,7 @@ struct Home: View {
                             }
                         }
                         
-                        Section("Made with 💖 & 😛 by") {
+                        Section("Credits") {
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
                                     UIApplication.shared.open(url)
@@ -314,7 +318,7 @@ struct Home: View {
             if !toggleAppIconTinting {
                 AccentColorManager.shared.accentColor = Color.blue
             } else {
-                changeAppIcon(to: appIcon)
+                changeColor(to: appIcon)
             }
         }
         //        .onTapGesture {
