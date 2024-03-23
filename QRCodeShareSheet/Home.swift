@@ -47,15 +47,14 @@ struct Home: View {
     @AppStorage("toggleAppIconTinting") private var toggleAppIconTinting = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.requestReview) var requestReview
     
     @State private var showingAboutAppSheet = false
     @State private var text = ""
     @State private var showSavePhotosQuestionAlert = false
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
-    @State private var qrCodeImage: UIImage?
-    
-    @State private var showingClearHistoryConfirmation = false
+    @State private var qrCodeImage: UIImage = UIImage()
     
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
@@ -110,14 +109,12 @@ struct Home: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
-                if let qrCodeImage = qrCodeImage {
-                    Image(uiImage: qrCodeImage)
-                        .interpolation(.none)
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                }
+                Image(uiImage: qrCodeImage)
+                    .interpolation(.none)
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fit)
                 
                 TextField("Create your own QR code...", text: $text)
                     .keyboardType(.webSearch)
@@ -143,38 +140,32 @@ struct Home: View {
             }
             .alert("Save to Photos?", isPresented: $showSavePhotosQuestionAlert) {
                 Button("Yes") {
-                    if let qrCodeImage = qrCodeImage {
-                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                        showSavedAlert = true
-                    }
+                    UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                    showSavedAlert = true
                     
-                    if let qrCodeImage = qrCodeImage {
-                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                        qrCodeStore.history.append(newCode)
-                        Task {
-                            do {
-                                try await save()
-                            } catch {
-                                fatalError(error.localizedDescription)
-                            }
+                    let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                    qrCodeStore.history.append(newCode)
+                    Task {
+                        do {
+                            try await save()
+                        } catch {
+                            fatalError(error.localizedDescription)
                         }
-                        showHistorySavedAlert = true
                     }
+                    showHistorySavedAlert = true
                 }
                 
                 Button("No") {
-                    if let qrCodeImage = qrCodeImage {
-                        let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
-                        qrCodeStore.history.append(newCode)
-                        Task {
-                            do {
-                                try await save()
-                            } catch {
-                                fatalError(error.localizedDescription)
-                            }
+                    let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                    qrCodeStore.history.append(newCode)
+                    Task {
+                        do {
+                            try await save()
+                        } catch {
+                            fatalError(error.localizedDescription)
                         }
-                        showHistorySavedAlert = true
                     }
+                    showHistorySavedAlert = true
                 }
             }
             .alert("Saved to Photos!", isPresented: $showSavedAlert) {
@@ -186,9 +177,12 @@ struct Home: View {
             
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {} label: {
+                    let qrCodeImage = Image(uiImage: qrCodeImage)
+                    
+                    ShareLink(item: qrCodeImage, preview: SharePreview(text, image: qrCodeImage)) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
+                    .disabled(text.isEmpty)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -200,35 +194,36 @@ struct Home: View {
                 }
             }
             .sheet(isPresented: $showingAboutAppSheet) {
-                NavigationView {
+                NavigationStack {
                     List {
                         Section {
-                            HStack {
-                                Image(uiImage: #imageLiteral(resourceName: appIcon))
-                                    .resizable()
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                                
-                                VStack(alignment: .leading) {
-                                    Text("QR Share")
+                            ShareLink(item: URL(string: "https://aaronhma.com")!) {
+                                HStack {
+                                    Image(uiImage: #imageLiteral(resourceName: appIcon))
+                                        .resizable()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text("QR Share")
+                                            .bold()
+                                        
+                                        Text("Version \(appVersion) (\(appBuild))")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.title)
                                         .bold()
-                                    Text("Version \(appVersion) (\(appBuild))")
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(.white)
                                 }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "square.and.arrow.up")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.secondary)
+                                .tint(.primary)
                             }
                             
                             Button {
-                                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                                    DispatchQueue.main.async {
-                                        SKStoreReviewController.requestReview(in: scene)
-                                    }
-                                }
+                                requestReview()
                             } label: {
                                 HStack {
                                     Label("Rate App", systemImage: "star")
@@ -238,118 +233,45 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Privacy Policy", systemImage: "lock.shield")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            HStack {
-#if targetEnvironment(simulator)
-                                Label("Xcode Simulator", systemImage: "hammer")
-#else
-                                Label("iPhone (TestFlight)", systemImage: "iphone")
-#endif
-                                
-                                Spacer()
-                                
-                                if #available(iOS 18, *) {
-                                    Text("iOS 18")
-                                        .foregroundStyle(.secondary)
-                                } else if #available(iOS 17, *) {
-                                    Text("iOS 17")
-                                        .foregroundStyle(.secondary)
-                                } else if #available(iOS 16, *) {
-                                    Text("iOS 16")
-                                        .foregroundStyle(.secondary)
-                                } else {
-                                    Text("iOS 15")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            
-                            if #unavailable(iOS 17) {
-                                Text("Update to iOS 17 or later to receive future QR Share updates.")
-                                    .foregroundStyle(.secondary)
-                            }
                         }
                         
-                        Section("App Icon") {
-                            NavigationLink {
-                                List {
-                                    Section("All App Icons") {
-                                        ForEach(allIcons) { i in
-                                            Button {
-                                                changeAppIcon(to: i.iconURL)
-                                                appIcon = i.iconURL
-                                            } label: {
-                                                HStack {
-                                                    Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
-                                                        .font(.title2)
-                                                        .tint(.accentColor)
-                                                    
-                                                    Image(uiImage: #imageLiteral(resourceName: i.iconURL))
-                                                        .resizable()
-                                                        .frame(width: 50, height: 50)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                        .shadow(radius: 50)
-                                                    
-                                                    Text(i.iconName)
-                                                        .tint(.primary)
-                                                }
-                                            }
-                                        }
+                        Section("App Icon & Tinting") {
+                            Toggle(isOn: $toggleAppIconTinting) {
+                                Label("Use Tinting from App Icon", systemImage: "drop")
+                            }
+                            
+                            ForEach(allIcons) { i in
+                                Button {
+                                    changeAppIcon(to: i.iconURL)
+                                    appIcon = i.iconURL
+                                } label: {
+                                    HStack {
+                                        Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
+                                            .font(.title2)
+                                            .tint(.accentColor)
+                                        
+                                        Image(uiImage: #imageLiteral(resourceName: i.iconURL))
+                                            .resizable()
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                            .shadow(radius: 50)
+                                        
+                                        Text(i.iconName)
+                                            .tint(.primary)
                                     }
                                 }
-                                .navigationTitle("App Icon")
-                                .navigationBarTitleDisplayMode(.inline)
-                            } label: {
-                                Label("App Icon", systemImage: "square.grid.3x3.square")
-                            }
-                        }
-
-                        Section("Tinting") {
-                            Toggle(isOn: $toggleAppIconTinting) {
-                                Label("Use App Icon for Tinting", systemImage: "drop.halffull")
                             }
                         }
                         
-                        Section("History") {
+                        Section("Made with 💖 & 😛 by") {
                             Button {
-                                showingClearHistoryConfirmation = true
-                            } label: {
-                                Label("Clear History", systemImage: "trash")
-                            }
-                        }
-                        
-                        Section("Contributors") {
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
                                 VStack {
                                     HStack {
-                                        Image(systemName: "person")
-                                            .font(.largeTitle)
-                                            .tint(.accentColor)
-                                        
-                                        VStack(alignment: .leading) {
-                                            Text("Vaibhav Satishkumar")
-                                                .bold()
-                                            
-                                            Text("App Concept")
-                                                .foregroundStyle(.secondary)
-                                        }
+                                        Label("Vaibhav Satishkumar", systemImage: "person")
                                         Spacer()
                                         Image(systemName: "arrow.up.right")
                                             .tint(.secondary)
@@ -364,31 +286,7 @@ struct Home: View {
                                 }
                             } label: {
                                 HStack {
-                                    Image(systemName: "person")
-                                        .font(.largeTitle)
-                                        .tint(.accentColor)
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text("Aaron Ma")
-                                            .bold()
-                                        
-                                        Text("Lead Developer")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Contribute / Feature Request", systemImage: "star.bubble")
+                                    Label("Aaron Ma", systemImage: "person")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
@@ -409,23 +307,6 @@ struct Home: View {
                             }
                         }
                     }
-                }
-            }
-            .confirmationDialog("Clear History?", isPresented: $showingClearHistoryConfirmation, titleVisibility: .visible) {
-                Button("Clear History", role: .destructive) {
-                        withAnimation {
-                            qrCodeStore.history = []
-                            
-                            Task {
-                                do {
-                                    try await save()
-                                } catch {
-                                    print(error)
-                                }
-                            }
-                            
-                            showingClearHistoryConfirmation = false
-                        }
                 }
             }
         }

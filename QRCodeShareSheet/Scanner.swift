@@ -161,7 +161,7 @@ struct QRScanner: UIViewControllerRepresentable {
            let url = URL(string: stringValue) {
             // Check if the newly scanned URL is the same as the last one scanned.
             if url == lastScannedURL {
-                // If it is, simply return without doing anythinga
+                // If it is, simply return without doing anything
                 return
             }
             

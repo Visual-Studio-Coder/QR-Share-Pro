@@ -49,7 +49,7 @@ struct HistoryDetailInfo: View {
     var body: some View {
         VStack {
             if isEditing {
-                NavigationView {
+                NavigationStack {
                     Form {
                         HStack {
                             Spacer()
@@ -167,9 +167,16 @@ struct HistoryDetailInfo: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button {
-                } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                if isValidURL(qrCode.text) {
+                    ShareLink(item: URL(string: qrCode.text)!) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                } else {
+                    let qrCodeImage = Image(uiImage: qrCodeImage)
+                    
+                    ShareLink(item: qrCodeImage, preview: SharePreview(qrCode.text, image: qrCodeImage)) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
                 }
             }
             
@@ -230,7 +237,7 @@ struct HistoryDetailInfo: View {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
         
-        NavigationView {
+        NavigationStack {
             HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
                 .environmentObject(qrCodeStore)
         }
