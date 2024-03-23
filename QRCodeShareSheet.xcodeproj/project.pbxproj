@@ -434,8 +434,8 @@
 				INFOPLIST_FILE = QRCodeShareSheet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "The app scans QR codes and saves them to your QR Share Library. All of this is done 100% locally on your device.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "The app saves the QR codes you select to the Photos app. QR Share will only save photos upon your selection, avoiding unnecessary spam or unwanted additions.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. This is done completely on-device.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to save this QR code to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -474,8 +474,8 @@
 				INFOPLIST_FILE = QRCodeShareSheet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "The app scans QR codes and saves them to your QR Share Library. All of this is done 100% locally on your device.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "The app saves the QR codes you select to the Photos app. QR Share will only save photos upon your selection, avoiding unnecessary spam or unwanted additions.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. This is done completely on-device.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to save this QR code to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -506,7 +506,7 @@
 				DEVELOPMENT_TEAM = L3P446LNNP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Share/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Share;
+				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -537,7 +537,7 @@
 				DEVELOPMENT_TEAM = L3P446LNNP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Share/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Share;
+				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (

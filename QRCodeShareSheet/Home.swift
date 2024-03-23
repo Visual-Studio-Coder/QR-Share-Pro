@@ -43,10 +43,7 @@ struct AppIcon: Identifiable {
 }
 
 struct Home: View {
-    @AppStorage("appIcon") private var appIcon = "AppIcon"
-    @AppStorage("toggleAppIconTinting") private var toggleAppIconTinting = false
     @EnvironmentObject var qrCodeStore: QRCodeStore
-    @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
     
     @State private var showingAboutAppSheet = false
@@ -89,7 +86,7 @@ struct Home: View {
     let filter = CIFilter.qrCodeGenerator()
     
     func save() async throws {
-        try await qrCodeStore.save(history: qrCodeStore.history)
+        qrCodeStore.save(history: qrCodeStore.history)
     }
     
     func generateQRCode(from string: String) {
@@ -212,10 +209,11 @@ struct Home: View {
                         Section {
                             ShareLink(item: URL(string: "https://aaronhma.com")!) {
                                 HStack {
-                                    Image(uiImage: #imageLiteral(resourceName: appIcon))
+                                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
                                         .resizable()
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        .shadow(color: .accentColor, radius: 8)
                                     
                                     VStack(alignment: .leading) {
                                         Text("QR Share")
@@ -248,18 +246,14 @@ struct Home: View {
                             .tint(.primary)
                         }
                         
-                        Section("App Icon & Tinting") {
-                            Toggle(isOn: $toggleAppIconTinting) {
-                                Label("Use App Icon for Tinting", systemImage: "eyedropper.halffull")
-                            }
-                            
+                        Section("App Icon") {
                             ForEach(allIcons) { i in
                                 Button {
                                     changeAppIcon(to: i.iconURL)
-                                    appIcon = i.iconURL
+                                    UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
                                 } label: {
                                     HStack {
-                                        Image(systemName: i.iconURL == appIcon ? "checkmark.circle.fill" : "circle")
+                                        Image(systemName: i.iconURL == UserDefaults.standard.string(forKey: "appIcon") ? "checkmark.circle.fill" : "circle")
                                             .font(.title2)
                                             .tint(.accentColor)
                                         
@@ -321,13 +315,6 @@ struct Home: View {
                         }
                     }
                 }
-            }
-        }
-        .onChange(of: toggleAppIconTinting) { _ in
-            if !toggleAppIconTinting {
-                AccentColorManager.shared.accentColor = Color.blue
-            } else {
-                changeColor(to: appIcon)
             }
         }
         .onChange(of: isFocused) { focus in

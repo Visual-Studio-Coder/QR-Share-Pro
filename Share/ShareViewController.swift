@@ -198,7 +198,7 @@ struct ShareView: View {
     }
     
     func save() async throws {
-        try await qrCodeStore.save(history: qrCodeStore.history)
+        qrCodeStore.save(history: qrCodeStore.history)
     }
     
     func dismiss() {

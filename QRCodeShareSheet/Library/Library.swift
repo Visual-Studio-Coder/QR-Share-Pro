@@ -80,7 +80,7 @@ struct History: View {
     private let monitor = NetworkMonitor()
     
     func save() async throws {
-        try await qrCodeStore.save(history: qrCodeStore.history)
+        qrCodeStore.save(history: qrCodeStore.history)
     }
     
     var searchResults: [QRCode] {
