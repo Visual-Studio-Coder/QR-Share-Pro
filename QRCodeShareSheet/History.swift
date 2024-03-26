@@ -1,8 +1,8 @@
 //
-//  Library.swift
+//  History.swift
 //  QRCodeShareSheet
 //
-//  Created by Aaron Ma on 3/21/24.
+//  Created by Aaron Ma on 3/25/24.
 //
 
 import SwiftUI
@@ -75,7 +75,7 @@ struct History: View {
     
     @State private var showingClearHistoryConfirmation = false
     
-    private var allSearchTags = ["All", "URL", "Text"]
+    private var allSearchTags = ["All", "URL", "Text", "Saved"]
     
     private let monitor = NetworkMonitor()
     
@@ -128,10 +128,11 @@ struct History: View {
                         Spacer()
                     }
                 } else {
-                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ searchTag == "All" ? true : getTypeOf(type: $0.text) == searchTag })
+                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ (searchTag == "All" || searchTag == "Saved") ? (searchTag == "All" ? true : $0.bookmarked) : getTypeOf(type: $0.text) == searchTag })
                     
                     if x.isEmpty {
                         VStack {
+                            if searchTag != "Saved" {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
                                 .scaledToFit()
@@ -146,18 +147,35 @@ struct History: View {
                             Text(searchTag != "All" ? "Check the spelling or remove the filter." : "Check the spelling or try a new search.")
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
+                            } else {
+                                Image(systemName: "bookmark.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 80)
+                                    .padding(.bottom, 10)
+                                    .foregroundStyle(.secondary)
+                                
+                                Text("No Saved QR Codes")
+                                    .font(.title)
+                                    .bold()
+                                
+                                Text("Swipe left on a QR code, or click the\nBookmark icon to save QR codes.")
+                                    .font(.subheadline)
+                                    .multilineTextAlignment(.center)
+                            }
                         }
                         .padding(.top, 50)
                     }
                     
                     List {
-                        if !monitor.isActive && showOfflineText {
-                            Section("Network") {
+                        if !x.isEmpty && !monitor.isActive && showOfflineText {
+                            Section("Network Unavailable") {
                                 Button {
                                     showOfflineText = false
                                 } label: {
                                     HStack {
                                         Label("You're offline.", systemImage: "network.slash")
+                                            .tint(.primary)
                                         Spacer()
                                         Image(systemName: "multiply.circle.fill")
                                             .foregroundStyle(Color.gray)
@@ -219,6 +237,24 @@ struct History: View {
                                         }
                                     }
                                     .contextMenu {
+                                        Button {
+                                            if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                                withAnimation {
+                                                    qrCodeStore.history[idx].bookmarked.toggle()
+                                                    
+                                                    Task {
+                                                        do {
+                                                            try await save()
+                                                        } catch {
+                                                            print(error)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } label: {
+                                            Label(i.bookmarked ? "Unsave" : "Save", systemImage: i.bookmarked ? "bookmark.slash.fill" : "bookmark")
+                                        }
+                                        
                                         Button(role: .destructive) {
                                             currentQRCode = i
                                             showingDeleteConfirmation = true
@@ -228,8 +264,21 @@ struct History: View {
                                     }
                                     .swipeActions(edge: .leading) {
                                         Button {
+                                            if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                                withAnimation {
+                                                    qrCodeStore.history[idx].bookmarked.toggle()
+                                                    
+                                                    Task {
+                                                        do {
+                                                            try await save()
+                                                        } catch {
+                                                            print(error)
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         } label: {
-                                            Label("Save", systemImage: i.bookmarked ? "bookmark.slash" : "bookmark")
+                                            Label(i.bookmarked ? "Unsave" : "Save", systemImage: i.bookmarked ? "bookmark.slash" : "bookmark")
                                         }
                                         .tint(.indigo)
                                     }
@@ -286,6 +335,8 @@ struct History: View {
                                     Text(x.count == 1 ? "1 URL" : "\(x.count) URLs")
                                 } else if searchTag == "Text" {
                                     Text(x.count == 1 ? "1 QR Code Found" : "\(x.count) QR Codes Found")
+                                } else if searchTag == "Saved" {
+                                    Text(x.count == 1 ? "1 Saved QR Code" : "\(x.count) Saved QR Codes")
                                 } else {
                                     Text(x.count == 1 ? "1 QR Code" : "\(x.count) QR Codes")
                                 }

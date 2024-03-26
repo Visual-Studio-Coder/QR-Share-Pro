@@ -1,8 +1,8 @@
 //
-//  LibraryDetailInfo.swift
+//  HistoryDetailInfo.swift
 //  QRCodeShareSheet
 //
-//  Created by Aaron Ma on 3/21/24.
+//  Created by Aaron Ma on 3/25/24.
 //
 
 import SwiftUI
@@ -55,10 +55,10 @@ struct HistoryDetailInfo: View {
                             Spacer()
                             
                             Image(uiImage: qrCodeImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
                             
                             Spacer()
                         }
@@ -178,6 +178,27 @@ struct HistoryDetailInfo: View {
                     ShareLink(item: qrCodeImage, preview: SharePreview(qrCode.text, image: qrCodeImage)) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
+                }
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                        withAnimation {
+                            qrCodeStore.history[idx].bookmarked.toggle()
+                            qrCode.bookmarked.toggle()
+                            
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    print(error)
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    Label(qrCode.bookmarked ? "Unsave" : "Save", systemImage: qrCode.bookmarked ? "bookmark.slash.fill" : "bookmark")
                 }
             }
             

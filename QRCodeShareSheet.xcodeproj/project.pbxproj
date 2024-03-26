@@ -15,12 +15,12 @@
 		78F2F2482B91677300CDF3EC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */; };
 		8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */; };
 		8B2EE4B62B981066001C7997 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B52B981066001C7997 /* Home.swift */; };
+		8BA2748C2BB26F8D00EF9631 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA2748B2BB26F8D00EF9631 /* History.swift */; };
+		8BA2748E2BB26FA100EF9631 /* HistoryDetailInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA2748D2BB26FA100EF9631 /* HistoryDetailInfo.swift */; };
 		8BB42EF82B9EB9FC00CE3DC6 /* Scanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB42EF72B9EB9FC00CE3DC6 /* Scanner.swift */; };
 		8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E1652B99575C0094D652 /* ShareViewController.swift */; };
 		8BB6E1692B99575C0094D652 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1682B99575C0094D652 /* Base */; };
 		8BB6E16D2B99575C0094D652 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BB6E1632B99575C0094D652 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8BFDC2652BACE1FA00423449 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC2642BACE1FA00423449 /* Library.swift */; };
-		8BFDC2672BACE21500423449 /* LibraryDetailInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC2662BACE21500423449 /* LibraryDetailInfo.swift */; };
 		8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */; };
 		8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC26B2BACE80C00423449 /* Storage.swift */; };
 /* End PBXBuildFile section */
@@ -59,13 +59,13 @@
 		78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8B2EE4B52B981066001C7997 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
+		8BA2748B2BB26F8D00EF9631 /* History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = History.swift; sourceTree = "<group>"; };
+		8BA2748D2BB26FA100EF9631 /* HistoryDetailInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailInfo.swift; sourceTree = "<group>"; };
 		8BB42EF72B9EB9FC00CE3DC6 /* Scanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scanner.swift; sourceTree = "<group>"; };
 		8BB6E1632B99575C0094D652 /* Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BB6E1652B99575C0094D652 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		8BB6E1682B99575C0094D652 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		8BB6E16A2B99575C0094D652 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8BFDC2642BACE1FA00423449 /* Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; };
-		8BFDC2662BACE21500423449 /* LibraryDetailInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailInfo.swift; sourceTree = "<group>"; };
 		8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		8BFDC26B2BACE80C00423449 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -118,7 +118,9 @@
 				8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */,
 				8B2EE4B52B981066001C7997 /* Home.swift */,
 				8BB42EF72B9EB9FC00CE3DC6 /* Scanner.swift */,
-				8BFDC26A2BACE2DF00423449 /* Library */,
+				8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */,
+				8BA2748B2BB26F8D00EF9631 /* History.swift */,
+				8BA2748D2BB26FA100EF9631 /* HistoryDetailInfo.swift */,
 				78F2F2442B91677300CDF3EC /* Assets.xcassets */,
 				78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */,
 			);
@@ -134,16 +136,6 @@
 				8BB6E16A2B99575C0094D652 /* Info.plist */,
 			);
 			path = Share;
-			sourceTree = "<group>";
-		};
-		8BFDC26A2BACE2DF00423449 /* Library */ = {
-			isa = PBXGroup;
-			children = (
-				8BFDC2642BACE1FA00423449 /* Library.swift */,
-				8BFDC2662BACE21500423449 /* LibraryDetailInfo.swift */,
-				8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */,
-			);
-			path = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -256,13 +248,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BFDC2672BACE21500423449 /* LibraryDetailInfo.swift in Sources */,
+				8BA2748C2BB26F8D00EF9631 /* History.swift in Sources */,
 				8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */,
 				8B2EE4B62B981066001C7997 /* Home.swift in Sources */,
 				8BB42EF82B9EB9FC00CE3DC6 /* Scanner.swift in Sources */,
+				8BA2748E2BB26FA100EF9631 /* HistoryDetailInfo.swift in Sources */,
 				78F2F2412B91677000CDF3EC /* QRCodeShareSheetApp.swift in Sources */,
 				8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */,
-				8BFDC2652BACE1FA00423449 /* Library.swift in Sources */,
 				8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
