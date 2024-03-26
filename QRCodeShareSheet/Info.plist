@@ -2,10 +2,57 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.aaronhma.QRShare</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>qrshare</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.click.QRShare</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>qrshare</string>
+			</array>
+		</dict>
+	</array>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>qrcode.viewfinder</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Scan QR Code</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>qrshare://scan</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>plus</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>New QR Code</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>qrshare://new</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>clock.arrow.circlepath</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>History</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>qrshare://history</string>
+		</dict>
+	</array>
 	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIColorName</key>
-		<string>launchScreenColor</string>
-	</dict>
+	<dict/>
 </dict>
 </plist>
