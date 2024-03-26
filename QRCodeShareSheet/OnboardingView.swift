@@ -85,9 +85,9 @@ struct OnboardingView: View {
                     qrCodeStore.load()
                 }
                 
-#if targetEnvironment(simulator)
-                UserDefaults.standard.set(false, forKey: "isOnboardingDone")
-#endif
+//#if targetEnvironment(simulator)
+//                UserDefaults.standard.set(false, forKey: "isOnboardingDone")
+//#endif
             }
             
             HStack(spacing: 0) {
@@ -174,7 +174,9 @@ struct OnboardingView: View {
                                 .bold()
                         }
                         
-                        Button {} label: {
+                        Button {
+                            isOnboardingDone = true
+                        } label: {
                             Text("Continue")
                                 .frame(maxWidth: .infinity, minHeight: 44)
                                 .background(Color.accentColor)

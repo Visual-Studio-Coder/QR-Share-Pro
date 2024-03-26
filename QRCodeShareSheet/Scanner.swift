@@ -78,9 +78,20 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var isLoading = false
     @Published var cameraError = false
     
+    @Published var qrCodeImage: UIImage?
+    @State var qrCode: QRCode
+    var qrCodeStore: QRCodeStore
+    
+    func save() async throws {
+        await qrCodeStore.save(history: qrCodeStore.history)
+    }
+    
+    
     let scannerController = QRScannerController()
     
-    init() {
+    init(qrCodeStore: QRCodeStore) {
+        self.qrCodeStore = qrCodeStore
+        self.qrCode = QRCode(text: "") // Initialize qrCode here
         scannerController.delegate = self
     }
     
@@ -100,14 +111,50 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     
     var lastDetectedURL: URL?
     
-    func didDetectQRCode(url: URL) {
+    let filter = CIFilter.qrCodeGenerator()
+    let context = CIContext()
+    func generateQRCode(from string: String) {
+        let data = Data(string.utf8)
+        filter.setValue(data, forKey: "inputMessage")
+        
+        if let qrCode = filter.outputImage {
+            let transform = CGAffineTransform(scaleX: 10, y: 10)
+            let scaledQrCode = qrCode.transformed(by: transform)
+            
+            if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
+                qrCodeImage = UIImage(cgImage: cgImage)
+            }
+        }
+    }
+    
+    @MainActor func didDetectQRCode(url: URL) {
         // Check if the newly detected URL is the same as the last one detected
         if url == lastDetectedURL {
             // If it is, simply return without doing anything
             return
         }
         
+        //        Play system haptic
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+        
+        // Generate QR Code image from the URL
+        generateQRCode(from: url.absoluteString)
+        
+        // Check if qrCodeImage is not nil
+        if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
+            // Create a new QR Code object
+            let newCode = QRCode(text: url.absoluteString, qrCode: pngData)
+            qrCodeStore.history.append(newCode)
+            Task {
+                do {
+                    try await save()
+                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                } catch {
+                    fatalError(error.localizedDescription)
+                }
+            }
+        }
+        
         
         // Update the last detected URL
         lastDetectedURL = url
@@ -143,7 +190,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
 }
 
 struct QRScanner: UIViewControllerRepresentable {
-    @ObservedObject var viewModel: QRScannerViewModel
+    @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     
     func makeUIViewController(context: Context) -> QRScannerController {
         return viewModel.scannerController
@@ -176,7 +223,7 @@ struct QRScanner: UIViewControllerRepresentable {
 }
 
 struct Scanner: View {
-    @StateObject var viewModel = QRScannerViewModel()
+    @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -310,5 +357,10 @@ struct VisualEffectView: UIViewRepresentable {
 }
 
 #Preview {
-    Scanner()
+    Group {
+        @StateObject var qrCodeStore = QRCodeStore()
+        
+        Scanner()
+            .environmentObject(qrCodeStore)
+    }
 }
