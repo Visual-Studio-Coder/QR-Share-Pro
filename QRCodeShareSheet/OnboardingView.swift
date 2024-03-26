@@ -16,7 +16,7 @@ struct OnboardingPageView: View {
                 .padding(.bottom, 50)
             Text(title)
                 .font(.title)
-                .fontWeight(.bold)
+                .bold()
             Text(description)
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
@@ -33,15 +33,32 @@ enum Tab: String, CaseIterable {
     case History
 }
 
+struct Feature: Decodable, Identifiable {
+    var id = UUID()
+    let title: String
+    let description: String
+    let image: String
+}
+
+
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    @Environment(\.colorScheme) var colorScheme
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
     @State private var selection: Tab = .NewQRCode
-    @State private var colors: [Color] = [.gray, .orange, .yellow, .green, .blue, .white, .purple, .pink, .gray, .white]
+    @State private var colors: [Color] = [.black, .indigo, .pink]
     
-    func getImage(tab: Tab) -> String{
+    let features = [
+        Feature(title: "QR Share", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
+        Feature(title: "Confidently scan QR codes", description: "Remove trackers & stop phishing in its tracks.", image: "qrcode.viewfinder"),
+        Feature(title: "Create New QR Code", description: "If you liked the first one, wait until you see this!", image: "plus"),
+        Feature(title: "History", description: "All your previously scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
+    ]
+    
+    
+    func getImage(tab: Tab) -> String {
         switch tab {
         case .Scanner:
             return "qrcode.viewfinder"
@@ -68,15 +85,15 @@ struct OnboardingView: View {
                     qrCodeStore.load()
                 }
                 
-//    #if targetEnvironment(simulator)
-//    UserDefaults.standard.set(false, forKey: "isOnboardingDone")
-//    #endif
+#if targetEnvironment(simulator)
+                UserDefaults.standard.set(false, forKey: "isOnboardingDone")
+#endif
             }
             
             HStack(spacing: 0) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     Button {
-                        withAnimation(.easeOut(duration: 0.2)) {
+                        withAnimation(.easeOut(duration: 0.2).delay(0.07)) {
                             selection = tab
                         }
                     } label: {
@@ -86,19 +103,9 @@ struct OnboardingView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 15, height: 15)
                             .frame(maxWidth: .infinity)
-                            .foregroundStyle(selection == tab ? .white : .gray)
-                            .scaleEffect(selection == tab ? 1.5 : 1)
-                    }
-                    .background {
-                        if tab == selection {
-                            withAnimation(.easeOut(duration: 0.1).delay(0.07)) {
-                                Circle()
-                                    .fill(Color.accentColor)
-                                    .opacity(0.8)
-                                    .frame(width: 40, height: 40)
-                                    .shadow(color: .indigo, radius: 10)
-                            }
-                        }
+                            .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+                            .scaleEffect(selection == tab ? 2 : 1)
+                            .bold(selection == tab)
                     }
                 }
             }
@@ -111,98 +118,137 @@ struct OnboardingView: View {
                 ColorfulView(color: $colors)
                     .ignoresSafeArea()
                     .opacity(0.8)
-                TabView {
-                    VStack {
-                        Spacer()
-                        Image(uiImage: #imageLiteral(resourceName: "AppIcon"))
-                            .resizable()
-                            .clipShape(RoundedRectangle(cornerRadius: 37))
-                            .scaledToFit()
-                            .frame(height: 200)
-                            .padding(.top, 50)
-                            .padding(.bottom, 50)
-                        Text("Welcome to QR Share!")
-                            .font(.title)
-                            .fontWeight(.bold)
-                        Text("Generate QR codes from directly from the Share menu, securely scan codes, and manage your QR code library!")
-                            .font(.subheadline)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 50)
-                            .padding(.bottom, 50)
-                        Spacer()
-                    }
-                    VStack {
-                        Spacer()
-                        Image(systemName: "square.and.arrow.up")
-                            .resizable()
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .scaledToFit()
-                            .frame(height: 200)
-                            .padding(.top, 50)
-                            .padding(.bottom, 50)
-                        Text("Add QR Share to the Share Menu")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                        Text("Generate QR Codes from any app. \nClick \"Show Share Menu,\" scroll through the list of apps, tap \"more,\" and add QR Share!")
-                            .font(.subheadline)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 50)
-                            .padding(.bottom, 50)
-                        
-                        ShareLink(item: "https://github.com/") {
-                            Label {
-                                Text("Show Share Menu")
-                            } icon: {
-                                Image(systemName: "gear")
-                            }
+                
+                VStack(spacing: 20) {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            Image(uiImage: UIImage(named: "AppIcon") ?? UIImage())
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                                .accessibilityHidden(true)
+                                .shadow(color: .accentColor, radius: 15)
+                                .padding(.top, 20)
                             
-                        }
-                        .padding()
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        
-                        Spacer()
-                    }
-                    VStack {
-                        Spacer()
-                        Image(uiImage: #imageLiteral(resourceName: "QR-scan-demo"))
-                            .resizable()
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .scaledToFit()
-                            .padding(50)
-                            .padding(.bottom, 50)
-                        Text("Confidently scan QR codes.")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                        Text("Some QR codes contain tracking links that collect sensitive info, such as your IP address, before redirecting you. We automatically unshorten these URLs so you know where you're *really* headed.")
-                            .font(.subheadline)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 50)
-                            .padding(.bottom, 50)
-                        Spacer()
-                    }
-                    VStack {
-                        Text("Get Started")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .padding()
-                            .background(.blue)
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding(.bottom, 20)
-                            .onTapGesture {
-                                isOnboardingDone = true
+                            HStack {
+                                Text("Welcome to")
+                                    .foregroundStyle(.white)
+                                
+                                Text("QR Share")
+                                    .foregroundStyle(.cyan)
                             }
+                            .multilineTextAlignment(.center)
+                            .font(.largeTitle)
+                            .bold()
+                            
+                            ForEach(features) { feature in
+                                HStack {
+                                    Image(systemName: feature.image)
+                                        .frame(width: 44)
+                                        .font(.title)
+                                        .foregroundStyle(Color.accentColor)
+                                        .accessibilityHidden(true)
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(feature.title)
+                                            .foregroundStyle(.white)
+                                            .font(.headline)
+                                            .bold()
+                                        
+                                        Text(feature.description)
+                                            .foregroundStyle(.white.opacity(0.7))
+                                    }
+                                    .accessibilityElement(children: .combine)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
                     }
-                    .tabItem {
-                        Image(systemName: "checkmark.circle")
-                        Text("Done")
+                    
+                    VStack {
+                        Text("We respect your privacy.")
+                            .foregroundStyle(.white)
+                        
+                        Button {} label: {
+                            Text("Learn more...")
+                                .bold()
+                        }
+                        
+                        Button {} label: {
+                            Text("Continue")
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(Color.accentColor)
+                                .foregroundStyle(.white)
+                                .cornerRadius(10)
+                                .bold()
+                        }
                     }
                 }
-                .tabViewStyle(PageTabViewStyle())
-                .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+                .padding()
+                //                    VStack {
+                //                        Spacer()
+                //                        Image(systemName: "square.and.arrow.up")
+                //                            .resizable()
+                //                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                //                            .scaledToFit()
+                //                            .frame(height: 200)
+                //                            .padding(.top, 50)
+                //                            .padding(.bottom, 50)
+                //                        Text("Add QR Share to the Share Menu")
+                //                            .font(.title)
+                //                            .bold()
+                //                            .multilineTextAlignment(.center)
+                //                        Text("Generate QR Codes from any app. \nClick \"Show Share Menu,\" scroll through the list of apps, tap \"more,\" and add QR Share!")
+                //                            .font(.subheadline)
+                //                            .multilineTextAlignment(.center)
+                //                            .padding(.horizontal, 50)
+                //                            .padding(.bottom, 50)
+                //
+                //                        ShareLink(item: "https://apple.com/") {
+                //                            Label {
+                //                                Text("Show Share Menu")
+                //                            } icon: {
+                //                                Image(systemName: "gear")
+                //                            }
+                //
+                //                        }
+                //                        .padding()
+                //                        .background(.white)
+                //                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                //
+                //                        Spacer()
+                //                    }
+                //                    VStack {
+                //                        Spacer()
+                //                        Image(uiImage: #imageLiteral(resourceName: "QR-scan-demo"))
+                //                            .resizable()
+                //                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                //                            .scaledToFit()
+                //                            .padding(50)
+                //                            .padding(.bottom, 50)
+                //                        Text("Confidently scan QR codes.")
+                //                            .font(.title)
+                //                            .bold()
+                //                            .multilineTextAlignment(.center)
+                //                        Text("Some QR codes contain tracking links that collect sensitive info, such as your IP address, before redirecting you. We automatically unshorten these URLs so you know where you're *really* headed.")
+                //                            .font(.subheadline)
+                //                            .multilineTextAlignment(.center)
+                //                            .padding(.horizontal, 50)
+                //                            .padding(.bottom, 50)
+                //
+                //                        Text("Get Started")
+                //                            .font(.title)
+                //                            .bold()
+                //                            .padding()
+                //                            .background(.blue)
+                //                            .foregroundStyle(.white)
+                //                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                //                            .padding(.bottom, 20)
+                //                            .onTapGesture {
+                //                                isOnboardingDone = true
+                //                            }
+                //                        Spacer()
+                //                    }
             }
         }
     }

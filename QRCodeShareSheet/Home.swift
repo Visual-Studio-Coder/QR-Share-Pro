@@ -107,10 +107,6 @@ struct Home: View {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
     }
     
-    var appBuild: String {
-        (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "1"
-    }
-    
     var body: some View {
         NavigationStack {
             Form {
@@ -219,7 +215,7 @@ struct Home: View {
                                         Text("QR Share")
                                             .bold()
                                         
-                                        Text("Version \(appVersion) (\(appBuild))")
+                                        Text("Version \(appVersion)")
                                             .foregroundStyle(.secondary)
                                     }
                                     

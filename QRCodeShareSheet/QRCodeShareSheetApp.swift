@@ -61,7 +61,7 @@ struct QRCodeApp: App {
                             
                             Text("QR Share")
                                 .font(.largeTitle)
-                                .fontWeight(.bold)
+                                .bold()
                                 .foregroundStyle(.white)
                                 .padding(.top, 5)
                                 .shadow(radius: 50)
