@@ -134,7 +134,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             return
         }
         
-        //        Play system haptic
+        // Play system haptic
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
         
         // Generate QR Code image from the URL
