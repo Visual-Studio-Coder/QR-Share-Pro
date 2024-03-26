@@ -64,9 +64,10 @@ struct ShareView: View {
                     }, label: {
                         HStack {
                             Spacer()
-                            Text("**Dismiss**")
+                            Text("Dismiss")
                                 .font(.title)
                                 .padding(.vertical, 16)
+                                .bold()
                             Spacer()
                         }
                     })
@@ -150,9 +151,10 @@ struct ShareView: View {
                 }, label: {
                     HStack {
                         Spacer()
-                        Text("**Dismiss**")
+                        Text("Dismiss")
                             .font(.title)
                             .padding(.vertical, 16)
+                            .bold()
                         Spacer()
                     }
                 })
