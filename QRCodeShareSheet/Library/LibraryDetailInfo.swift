@@ -114,7 +114,7 @@ struct HistoryDetailInfo: View {
                                 
                                 Text(URL(string: qrCode.text)!.host!)
                                     .font(.largeTitle)
-                                    .fontWeight(.bold)
+                                    .bold()
                                     .lineLimit(1)
                                 
                                 Spacer()
@@ -124,11 +124,12 @@ struct HistoryDetailInfo: View {
                                         UIApplication.shared.open(url)
                                     }
                                 } label: {
-                                    Label("**Open**", systemImage: "safari")
+                                    Label("Open", systemImage: "safari")
                                         .padding(8)
                                         .foregroundStyle(.white)
                                         .background(Color.accentColor)
                                         .clipShape(Capsule())
+                                        .bold()
                                 }
                             }
                             
@@ -142,7 +143,7 @@ struct HistoryDetailInfo: View {
                         } else {
                             Text(qrCode.text)
                                 .font(.largeTitle)
-                                .fontWeight(.bold)
+                                .bold()
                         }
                         
                         Divider()

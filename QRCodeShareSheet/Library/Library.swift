@@ -116,7 +116,7 @@ struct History: View {
                         
                         Text("History")
                             .font(.title)
-                            .fontWeight(.bold)
+                            .bold()
                             .padding(.bottom, 10)
                         
                         Text("Scan, create, or share a QR code.")
@@ -141,7 +141,7 @@ struct History: View {
                             
                             Text("No Results")
                                 .font(.title)
-                                .fontWeight(.bold)
+                                .bold()
                             
                             Text(searchTag != "All" ? "Check the spelling or remove the filter." : "Check the spelling or try a new search.")
                                 .font(.subheadline)
@@ -210,7 +210,7 @@ struct History: View {
                                             
                                             VStack(alignment: .leading) {
                                                 Text(i.text)
-                                                    .fontWeight(.bold)
+                                                    .bold()
                                                     .lineLimit(searchText.isEmpty ? 2 : 3)
                                                 
                                                 Text(i.date, format: .dateTime)
