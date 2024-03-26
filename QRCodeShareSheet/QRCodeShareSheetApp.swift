@@ -33,6 +33,8 @@ extension View {
 
 @main
 struct QRCodeApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("appIcon") private var appIcon = "AppIcon"
     @StateObject private var qrCodeStore = QRCodeStore()
