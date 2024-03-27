@@ -75,7 +75,7 @@ struct History: View {
     
     @State private var showingClearHistoryConfirmation = false
     
-    private var allSearchTags = ["All", "URL", "Text", "Saved"]
+    private var allSearchTags = ["All", "URL", "Text", "Pinned"]
     
     private let monitor = NetworkMonitor()
     
@@ -128,11 +128,11 @@ struct History: View {
                         Spacer()
                     }
                 } else {
-                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ (searchTag == "All" || searchTag == "Saved") ? (searchTag == "All" ? true : $0.bookmarked) : getTypeOf(type: $0.text) == searchTag })
+                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ (searchTag == "All" || searchTag == "Pinned") ? (searchTag == "All" ? true : $0.pinned) : getTypeOf(type: $0.text) == searchTag })
                     
                     if x.isEmpty {
                         VStack {
-                            if searchTag != "Saved" {
+                            if searchTag != "Pinned" {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
                                 .scaledToFit()
@@ -148,18 +148,18 @@ struct History: View {
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
                             } else {
-                                Image(systemName: "bookmark.fill")
+                                Image(systemName: "pin.fill")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 80)
                                     .padding(.bottom, 10)
                                     .foregroundStyle(.secondary)
                                 
-                                Text("No Saved QR Codes")
+                                Text("No Pinned QR Codes")
                                     .font(.title)
                                     .bold()
                                 
-                                Text("Swipe left on a QR code, or click the\nBookmark icon to save QR codes.")
+                                Text("Swipe left on a QR code, or click the\nPin icon to save QR codes.")
                                     .font(.subheadline)
                                     .multilineTextAlignment(.center)
                             }
@@ -240,7 +240,7 @@ struct History: View {
                                         Button {
                                             if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                 withAnimation {
-                                                    qrCodeStore.history[idx].bookmarked.toggle()
+                                                    qrCodeStore.history[idx].pinned.toggle()
                                                     
                                                     Task {
                                                         do {
@@ -252,7 +252,7 @@ struct History: View {
                                                 }
                                             }
                                         } label: {
-                                            Label(i.bookmarked ? "Unsave" : "Save", systemImage: i.bookmarked ? "bookmark.slash.fill" : "bookmark")
+                                            Label(i.pinned ? "Unpin" : "Pin", systemImage: i.pinned ? "pin.slash.fill" : "pin")
                                         }
                                         
                                         Button(role: .destructive) {
@@ -266,7 +266,7 @@ struct History: View {
                                         Button {
                                             if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                 withAnimation {
-                                                    qrCodeStore.history[idx].bookmarked.toggle()
+                                                    qrCodeStore.history[idx].pinned.toggle()
                                                     
                                                     Task {
                                                         do {
@@ -278,7 +278,7 @@ struct History: View {
                                                 }
                                             }
                                         } label: {
-                                            Label(i.bookmarked ? "Unsave" : "Save", systemImage: i.bookmarked ? "bookmark.slash" : "bookmark")
+                                            Label(i.pinned ? "Unpin" : "Pin", systemImage: i.pinned ? "pin.slash" : "pin")
                                         }
                                         .tint(.indigo)
                                     }
@@ -335,8 +335,8 @@ struct History: View {
                                     Text(x.count == 1 ? "1 URL" : "\(x.count) URLs")
                                 } else if searchTag == "Text" {
                                     Text(x.count == 1 ? "1 QR Code Found" : "\(x.count) QR Codes Found")
-                                } else if searchTag == "Saved" {
-                                    Text(x.count == 1 ? "1 Saved QR Code" : "\(x.count) Saved QR Codes")
+                                } else if searchTag == "Pinned" {
+                                    Text(x.count == 1 ? "1 Pinned QR Code" : "\(x.count) Pinned QR Codes")
                                 } else {
                                     Text(x.count == 1 ? "1 QR Code" : "\(x.count) QR Codes")
                                 }
