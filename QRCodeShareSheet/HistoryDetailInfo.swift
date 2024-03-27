@@ -15,6 +15,8 @@ struct HistoryDetailInfo: View {
     @State private var showSavedAlert = false
     @State private var qrCodeImage: UIImage = UIImage()
     
+    private let monitor = NetworkMonitor()
+    
     @State var qrCode: QRCode
     
     func save() async throws {
@@ -185,8 +187,8 @@ struct HistoryDetailInfo: View {
                 Button {
                     if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
                         withAnimation {
-                            qrCodeStore.history[idx].bookmarked.toggle()
-                            qrCode.bookmarked.toggle()
+                            qrCodeStore.history[idx].pinned.toggle()
+                            qrCode.pinned.toggle()
                             
                             Task {
                                 do {
@@ -198,7 +200,7 @@ struct HistoryDetailInfo: View {
                         }
                     }
                 } label: {
-                    Label(qrCode.bookmarked ? "Unsave" : "Save", systemImage: qrCode.bookmarked ? "bookmark.slash.fill" : "bookmark")
+                    Label(qrCode.pinned ? "Unpin" : "Pin", systemImage: qrCode.pinned ? "pin.slash.fill" : "pin")
                 }
             }
             
