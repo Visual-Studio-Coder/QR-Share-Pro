@@ -49,6 +49,16 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8BA274A62BB2837200EF9631 /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +75,8 @@
 		8BA2748D2BB26FA100EF9631 /* HistoryDetailInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailInfo.swift; sourceTree = "<group>"; };
 		8BA2748F2BB279BC00EF9631 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		8BA274932BB27A9300EF9631 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8BA274AD2BB285F700EF9631 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		8BA274AF2BB285F700EF9631 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		8BB42EF72B9EB9FC00CE3DC6 /* Scanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scanner.swift; sourceTree = "<group>"; };
 		8BB6E1632B99575C0094D652 /* Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BB6E1652B99575C0094D652 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
@@ -102,6 +114,7 @@
 				8BFDC26B2BACE80C00423449 /* Storage.swift */,
 				78F2F23F2B91677000CDF3EC /* QRCodeShareSheet */,
 				8BB6E1642B99575C0094D652 /* Share */,
+				8BA274AC2BB285F700EF9631 /* Frameworks */,
 				78F2F23E2B91677000CDF3EC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -133,6 +146,15 @@
 			path = QRCodeShareSheet;
 			sourceTree = "<group>";
 		};
+		8BA274AC2BB285F700EF9631 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8BA274AD2BB285F700EF9631 /* WidgetKit.framework */,
+				8BA274AF2BB285F700EF9631 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8BB6E1642B99575C0094D652 /* Share */ = {
 			isa = PBXGroup;
 			children = (
@@ -155,6 +177,7 @@
 				78F2F23A2B91677000CDF3EC /* Frameworks */,
 				78F2F23B2B91677000CDF3EC /* Resources */,
 				78F2F2602B91680C00CDF3EC /* Embed Foundation Extensions */,
+				8BA274A62BB2837200EF9631 /* Embed ExtensionKit Extensions */,
 			);
 			buildRules = (
 			);
@@ -449,7 +472,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -489,7 +512,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
