@@ -14,6 +14,9 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
     @ViewBuilder var placeholder: () -> PlaceholderView
     
     @State var image: UIImage? = nil
+    @State private var offline = false
+    
+    private let monitor = NetworkMonitor()
     
     init(url: URL?, @ViewBuilder content: @escaping (Image) -> ImageView, @ViewBuilder placeholder: @escaping () -> PlaceholderView) {
         self.url = url
@@ -26,12 +29,22 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
             if let uiImage = image {
                 content(Image(uiImage: uiImage))
             } else {
-                placeholder()
-                    .onAppear {
-                        Task {
-                            image = await downloadPhoto()
-                        }
-                    }
+                if offline {
+                    Image(systemName: "network")
+                        .foregroundStyle(.white)
+                        .font(.largeTitle)
+                        .padding()
+                        .background(Color.accentColor)
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                } else {
+                    placeholder()
+                }
+            }
+        }
+        .onAppear {
+            Task {
+                image = await downloadPhoto()
             }
         }
     }
@@ -43,15 +56,20 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
             if let cachedResponse = URLCache.shared.cachedResponse(for: .init(url: url)) {
                 return UIImage(data: cachedResponse.data)
             } else {
-                let (data, response) = try await URLSession.shared.data(from: url)
-                
-                URLCache.shared.storeCachedResponse(.init(response: response, data: data), for: .init(url: url))
-                
-                guard let image = UIImage(data: data) else {
-                    return nil
+                if monitor.isActive {
+                    let (data, response) = try await URLSession.shared.data(from: url)
+                    
+                    URLCache.shared.storeCachedResponse(.init(response: response, data: data), for: .init(url: url))
+                    
+                    guard let image = UIImage(data: data) else {
+                        return nil
+                    }
+                    
+                    return image
                 }
                 
-                return image
+                offline = true
+                return nil
             }
         } catch {
             print("Error downloading: \(error)")
@@ -74,12 +92,13 @@ struct History: View {
     
     @State private var showOfflineText = true
     
+    @State private var showingClearFaviconsConfirmation = false
     @State private var showingClearAllPinsConfirmation = false
     @State private var showingClearHistoryConfirmation = false
     
-    private var allSearchTags = ["All", "URL", "Text"]
-    
     private let monitor = NetworkMonitor()
+    
+    private var allSearchTags = ["All", "URL", "Text"]
     
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
@@ -174,9 +193,26 @@ struct History: View {
                         if editMode {
                             Section("Danger Zone") {
                                 Button {
-                                    showingClearAllPinsConfirmation = true
+                                    showingClearFaviconsConfirmation = true
                                 } label: {
-                                    Label("Clear Pins", systemImage: "pin.slash.fill")
+                                    Label("Clear Website Favicons Cache", systemImage: "xmark.square")
+                                }
+                                .confirmationDialog("Clear Website Favicons Cache?", isPresented: $showingClearFaviconsConfirmation, titleVisibility: .visible) {
+                                    Button("Clear Website Favicons Cache", role: .destructive) {
+                                        withAnimation {
+                                            URLCache.shared.removeAllCachedResponses()
+                                            
+                                            showingClearFaviconsConfirmation = false
+                                        }
+                                    }
+                                }
+                                
+                                if !pinned.isEmpty {
+                                    Button {
+                                        showingClearAllPinsConfirmation = true
+                                    } label: {
+                                        Label("Clear Pins", systemImage: "pin.slash.fill")
+                                    }
                                 }
                                 
                                 Button {
@@ -193,12 +229,33 @@ struct History: View {
                                                 do {
                                                     try await save()
                                                 } catch {
-                                                    print(error)
+                                                    print(error.localizedDescription)
                                                 }
                                             }
                                             
                                             showingClearHistoryConfirmation = false
                                         }
+                                    }
+                                }
+                            }
+                            .confirmationDialog("Clear Pins?", isPresented: $showingClearAllPinsConfirmation, titleVisibility: .visible) {
+                                Button("Clear Pins", role: .destructive) {
+                                    withAnimation {
+                                        for i in searchResults {
+                                            if i.pinned, let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                                qrCodeStore.history[idx].pinned.toggle()
+                                                
+                                                Task {
+                                                    do {
+                                                        try await save()
+                                                    } catch {
+                                                        print(error.localizedDescription)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        showingClearAllPinsConfirmation = false
                                     }
                                 }
                             }
@@ -214,24 +271,14 @@ struct History: View {
                                         } label: {
                                             HStack {
                                                 if isValidURL(i.text) {
-                                                    if !monitor.isActive {
-                                                        Image(systemName: "network")
-                                                            .foregroundStyle(.white)
-                                                            .font(.largeTitle)
-                                                            .padding()
-                                                            .background(Color.accentColor)
+                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                        i
+                                                            .resizable()
+                                                            .aspectRatio(1, contentMode: .fit)
                                                             .frame(width: 50, height: 50)
                                                             .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                    } else {
-                                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
-                                                            i
-                                                                .resizable()
-                                                                .aspectRatio(1, contentMode: .fit)
-                                                                .frame(width: 50, height: 50)
-                                                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                        } placeholder: {
-                                                            ProgressView()
-                                                        }
+                                                    } placeholder: {
+                                                        ProgressView()
                                                     }
                                                 } else {
                                                     i.qrCode?.toImage()?
@@ -259,7 +306,7 @@ struct History: View {
                                                             do {
                                                                 try await save()
                                                             } catch {
-                                                                print(error)
+                                                                print(error.localizedDescription)
                                                             }
                                                         }
                                                     }
@@ -285,7 +332,7 @@ struct History: View {
                                                             do {
                                                                 try await save()
                                                             } catch {
-                                                                print(error)
+                                                                print(error.localizedDescription)
                                                             }
                                                         }
                                                     }
@@ -315,7 +362,7 @@ struct History: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text("Pinned QR Codes")
+                                        Text(pinned.count == 1 ? "1 Pin" : "\(pinned.count) Pins")
                                         Spacer()
                                         Image(systemName: showingAllPins ? "chevron.down" : "chevron.right")
                                     }
@@ -333,24 +380,14 @@ struct History: View {
                                     } label: {
                                         HStack {
                                             if isValidURL(i.text) {
-                                                if !monitor.isActive {
-                                                    Image(systemName: "network")
-                                                        .foregroundStyle(.white)
-                                                        .font(.largeTitle)
-                                                        .padding()
-                                                        .background(Color.accentColor)
+                                                AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                    i
+                                                        .resizable()
+                                                        .aspectRatio(1, contentMode: .fit)
                                                         .frame(width: 50, height: 50)
                                                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                } else {
-                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
-                                                        i
-                                                            .resizable()
-                                                            .aspectRatio(1, contentMode: .fit)
-                                                            .frame(width: 50, height: 50)
-                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                    } placeholder: {
-                                                        ProgressView()
-                                                    }
+                                                } placeholder: {
+                                                    ProgressView()
                                                 }
                                             } else {
                                                 i.qrCode?.toImage()?
@@ -378,7 +415,7 @@ struct History: View {
                                                         do {
                                                             try await save()
                                                         } catch {
-                                                            print(error)
+                                                            print(error.localizedDescription)
                                                         }
                                                     }
                                                 }
@@ -404,7 +441,7 @@ struct History: View {
                                                         do {
                                                             try await save()
                                                         } catch {
-                                                            print(error)
+                                                            print(error.localizedDescription)
                                                         }
                                                     }
                                                 }
@@ -436,7 +473,7 @@ struct History: View {
                                                     do {
                                                         try await save()
                                                     } catch {
-                                                        print(error)
+                                                        print(error.localizedDescription)
                                                     }
                                                 }
                                                 

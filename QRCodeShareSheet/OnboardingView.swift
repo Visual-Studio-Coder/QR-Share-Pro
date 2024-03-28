@@ -54,8 +54,8 @@ struct OnboardingView: View {
     
     let features = [
         Feature(title: "QR Share", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
-        Feature(title: "Confidently scan QR codes", description: "Remove trackers & stop phishing in its tracks.", image: "qrcode.viewfinder"),
-        Feature(title: "Create New QR Code", description: "If you liked the first one, wait until you see this!", image: "plus"),
+        Feature(title: "Confidently scan QR codes", description: "See where QR codes *actually* takes you.", image: "qrcode.viewfinder"),
+        Feature(title: "Create New QR Code", description: "Create your own QR codes.", image: "plus"),
         Feature(title: "History", description: "All your previously scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
     ]
     
@@ -118,6 +118,8 @@ struct OnboardingView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 15, height: 15)
                                 .frame(maxWidth: .infinity)
+                                .rotationEffect(Angle(degrees: selection == tab ? -360 : 0))
+                                .animation(Animation.easeInOut(duration: 0.75).delay(0.01), value: selection)
                                 .foregroundStyle(selection == tab ? Color.accentColor : .gray)
                                 .scaleEffect(selection == tab ? 2 : 1)
                                 .bold(selection == tab)
@@ -146,7 +148,7 @@ struct OnboardingView: View {
                                     .padding(.top, 20)
                                 
                                 HStack {
-                                    Text("Welcome to")
+                                    Text("Say \"hello\" to")
                                         .foregroundStyle(.white)
                                     
                                     Text("QR Share")
@@ -181,7 +183,7 @@ struct OnboardingView: View {
                         }
                         
                         VStack {
-                            Text("We respect your privacy.")
+                            Text("We *actually* respect your privacy.")
                                 .foregroundStyle(.white)
                             
                             Button {} label: {
