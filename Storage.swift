@@ -6,6 +6,7 @@ struct QRCode: Identifiable, Codable {
     var qrCode: Data?
     var date = Date.now
     var pinned: Bool = false
+//    var creationMethod: String = "Scanned" // Scanned
     
     var scanLocation: [Double] = []
     var wasScanned: Bool = false

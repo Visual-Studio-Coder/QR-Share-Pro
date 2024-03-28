@@ -44,6 +44,7 @@ struct AppIcon: Identifiable {
 
 struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
     
     @State private var showingAboutAppSheet = false
@@ -57,12 +58,12 @@ struct Home: View {
     
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
-    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Default"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal"), AppIcon(iconURL: "AppIcon3", iconName: "Hologram")]
+    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue"), AppIcon(iconURL: "AppIcon2", iconName: "Hacker Green"), AppIcon(iconURL: "AppIcon3", iconName: "Rainbow Pink")]
     
     private func changeColor(to iconName: String) {
         switch iconName {
         case "AppIcon2":
-            AccentColorManager.shared.accentColor = Color.mint
+            AccentColorManager.shared.accentColor = colorScheme == .dark ? .green.opacity(0.01) : .mint
         case "AppIcon3":
             AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
         default:
@@ -75,7 +76,7 @@ struct Home: View {
         
         UIApplication.shared.setAlternateIconName(iconName) { error in
             if let error = error {
-                fatalError(error.localizedDescription)
+                print(error.localizedDescription)
             }
         }
         
@@ -155,7 +156,7 @@ struct Home: View {
                         do {
                             try await save()
                         } catch {
-                            fatalError(error.localizedDescription)
+                            print(error.localizedDescription)
                         }
                     }
                     showHistorySavedAlert = true
@@ -168,7 +169,7 @@ struct Home: View {
                         do {
                             try await save()
                         } catch {
-                            fatalError(error.localizedDescription)
+                            print(error.localizedDescription)
                         }
                     }
                     showHistorySavedAlert = true
@@ -209,7 +210,7 @@ struct Home: View {
                                         .resizable()
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        .shadow(color: .accentColor, radius: 8)
+                                        .shadow(color: .accentColor, radius: 5)
                                     
                                     VStack(alignment: .leading) {
                                         Text("QR Share")
@@ -242,7 +243,7 @@ struct Home: View {
                             .tint(.primary)
                         }
                         
-                        Section("App Icon") {
+                        Section("App Icon & Theme") {
                             ForEach(allIcons) { i in
                                 Button {
                                     changeAppIcon(to: i.iconURL)

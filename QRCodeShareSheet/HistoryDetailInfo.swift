@@ -21,6 +21,7 @@ struct HistoryDetailInfo: View {
     @State private var showingDeleteConfirmation = false
     @State private var showSavedAlert = false
     @State private var showingLocation = false
+    @State private var showingFullURLSheet = false
     @State private var qrCodeImage: UIImage = UIImage()
     
     private let monitor = NetworkMonitor()
@@ -145,13 +146,50 @@ struct HistoryDetailInfo: View {
                             .padding(.horizontal)
                             
                             VStack(alignment: .leading) {
-                                //                                TODO: https://stackoverflow.com/questions/59485532/swiftui-how-know-number-of-lines-in-text
                                 Text(qrCode.text)
-                                    .lineLimit(5)
+                                    .lineLimit(2)
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
+                                    .onTapGesture {
+                                        showingFullURLSheet = true
+                                    }
                             }
                             .padding(.horizontal)
+                            .sheet(isPresented: $showingFullURLSheet) {
+                                NavigationStack {
+                                    List {
+                                        Section {
+                                            Button {
+                                                if let url = URL(string: qrCode.text) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Label("Open URL", systemImage: "safari")
+                                                    .tint(Color.accentColor)
+                                            }
+                                        }
+                                        
+                                        Section("Full URL") {
+                                            Button {} label: {
+                                                Label("Copy URL", systemImage: "doc.on.doc")
+                                                    .tint(Color.accentColor)
+                                            }
+                                            
+                                            Text(qrCode.text)
+                                        }
+                                    }
+                                    .navigationTitle(URL(string: qrCode.text)!.host!)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingFullURLSheet = false
+                                            }
+                                            .tint(Color.accentColor)
+                                        }
+                                    }
+                                }
+                            }
                         } else {
                             Text(qrCode.text)
                                 .font(.largeTitle)
@@ -163,7 +201,7 @@ struct HistoryDetailInfo: View {
                             .padding(.horizontal)
                             .padding(.bottom, 5)
                         
-                        if qrCode.wasScanned {
+                        if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             Button {
                                 withAnimation {
                                     showingLocation.toggle()
@@ -174,28 +212,25 @@ struct HistoryDetailInfo: View {
                                         .foregroundStyle(.secondary)
                                     Spacer()
                                     Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
                             .padding(.horizontal)
                             
                             if showingLocation {
-                                if qrCode.scanLocation.isEmpty {
-                                    Text("Enable Location Services to see where this QR code was scanned.")
-                                } else {
-                                    let annotation = [ScanLocation(name: "London", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
-                                    
-                                    Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))), interactionModes: [.zoom], annotationItems: annotation) {
-                                        MapPin(coordinate: $0.coordinate, tint: .indigo)
-                                    }
-                                    .scaledToFit()
+                                let annotation = [ScanLocation(name: "London", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
+                                
+                                Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))), interactionModes: [.zoom], annotationItems: annotation) {
+                                    MapPin(coordinate: $0.coordinate, tint: .indigo)
                                 }
+                                .scaledToFit()
                             }
+                            
+                            Divider()
+                                .padding(.horizontal)
+                                .padding(.top, 5)
                         }
-                        
-                        Divider()
-                            .padding(.horizontal)
-                            .padding(.top, 5)
                         
                         HStack(spacing: 0) {
                             if qrCode.wasScanned {
@@ -245,7 +280,7 @@ struct HistoryDetailInfo: View {
                                 do {
                                     try await save()
                                 } catch {
-                                    print(error)
+                                    print(error.localizedDescription)
                                 }
                             }
                         }
@@ -275,7 +310,7 @@ struct HistoryDetailInfo: View {
                                     do {
                                         try await save()
                                     } catch {
-                                        print(error)
+                                        print(error.localizedDescription)
                                     }
                                 }
                             }
@@ -297,7 +332,7 @@ struct HistoryDetailInfo: View {
                         do {
                             try await save()
                         } catch {
-                            print(error)
+                            print(error.localizedDescription)
                         }
                     }
                 }
