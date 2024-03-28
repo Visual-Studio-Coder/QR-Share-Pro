@@ -457,7 +457,8 @@
 				INFOPLIST_FILE = QRCodeShareSheet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. This is done completely on-device.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. 100% offline.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. 100% offline.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to save this QR code to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -472,7 +473,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -497,7 +498,8 @@
 				INFOPLIST_FILE = QRCodeShareSheet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. This is done completely on-device.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. 100% offline.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. 100% offline.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to save this QR code to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -512,7 +514,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

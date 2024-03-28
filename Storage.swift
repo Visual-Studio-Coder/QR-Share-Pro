@@ -6,7 +6,9 @@ struct QRCode: Identifiable, Codable {
     var qrCode: Data?
     var date = Date.now
     var pinned: Bool = false
-//    var scanLocation: NSTextLocation
+    
+    var scanLocation: [Double] = []
+    var wasScanned: Bool = false
 }
 
 extension Data {
