@@ -40,7 +40,7 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
         do {
             videoInput = try AVCaptureDeviceInput(device: captureDevice)
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return
         }
         
@@ -135,6 +135,17 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     let filter = CIFilter.qrCodeGenerator()
     let context = CIContext()
     
+    func sampleData() {
+        qrCodeStore.history.append(QRCode(text: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
+        
+        do {
+            try save()
+            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
@@ -169,6 +180,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             var userLocation: [Double] = [] // rewrite user's location in memory
             
             if let location = locationManager.location {
+                print("user location:", location)
                 userLocation = [location.latitude, location.longitude]
             } else {
                 print("Could not get user location.")
@@ -182,11 +194,10 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     try save()
                     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
                 } catch {
-                    fatalError(error.localizedDescription)
+                    print(error.localizedDescription)
                 }
             }
         }
-        
         
         // Update the last detected URL
         lastDetectedURL = url
@@ -256,9 +267,22 @@ struct QRScanner: UIViewControllerRepresentable {
 
 struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
+    private let monitor = NetworkMonitor()
     
     var body: some View {
         ZStack(alignment: .bottom) {
+            if monitor.isActive {
+                HStack {
+                    Label("You're offline.", systemImage: "network.slash")
+                        .tint(.primary)
+                    Spacer()
+                    Image(systemName: "multiply.circle.fill")
+                        .foregroundStyle(Color.gray)
+                }
+            }
+            
+            Spacer()
+            
             QRScanner(viewModel: viewModel)
                 .onAppear {
                     viewModel.startScanning()
@@ -363,6 +387,12 @@ struct Scanner: View {
                     .background(.indigo)
                     .foregroundStyle(.white)
                 } else {
+                    Button("Use Sample Data") {
+                        viewModel.sampleData()
+//                        viewModel.generateQRCode(from: "https://duckduckgo.com")
+//                        viewModel.didDetectQRCode(url: URL(string: "https://duckduckgo.com")!)
+                    }
+                    
                     Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
                         .foregroundStyle(.white)
                         .padding()
