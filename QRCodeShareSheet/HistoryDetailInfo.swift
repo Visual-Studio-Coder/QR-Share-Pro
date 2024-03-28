@@ -6,6 +6,13 @@
 //
 
 import SwiftUI
+import MapKit
+
+struct ScanLocation: Identifiable {
+    let id = UUID()
+    let name: String
+    let coordinate: CLLocationCoordinate2D
+}
 
 struct HistoryDetailInfo: View {
     @State private var showingAboutAppSheet = false
@@ -13,6 +20,7 @@ struct HistoryDetailInfo: View {
     @State private var isEditing = false
     @State private var showingDeleteConfirmation = false
     @State private var showSavedAlert = false
+    @State private var showingLocation = false
     @State private var qrCodeImage: UIImage = UIImage()
     
     private let monitor = NetworkMonitor()
@@ -134,6 +142,7 @@ struct HistoryDetailInfo: View {
                                         .bold()
                                 }
                             }
+                            .padding(.horizontal)
                             
                             VStack(alignment: .leading) {
                                 //                                TODO: https://stackoverflow.com/questions/59485532/swiftui-how-know-number-of-lines-in-text
@@ -142,22 +151,64 @@ struct HistoryDetailInfo: View {
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
                             }
+                            .padding(.horizontal)
                         } else {
                             Text(qrCode.text)
                                 .font(.largeTitle)
                                 .bold()
+                                .padding(.horizontal)
                         }
                         
                         Divider()
+                            .padding(.horizontal)
+                            .padding(.bottom, 5)
+                        
+                        if qrCode.wasScanned {
+                            Button {
+                                withAnimation {
+                                    showingLocation.toggle()
+                                }
+                            } label: {
+                                HStack {
+                                    Text("SCAN LOCATION")
+                                        .foregroundStyle(.secondary)
+                                    Spacer()
+                                    Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
+                            
+                            if showingLocation {
+                                if qrCode.scanLocation.isEmpty {
+                                    Text("Enable Location Services to see where this QR code was scanned.")
+                                } else {
+                                    let annotation = [ScanLocation(name: "London", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
+                                    
+                                    Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))), interactionModes: [.zoom], annotationItems: annotation) {
+                                        MapPin(coordinate: $0.coordinate, tint: .indigo)
+                                    }
+                                    .scaledToFit()
+                                }
+                            }
+                        }
+                        
+                        Divider()
+                            .padding(.horizontal)
+                            .padding(.top, 5)
                         
                         HStack(spacing: 0) {
-                            Text("Last updated: ")
+                            if qrCode.wasScanned {
+                                Text("Scanned on: ")
+                            } else {
+                                Text("Last updated: ")
+                            }
                             
                             Text(qrCode.date, format: .dateTime)
                         }
                         .foregroundStyle(.secondary)
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
             }
         }
@@ -262,7 +313,7 @@ struct HistoryDetailInfo: View {
         @StateObject var qrCodeStore = QRCodeStore()
         
         NavigationStack {
-            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/"))
+            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
                 .environmentObject(qrCodeStore)
         }
     }

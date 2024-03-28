@@ -1,5 +1,25 @@
 import SwiftUI
 import AVFoundation
+import CoreLocation
+
+class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    let manager = CLLocationManager()
+
+    @Published var location: CLLocationCoordinate2D?
+
+    override init() {
+        super.init()
+        manager.delegate = self
+    }
+
+    func requestLocation() {
+        manager.requestLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        location = locations.first?.coordinate
+    }
+}
 
 class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var captureSession = AVCaptureSession()
@@ -72,6 +92,8 @@ protocol QRScannerControllerDelegate: AnyObject {
 }
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
+    @StateObject var locationManager = LocationManager()
+    
     @Published var detectedURL: URL?
     @Published var unshortenedURL: URL?
     @Published var isScanning = false
@@ -82,10 +104,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @State var qrCode: QRCode
     var qrCodeStore: QRCodeStore
     
-    func save() async throws {
-        await qrCodeStore.save(history: qrCodeStore.history)
+    func save() throws {
+        qrCodeStore.save(history: qrCodeStore.history)
     }
-    
     
     let scannerController = QRScannerController()
     
@@ -113,6 +134,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     
     let filter = CIFilter.qrCodeGenerator()
     let context = CIContext()
+    
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
@@ -142,12 +164,22 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         
         // Check if qrCodeImage is not nil
         if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
-            // Create a new QR Code object
-            let newCode = QRCode(text: url.absoluteString, qrCode: pngData)
+            locationManager.requestLocation()
+            
+            var userLocation: [Double] = [] // rewrite user's location in memory
+            
+            if let location = locationManager.location {
+                userLocation = [location.latitude, location.longitude]
+            } else {
+                print("Could not get user location.")
+            }
+            
+            let newCode = QRCode(text: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+            
             qrCodeStore.history.append(newCode)
             Task {
                 do {
-                    try await save()
+                    try save()
                     CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
                 } catch {
                     fatalError(error.localizedDescription)
