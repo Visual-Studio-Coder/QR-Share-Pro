@@ -68,14 +68,16 @@ struct History: View {
     @State private var searchText = ""
     @State private var searchTag = "All"
     @State private var showingEditButtonDeleteConfirmation = false
+    @State private var showingAllPins = true
     @State private var showingDeleteConfirmation = false
     @State private var currentQRCode = QRCode(text: "")
     
     @State private var showOfflineText = true
     
+    @State private var showingClearAllPinsConfirmation = false
     @State private var showingClearHistoryConfirmation = false
     
-    private var allSearchTags = ["All", "URL", "Text", "Pinned"]
+    private var allSearchTags = ["All", "URL", "Text"]
     
     private let monitor = NetworkMonitor()
     
@@ -128,11 +130,12 @@ struct History: View {
                         Spacer()
                     }
                 } else {
-                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ (searchTag == "All" || searchTag == "Pinned") ? (searchTag == "All" ? true : $0.pinned) : getTypeOf(type: $0.text) == searchTag })
+                    let pinned = searchResults.sorted(by: { $0.date > $1.date }).filter({ $0.pinned }).filter({ searchTag == "All" ? (searchTag == "All" ? true : $0.pinned) : getTypeOf(type: $0.text) == searchTag })
                     
-                    if x.isEmpty {
+                    let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ !$0.pinned }).filter({ searchTag == "All" ? (searchTag == "All" ? true : $0.pinned) : getTypeOf(type: $0.text) == searchTag })
+                    
+                    if x.isEmpty && pinned.isEmpty {
                         VStack {
-                            if searchTag != "Pinned" {
                             Image(systemName: "magnifyingglass")
                                 .resizable()
                                 .scaledToFit()
@@ -147,22 +150,6 @@ struct History: View {
                             Text(searchTag != "All" ? "Check the spelling or remove the filter." : "Check the spelling or try a new search.")
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
-                            } else {
-                                Image(systemName: "pin.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 80)
-                                    .padding(.bottom, 10)
-                                    .foregroundStyle(.secondary)
-                                
-                                Text("No Pinned QR Codes")
-                                    .font(.title)
-                                    .bold()
-                                
-                                Text("Swipe left on a QR code, or click the\nPin icon to save QR codes.")
-                                    .font(.subheadline)
-                                    .multilineTextAlignment(.center)
-                            }
                         }
                         .padding(.top, 50)
                     }
@@ -184,16 +171,161 @@ struct History: View {
                             }
                         }
                         
-                        if !x.isEmpty {
-                            Section {
-                                if editMode {
-                                    Button {
-                                        showingClearHistoryConfirmation = true
-                                    } label: {
-                                        Label("Clear History", systemImage: "trash")
-                                    }
+                        if editMode {
+                            Section("Danger Zone") {
+                                Button {
+                                    showingClearAllPinsConfirmation = true
+                                } label: {
+                                    Label("Clear Pins", systemImage: "pin.slash.fill")
                                 }
                                 
+                                Button {
+                                    showingClearHistoryConfirmation = true
+                                } label: {
+                                    Label("Clear History", systemImage: "trash")
+                                }
+                                .confirmationDialog("Clear History?", isPresented: $showingClearHistoryConfirmation, titleVisibility: .visible) {
+                                    Button("Clear History", role: .destructive) {
+                                        withAnimation {
+                                            qrCodeStore.history = []
+                                            
+                                            Task {
+                                                do {
+                                                    try await save()
+                                                } catch {
+                                                    print(error)
+                                                }
+                                            }
+                                            
+                                            showingClearHistoryConfirmation = false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if !pinned.isEmpty {
+                            Section {
+                                if showingAllPins {
+                                    ForEach(pinned) { i in
+                                        NavigationLink {
+                                            HistoryDetailInfo(qrCode: i)
+                                                .environmentObject(qrCodeStore)
+                                        } label: {
+                                            HStack {
+                                                if isValidURL(i.text) {
+                                                    if !monitor.isActive {
+                                                        Image(systemName: "network")
+                                                            .foregroundStyle(.white)
+                                                            .font(.largeTitle)
+                                                            .padding()
+                                                            .background(Color.accentColor)
+                                                            .frame(width: 50, height: 50)
+                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                    } else {
+                                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                            i
+                                                                .resizable()
+                                                                .aspectRatio(1, contentMode: .fit)
+                                                                .frame(width: 50, height: 50)
+                                                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                        } placeholder: {
+                                                            ProgressView()
+                                                        }
+                                                    }
+                                                } else {
+                                                    i.qrCode?.toImage()?
+                                                        .resizable()
+                                                        .frame(width: 50, height: 50)
+                                                }
+                                                
+                                                VStack(alignment: .leading) {
+                                                    Text(i.text)
+                                                        .bold()
+                                                        .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                    
+                                                    Text(i.date, format: .dateTime)
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
+                                        }
+                                        .contextMenu {
+                                            Button {
+                                                if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                                    withAnimation {
+                                                        qrCodeStore.history[idx].pinned.toggle()
+                                                        
+                                                        Task {
+                                                            do {
+                                                                try await save()
+                                                            } catch {
+                                                                print(error)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } label: {
+                                                Label("Unpin", systemImage: "pin.slash.fill")
+                                            }
+                                            
+                                            Button(role: .destructive) {
+                                                currentQRCode = i
+                                                showingDeleteConfirmation = true
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
+                                        .swipeActions(edge: .leading) {
+                                            Button {
+                                                if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
+                                                    withAnimation {
+                                                        qrCodeStore.history[idx].pinned.toggle()
+                                                        
+                                                        Task {
+                                                            do {
+                                                                try await save()
+                                                            } catch {
+                                                                print(error)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } label: {
+                                                Label("Unpin", systemImage: "pin.slash.fill")
+                                            }
+                                            .tint(Color.accentColor)
+                                        }
+                                        .swipeActions(edge: .trailing) {
+                                            Button {
+                                                currentQRCode = i
+                                                showingDeleteConfirmation = true
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                            .tint(.red)
+                                        }
+                                    }
+                                    .onDelete { indexSet in
+                                    }
+                                }
+                            } header: {
+                                Button {
+                                    withAnimation {
+                                        showingAllPins.toggle()
+                                    }
+                                } label: {
+                                    HStack {
+                                        Text("Pinned QR Codes")
+                                        Spacer()
+                                        Image(systemName: showingAllPins ? "chevron.down" : "chevron.right")
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        
+                        if !x.isEmpty {
+                            Section {
                                 ForEach(x) { i in
                                     NavigationLink {
                                         HistoryDetailInfo(qrCode: i)
@@ -252,7 +384,7 @@ struct History: View {
                                                 }
                                             }
                                         } label: {
-                                            Label(i.pinned ? "Unpin" : "Pin", systemImage: i.pinned ? "pin.slash.fill" : "pin")
+                                            Label("Pin", systemImage: "pin")
                                         }
                                         
                                         Button(role: .destructive) {
@@ -278,9 +410,9 @@ struct History: View {
                                                 }
                                             }
                                         } label: {
-                                            Label(i.pinned ? "Unpin" : "Pin", systemImage: i.pinned ? "pin.slash" : "pin")
+                                            Label("Pin", systemImage: "pin")
                                         }
-                                        .tint(.indigo)
+                                        .tint(Color.accentColor)
                                     }
                                     .swipeActions(edge: .trailing) {
                                         Button {
@@ -313,30 +445,11 @@ struct History: View {
                                         }
                                     }
                                 }
-                                .confirmationDialog("Clear History?", isPresented: $showingClearHistoryConfirmation, titleVisibility: .visible) {
-                                    Button("Clear History", role: .destructive) {
-                                        withAnimation {
-                                            qrCodeStore.history = []
-                                            
-                                            Task {
-                                                do {
-                                                    try await save()
-                                                } catch {
-                                                    print(error)
-                                                }
-                                            }
-                                            
-                                            showingClearHistoryConfirmation = false
-                                        }
-                                    }
-                                }
                             } header: {
                                 if searchTag == "URL" {
                                     Text(x.count == 1 ? "1 URL" : "\(x.count) URLs")
                                 } else if searchTag == "Text" {
                                     Text(x.count == 1 ? "1 QR Code Found" : "\(x.count) QR Codes Found")
-                                } else if searchTag == "Pinned" {
-                                    Text(x.count == 1 ? "1 Pinned QR Code" : "\(x.count) Pinned QR Codes")
                                 } else {
                                     Text(x.count == 1 ? "1 QR Code" : "\(x.count) QR Codes")
                                 }
