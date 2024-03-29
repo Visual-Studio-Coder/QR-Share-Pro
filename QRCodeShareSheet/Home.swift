@@ -58,7 +58,7 @@ struct Home: View {
     
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
-    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue"), AppIcon(iconURL: "AppIcon2", iconName: "Hacker Green"), AppIcon(iconURL: "AppIcon3", iconName: "Rainbow Pink")]
+    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue (Default)"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal Green"), AppIcon(iconURL: "AppIcon3", iconName: "Holographic Pink")]
     
     private func changeColor(to iconName: String) {
         switch iconName {
@@ -243,7 +243,7 @@ struct Home: View {
                             .tint(.primary)
                         }
                         
-                        Section("App Icon & Theme") {
+                        Section("App Icon & Themes") {
                             ForEach(allIcons) { i in
                                 Button {
                                     changeAppIcon(to: i.iconURL)
