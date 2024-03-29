@@ -54,7 +54,7 @@ struct OnboardingView: View {
     
     let features = [
         Feature(title: "QR Share", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
-        Feature(title: "Confidently scan QR codes", description: "See where QR codes *actually* takes you.", image: "qrcode.viewfinder"),
+        Feature(title: "Confidently scan QR codes", description: "See where QR code links *actually* take you.", image: "qrcode.viewfinder"),
         Feature(title: "Create New QR Code", description: "Create your own QR codes.", image: "plus"),
         Feature(title: "History", description: "All your previously scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
     ]
@@ -147,7 +147,7 @@ struct OnboardingView: View {
                                     .shadow(color: .accentColor, radius: 15)
                                     .padding(.top, 20)
                                 
-                                HStack {
+                                VStack {
                                     Text("Say \"hello\" to")
                                         .foregroundStyle(.white)
                                     
