@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import CoreLocation
+import WebKit
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     let manager = CLLocationManager()
@@ -13,11 +14,15 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func requestLocation() {
-        manager.requestLocation()
+        manager.requestWhenInUseAuthorization()
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         location = locations.first?.coordinate
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to get the user's location: \(error.localizedDescription)")
     }
 }
 
@@ -92,7 +97,7 @@ protocol QRScannerControllerDelegate: AnyObject {
 }
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
-    @StateObject var locationManager = LocationManager()
+    @ObservedObject var locationManager = LocationManager()
     
     @Published var detectedURL: URL?
     @Published var unshortenedURL: URL?
@@ -101,7 +106,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var cameraError = false
     
     @Published var qrCodeImage: UIImage?
-    @State var qrCode: QRCode
+    @Published var qrCode: QRCode
     var qrCodeStore: QRCodeStore
     
     func save() throws {
@@ -214,6 +219,16 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 DispatchQueue.main.async {
                     self.unshortenedURL = finalURL
                     self.isLoading = false
+                    
+                    // Disable JavaScript
+                    let preferences = WKPreferences()
+                    preferences.javaScriptEnabled = false
+                    
+                    // Delete cookies
+                    let cookieJar = HTTPCookieStorage.shared
+                    for cookie in cookieJar.cookies ?? [] {
+                        cookieJar.deleteCookie(cookie)
+                    }
                 }
             } else {
                 DispatchQueue.main.async {
