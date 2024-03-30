@@ -78,6 +78,26 @@ struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
     }
 }
 
+func showShareSheet(url: URL) {
+    let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    UIApplication.shared.currentUIWindow()?.rootViewController?.present(activityVC, animated: true, completion: nil)
+}
+
+public extension UIApplication {
+    func currentUIWindow() -> UIWindow? {
+        let connectedScenes = UIApplication.shared.connectedScenes
+            .filter { $0.activationState == .foregroundActive }
+            .compactMap { $0 as? UIWindowScene }
+        
+        let window = connectedScenes.first?
+            .windows
+            .first { $0.isKeyWindow }
+        
+        return window
+        
+    }
+}
+
 struct History: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
@@ -135,7 +155,7 @@ struct History: View {
                             .frame(height: 80)
                             .padding(.bottom, 10)
                         
-                        Text("History")
+                        Text("No History Yet")
                             .font(.title)
                             .bold()
                             .padding(.bottom, 10)
@@ -177,7 +197,9 @@ struct History: View {
                         if !x.isEmpty && !monitor.isActive && showOfflineText {
                             Section("Network Unavailable") {
                                 Button {
-                                    showOfflineText = false
+                                    withAnimation {
+                                        showOfflineText = false
+                                    }
                                 } label: {
                                     HStack {
                                         Label("You're offline.", systemImage: "network.slash")
@@ -191,7 +213,7 @@ struct History: View {
                         }
                         
                         if editMode {
-                            Section("Danger Zone") {
+                            Section {
                                 Button {
                                     showingClearFaviconsConfirmation = true
                                 } label: {
@@ -237,6 +259,10 @@ struct History: View {
                                         }
                                     }
                                 }
+                            } header: {
+                                Text("Danger Zone")
+                            } footer: {
+                                Text("These actions are permanent and can't be undone.")
                             }
                             .confirmationDialog("Clear Pins?", isPresented: $showingClearAllPinsConfirmation, titleVisibility: .visible) {
                                 Button("Clear Pins", role: .destructive) {
@@ -287,9 +313,17 @@ struct History: View {
                                                 }
                                                 
                                                 VStack(alignment: .leading) {
-                                                    Text(i.text)
-                                                        .bold()
-                                                        .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                    if isValidURL(i.text) {
+                                                        let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                        
+                                                        Text(fixedURL)
+                                                            .bold()
+                                                            .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                    } else {
+                                                        Text(i.text)
+                                                            .bold()
+                                                            .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                    }
                                                     
                                                     Text(i.date, format: .dateTime)
                                                         .foregroundStyle(.secondary)
@@ -297,6 +331,24 @@ struct History: View {
                                             }
                                         }
                                         .contextMenu {
+                                            if isValidURL(i.text) {
+                                                Button {
+                                                    if let url = URL(string: i.text) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                } label: {
+                                                    Label("Open URL", systemImage: "safari")
+                                                }
+                                            }
+                                            
+                                            Button {
+                                                UIPasteboard.general.string = i.text
+                                            } label: {
+                                                Label(isValidURL(i.text) ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
+                                            }
+                                            
+                                            Divider()
+                                            
                                             Button {
                                                 if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                     withAnimation {
@@ -313,6 +365,16 @@ struct History: View {
                                                 }
                                             } label: {
                                                 Label("Unpin", systemImage: "pin.slash.fill")
+                                            }
+                                            
+                                            Divider()
+                                            
+                                            if isValidURL(i.text) {
+                                                Button {
+                                                    showShareSheet(url: URL(string: i.text)!)
+                                                } label: {
+                                                    Label("Share URL", systemImage: "square.and.arrow.up")
+                                                }
                                             }
                                             
                                             Button(role: .destructive) {
@@ -396,9 +458,17 @@ struct History: View {
                                             }
                                             
                                             VStack(alignment: .leading) {
-                                                Text(i.text)
-                                                    .bold()
-                                                    .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                if isValidURL(i.text) {
+                                                    let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                    
+                                                    Text(fixedURL)
+                                                        .bold()
+                                                        .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                } else {
+                                                    Text(i.text)
+                                                        .bold()
+                                                        .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                }
                                                 
                                                 Text(i.date, format: .dateTime)
                                                     .foregroundStyle(.secondary)
@@ -406,6 +476,24 @@ struct History: View {
                                         }
                                     }
                                     .contextMenu {
+                                        if isValidURL(i.text) {
+                                            Button {
+                                                if let url = URL(string: i.text) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Label("Open URL", systemImage: "safari")
+                                            }
+                                        }
+                                        
+                                        Button {
+                                            UIPasteboard.general.string = i.text
+                                        } label: {
+                                            Label(isValidURL(i.text) ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Divider()
+                                        
                                         Button {
                                             if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                 withAnimation {
@@ -422,6 +510,16 @@ struct History: View {
                                             }
                                         } label: {
                                             Label("Pin", systemImage: "pin")
+                                        }
+                                        
+                                        Divider()
+                                        
+                                        if isValidURL(i.text) {
+                                            Button {
+                                                showShareSheet(url: URL(string: i.text)!)
+                                            } label: {
+                                                Label("Share URL", systemImage: "square.and.arrow.up")
+                                            }
                                         }
                                         
                                         Button(role: .destructive) {

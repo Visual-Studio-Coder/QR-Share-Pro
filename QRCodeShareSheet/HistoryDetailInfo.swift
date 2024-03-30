@@ -15,13 +15,17 @@ struct ScanLocation: Identifiable {
 }
 
 struct HistoryDetailInfo: View {
-    @State private var showingAboutAppSheet = false
+    @Environment(\.presentationMode) var presentationMode: Binding
+    
     @EnvironmentObject var qrCodeStore: QRCodeStore
+    
+    @State private var showingAboutAppSheet = false
     @State private var isEditing = false
     @State private var showingDeleteConfirmation = false
     @State private var showSavedAlert = false
     @State private var showingLocation = false
     @State private var showingFullURLSheet = false
+    @State private var showingAllTextSheet = false
     @State private var qrCodeImage: UIImage = UIImage()
     
     private let monitor = NetworkMonitor()
@@ -61,33 +65,16 @@ struct HistoryDetailInfo: View {
         VStack {
             if isEditing {
                 NavigationStack {
-                    Form {
-                        HStack {
-                            Spacer()
-                            
-                            Image(uiImage: qrCodeImage)
-                                .interpolation(.none)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                            
-                            Spacer()
-                        }
+                    ScrollView {
+                        Image(uiImage: qrCodeImage)
+                            .interpolation(.none)
+                            .resizable()
+                            .aspectRatio(1, contentMode: .fit)
                         
-                        ZStack(alignment: .topLeading) {
-                            TextEditor(text: $qrCode.text)
-                                .keyboardType(.webSearch)
-                                .autocapitalization(.none)
-                                .autocorrectionDisabled()
-                                .onChange(of: qrCode.text) { newValue in
-                                    generateQRCode(from: newValue)
-                                }
-                            Text(qrCode.text.isEmpty ? "Enter text here…" : "")
-                                .foregroundStyle(.gray)
-                                .opacity(qrCode.text.isEmpty ? 1 : 0)
-                                .padding(.all, 8) // Add padding
-                                .font(.system(size: 16)) // Adjust font size
-                        }
+                        TextField("Create your own QR code...", text: $qrCode.text)
+                            .keyboardType(.webSearch)
+                            .autocapitalization(.none)
+                            .autocorrectionDisabled()
                         
                         Section {
                             Button {
@@ -123,10 +110,18 @@ struct HistoryDetailInfo: View {
                                     ProgressView()
                                 }
                                 
-                                Text(URL(string: qrCode.text)!.host!)
+                                Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
                                     .font(.largeTitle)
                                     .bold()
                                     .lineLimit(1)
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = qrCode.text
+                                        } label: {
+                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                                .tint(Color.accentColor)
+                                        }
+                                    }
                                 
                                 Spacer()
                                 
@@ -146,13 +141,35 @@ struct HistoryDetailInfo: View {
                             .padding(.horizontal)
                             
                             VStack(alignment: .leading) {
-                                Text(qrCode.text)
-                                    .lineLimit(2)
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                                    .onTapGesture {
-                                        showingFullURLSheet = true
+                                HStack {
+                                    Text(qrCode.text)
+                                        .lineLimit(2)
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                        .onTapGesture {
+                                            showingFullURLSheet = true
+                                        }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .contextMenu {
+                                    Button {
+                                        UIPasteboard.general.string = qrCode.text
+                                    } label: {
+                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                            .tint(Color.accentColor)
                                     }
+                                    
+                                    Button {
+                                        showingFullURLSheet = true
+                                    } label: {
+                                        Label("Show Full URL", systemImage: "arrow.up.right")
+                                            .tint(Color.accentColor)
+                                    }
+                                }
                             }
                             .padding(.horizontal)
                             .sheet(isPresented: $showingFullURLSheet) {
@@ -169,13 +186,23 @@ struct HistoryDetailInfo: View {
                                             }
                                         }
                                         
-                                        Section("Full URL") {
-                                            Button {} label: {
+                                        Section {
+                                            Button {
+                                                UIPasteboard.general.string = qrCode.text
+                                            } label: {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
                                                     .tint(Color.accentColor)
                                             }
                                             
                                             Text(qrCode.text)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = qrCode.text
+                                                    } label: {
+                                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                                            .tint(Color.accentColor)
+                                                    }
+                                                }
                                         }
                                     }
                                     .navigationTitle(URL(string: qrCode.text)!.host!)
@@ -191,10 +218,65 @@ struct HistoryDetailInfo: View {
                                 }
                             }
                         } else {
-                            Text(qrCode.text)
-                                .font(.largeTitle)
-                                .bold()
-                                .padding(.horizontal)
+                            HStack {
+                                Text(qrCode.text)
+                                    .bold()
+                                    .lineLimit(2)
+                                    .font(.largeTitle)
+                                    .onTapGesture {
+                                        showingAllTextSheet = true
+                                    }
+                                
+                                Spacer()
+                                
+                                Button {
+                                    showingAllTextSheet = true
+                                } label: {
+                                    Label("Show Full Text", systemImage: "arrow.up.right")
+                                        .padding(8)
+                                        .foregroundStyle(.white)
+                                        .background(Color.accentColor)
+                                        .clipShape(Capsule())
+                                        .bold()
+                                }
+                            }
+                            .padding(.horizontal)
+                            .sheet(isPresented: $showingAllTextSheet) {
+                                NavigationStack {
+                                    List {
+                                        Section {
+                                            Button {
+                                                UIPasteboard.general.string = qrCode.text
+                                            } label: {
+                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                                    .tint(Color.accentColor)
+                                            }
+                                            
+                                            Text(qrCode.text)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = qrCode.text
+                                                    } label: {
+                                                        Label("Copy Text", systemImage: "doc.on.doc")
+                                                            .tint(Color.accentColor)
+                                                    }
+                                                }
+                                        } footer: {
+                                            Text("\(qrCode.text.count) characters")
+                                        }
+                                    }
+                                    .navigationTitle(qrCode.text)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingAllTextSheet = false
+                                            }
+                                            .tint(Color.accentColor)
+                                        }
+                                    }
+                                }
+                            }
                         }
                         
                         Divider()
@@ -338,6 +420,7 @@ struct HistoryDetailInfo: View {
                 }
                 
                 showingDeleteConfirmation = false
+                presentationMode.wrappedValue.dismiss()
             }
         }
     }
