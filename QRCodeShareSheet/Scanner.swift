@@ -194,6 +194,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             let newCode = QRCode(text: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
             
             qrCodeStore.history.append(newCode)
+            
             Task {
                 do {
                     try save()
@@ -221,8 +222,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     self.isLoading = false
                     
                     // Disable JavaScript
-                    let preferences = WKPreferences()
-                    preferences.javaScriptEnabled = false
+                    let preferences = WKWebpagePreferences()
+                    preferences.allowsContentJavaScript = false
                     
                     // Delete cookies
                     let cookieJar = HTTPCookieStorage.shared

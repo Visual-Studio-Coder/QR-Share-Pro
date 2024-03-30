@@ -40,7 +40,6 @@ struct Feature: Decodable, Identifiable {
     let image: String
 }
 
-
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
@@ -72,8 +71,6 @@ struct OnboardingView: View {
     }
     
     func openURL(_ url: URL) {
-        print(url.absoluteString)
-        
         if url.absoluteString.contains("new") {
             selection = .NewQRCode
         } else if url.absoluteString.contains("scan") {
@@ -127,7 +124,7 @@ struct OnboardingView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 2)
+                .frame(height: 15)
                 .padding(.bottom, 10)
                 .padding([.horizontal, .top])
             } else {
