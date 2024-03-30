@@ -95,7 +95,7 @@ struct ShareView: View {
                                 Spacer()
                                 Image(systemName: "square.and.arrow.down")
                                     .font(.system(size: 20))
-                                Text("Save to Photos")
+                                Text("Save")
                                 Spacer()
                             }
                             .frame(height: 60)

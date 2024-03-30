@@ -110,7 +110,7 @@ struct Home: View {
     
     var body: some View {
         NavigationStack {
-            Form {
+            ScrollView {
                 Image(uiImage: qrCodeImage)
                     .interpolation(.none)
                     .resizable()
@@ -130,8 +130,6 @@ struct Home: View {
                         isFocused = false
                     }
                     .focused($isFocused)
-                
-                Section {}
                 
                 Button {
                     showSavePhotosQuestionAlert = true
@@ -241,6 +239,8 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
+                            
+                            Label("QR Share Developer Beta 1", systemImage: "info")
                         }
                         
                         Section("App Icon & Themes") {
