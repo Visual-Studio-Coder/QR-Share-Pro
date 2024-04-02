@@ -48,6 +48,7 @@ struct OnboardingView: View {
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
+    @State private var showingTabView = true
     @State private var selection: Tab = .NewQRCode
     @State private var colors: [Color] = [.black, .indigo, .pink]
     
@@ -57,7 +58,6 @@ struct OnboardingView: View {
         Feature(title: "Create New QR Code", description: "Create your own QR codes.", image: "plus"),
         Feature(title: "History", description: "All your previously scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
     ]
-    
     
     func getImage(tab: Tab) -> String {
         switch tab {
@@ -102,31 +102,33 @@ struct OnboardingView: View {
                     //#endif
                 }
                 
-                HStack(spacing: 0) {
-                    ForEach(Tab.allCases, id: \.self) { tab in
-                        Button {
-                            withAnimation(.easeOut(duration: 0.2).delay(0.07)) {
-                                selection = tab
+                if showingTabView {
+                    HStack(spacing: 0) {
+                        ForEach(Tab.allCases, id: \.self) { tab in
+                            Button {
+                                withAnimation(.easeOut(duration: 0.2).delay(0.07)) {
+                                    selection = tab
+                                }
+                            } label: {
+                                Image(systemName: getImage(tab: tab))
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 15, height: 15)
+                                    .frame(maxWidth: .infinity)
+                                    .rotationEffect(Angle(degrees: selection == tab ? -360 : 0))
+                                    .animation(Animation.easeInOut(duration: 0.75).delay(0.01), value: selection)
+                                    .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+                                    .scaleEffect(selection == tab ? 2 : 1)
+                                    .bold(selection == tab)
                             }
-                        } label: {
-                            Image(systemName: getImage(tab: tab))
-                                .renderingMode(.template)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 15, height: 15)
-                                .frame(maxWidth: .infinity)
-                                .rotationEffect(Angle(degrees: selection == tab ? -360 : 0))
-                                .animation(Animation.easeInOut(duration: 0.75).delay(0.01), value: selection)
-                                .foregroundStyle(selection == tab ? Color.accentColor : .gray)
-                                .scaleEffect(selection == tab ? 2 : 1)
-                                .bold(selection == tab)
                         }
                     }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 15)
+                    .padding(.bottom, 10)
+                    .padding([.horizontal, .top])
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 15)
-                .padding(.bottom, 10)
-                .padding([.horizontal, .top])
             } else {
                 ZStack {
                     ColorfulView(color: $colors)
