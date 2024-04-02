@@ -59,10 +59,10 @@ class QRCodeStore: ObservableObject {
         return history.firstIndex(where: { $0.id == id })
     }
 
-    static func myCallBack(center: CFNotificationCenter?, observer: UnsafeMutableRawPointer?, name: CFString?, object: UnsafeRawPointer?, userInfo: CFDictionary?) {
-        let mySelf = Unmanaged<QRCodeStore>.fromOpaque(observer!).takeUnretainedValue()
-        DispatchQueue.main.async {
-            mySelf.load()
-        }
-    }
+//    static func myCallBack(center: CFNotificationCenter?, observer: UnsafeMutableRawPointer?, name: CFString?, object: UnsafeRawPointer?, userInfo: CFDictionary?) {
+//        let mySelf = Unmanaged<QRCodeStore>.fromOpaque(observer!).takeUnretainedValue()
+//        DispatchQueue.main.async {
+//            mySelf.load()
+//        }
+//    }
 }

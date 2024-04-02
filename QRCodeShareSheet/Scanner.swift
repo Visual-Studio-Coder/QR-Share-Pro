@@ -285,6 +285,14 @@ struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     private let monitor = NetworkMonitor()
     
+    private func isValidURL(_ string: String) -> Bool {
+        if let url = URLComponents(string: string) {
+            return url.scheme != nil && !url.scheme!.isEmpty
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             if monitor.isActive {
@@ -323,7 +331,9 @@ struct Scanner: View {
                                         }
                                         .frame(width: 16, height: 16)
                                     }
+                                    
                                     Text(originalURL.absoluteString)
+                                        .lineLimit(2)
                                 }
                             }
                             .foregroundStyle(Color.accentColor)
@@ -338,15 +348,19 @@ struct Scanner: View {
                             UIApplication.shared.open(url)
                         } label: {
                             HStack {
-                                if let host = url.host {
-                                    AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                        image.resizable()
-                                    } placeholder: {
-                                        ProgressView()
+                                if isValidURL(url.absoluteString) {
+                                    if let host = url.host {
+                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                            image.resizable()
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        .frame(width: 16, height: 16)
                                     }
-                                    .frame(width: 16, height: 16)
                                 }
+                                
                                 Text(url.absoluteString)
+                                    .lineLimit(2)
                             }
                         }
                         .foregroundStyle(Color.accentColor)
@@ -359,6 +373,7 @@ struct Scanner: View {
                                     } label: {
                                         Text("\(originalURL.absoluteString)")
                                             .foregroundStyle(.blue)
+                                            .lineLimit(5)
                                     }
                                 }
                             } header: {
@@ -378,15 +393,19 @@ struct Scanner: View {
                             UIApplication.shared.open(originalURL)
                         } label: {
                             HStack {
-                                if let host = originalURL.host {
-                                    AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                        image.resizable()
-                                    } placeholder: {
-                                        ProgressView()
+                                if isValidURL(originalURL.absoluteString) {
+                                    if let host = originalURL.host {
+                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                            image.resizable()
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        .frame(width: 16, height: 16)
                                     }
-                                    .frame(width: 16, height: 16)
                                 }
+                                
                                 Text(originalURL.absoluteString)
+                                    .lineLimit(2)
                             }
                         }
                         .foregroundStyle(.blue)
@@ -400,8 +419,6 @@ struct Scanner: View {
                     Button {} label: {
                         Text("Enable Camera Access")
                     }
-                    .background(.indigo)
-                    .foregroundStyle(.white)
                 } else {
                     Button("Use Sample Data") {
                         viewModel.sampleData()

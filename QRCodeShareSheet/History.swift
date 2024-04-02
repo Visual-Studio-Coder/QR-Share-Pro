@@ -459,7 +459,7 @@ struct History: View {
                                             
                                             VStack(alignment: .leading) {
                                                 if isValidURL(i.text) {
-                                                    let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                    let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "/", with: "").replacingOccurrences(of: ":", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
                                                     
                                                     Text(fixedURL)
                                                         .bold()

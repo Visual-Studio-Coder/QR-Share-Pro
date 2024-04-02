@@ -47,6 +47,8 @@ struct Home: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
     
+//    @State var showingTabView: Bool = false
+    
     @State private var showingAboutAppSheet = false
     @State private var text = ""
     @State private var showSavePhotosQuestionAlert = false
@@ -116,7 +118,12 @@ struct Home: View {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                 
+                Divider()
+                
                 TextField("Create your own QR code...", text: $text)
+                    .padding()
+                    .background(.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
                     .keyboardType(.webSearch)
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
@@ -128,15 +135,24 @@ struct Home: View {
                     }
                     .onSubmit {
                         isFocused = false
+                        showSavePhotosQuestionAlert = true
                     }
                     .focused($isFocused)
+                    .padding(.horizontal)
                 
                 Button {
                     showSavePhotosQuestionAlert = true
                 } label: {
                     Label("Save", systemImage: "square.and.arrow.down")
+                        .foregroundStyle(.white)
+                        .opacity(text.isEmpty ? 0.3 : 1)
                 }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
+                .clipShape(RoundedRectangle(cornerRadius: 15))
                 .disabled(text.isEmpty)
+                .padding(.horizontal)
             }
             .navigationTitle("New QR Code")
             .navigationBarTitleDisplayMode(.inline)
@@ -240,7 +256,11 @@ struct Home: View {
                             }
                             .tint(.primary)
                             
-                            Label("QR Share Developer Beta 1", systemImage: "info")
+                            #if targetEnvironment(simulator)
+                            Label("QR Share Developer Beta 1", systemImage: "hammer")
+                            #else
+                            Label("QR Share TestFlight Beta 5", systemImage: "hammer")
+                            #endif
                         }
                         
                         Section("App Icon & Themes") {
