@@ -16,6 +16,7 @@ struct ScanLocation: Identifiable {
 
 struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
+    @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
@@ -72,9 +73,13 @@ struct HistoryDetailInfo: View {
                             .aspectRatio(1, contentMode: .fit)
                         
                         TextField("Create your own QR code...", text: $qrCode.text)
+                            .padding()
+                            .background(.gray.opacity(0.2))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
                             .keyboardType(.webSearch)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
+                            .padding(.horizontal)
                         
                         Section {
                             Button {
@@ -82,8 +87,15 @@ struct HistoryDetailInfo: View {
                                 showSavedAlert = true
                             } label: {
                                 Label("Save to Photos", systemImage: "square.and.arrow.down")
+                                    .foregroundStyle(.white)
+                                    .opacity(qrCode.text.isEmpty ? 0.3 : 1)
                             }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
                             .disabled(qrCode.text.isEmpty)
+                            .padding(.horizontal)
                         }
                     }
                 }
@@ -221,7 +233,7 @@ struct HistoryDetailInfo: View {
                             HStack {
                                 Text(qrCode.text)
                                     .bold()
-                                    .lineLimit(2)
+                                    .lineLimit(1)
                                     .font(.largeTitle)
                                     .onTapGesture {
                                         showingAllTextSheet = true
