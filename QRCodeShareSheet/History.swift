@@ -7,95 +7,9 @@
 
 import SwiftUI
 
-@MainActor
-struct AsyncCachedImage<ImageView: View, PlaceholderView: View>: View {
-    var url: URL?
-    @ViewBuilder var content: (Image) -> ImageView
-    @ViewBuilder var placeholder: () -> PlaceholderView
-    
-    @State var image: UIImage? = nil
-    @State private var offline = false
-    
-    private let monitor = NetworkMonitor()
-    
-    init(url: URL?, @ViewBuilder content: @escaping (Image) -> ImageView, @ViewBuilder placeholder: @escaping () -> PlaceholderView) {
-        self.url = url
-        self.content = content
-        self.placeholder = placeholder
-    }
-    
-    var body: some View {
-        VStack {
-            if let uiImage = image {
-                content(Image(uiImage: uiImage))
-            } else {
-                if offline {
-                    Image(systemName: "network")
-                        .foregroundStyle(.white)
-                        .font(.largeTitle)
-                        .padding()
-                        .background(Color.accentColor)
-                        .frame(width: 50, height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                } else {
-                    placeholder()
-                }
-            }
-        }
-        .onAppear {
-            Task {
-                image = await downloadPhoto()
-            }
-        }
-    }
-    
-    private func downloadPhoto() async -> UIImage? {
-        do {
-            guard let url else { return nil }
-            
-            if let cachedResponse = URLCache.shared.cachedResponse(for: .init(url: url)) {
-                return UIImage(data: cachedResponse.data)
-            } else {
-                if monitor.isActive {
-                    let (data, response) = try await URLSession.shared.data(from: url)
-                    
-                    URLCache.shared.storeCachedResponse(.init(response: response, data: data), for: .init(url: url))
-                    
-                    guard let image = UIImage(data: data) else {
-                        return nil
-                    }
-                    
-                    return image
-                }
-                
-                offline = true
-                return nil
-            }
-        } catch {
-            print("Error downloading: \(error)")
-            return nil
-        }
-    }
-}
-
 func showShareSheet(url: URL) {
     let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
     UIApplication.shared.currentUIWindow()?.rootViewController?.present(activityVC, animated: true, completion: nil)
-}
-
-public extension UIApplication {
-    func currentUIWindow() -> UIWindow? {
-        let connectedScenes = UIApplication.shared.connectedScenes
-            .filter { $0.activationState == .foregroundActive }
-            .compactMap { $0 as? UIWindowScene }
-        
-        let window = connectedScenes.first?
-            .windows
-            .first { $0.isKeyWindow }
-        
-        return window
-        
-    }
 }
 
 struct History: View {
@@ -130,16 +44,8 @@ struct History: View {
         return qrCodeStore.history.filter { $0.text.lowercased().contains(searchText.lowercased()) }
     }
     
-    private func isValidURL(_ string: String) -> Bool {
-        if let url = URLComponents(string: string) {
-            return url.scheme != nil && !url.scheme!.isEmpty
-        } else {
-            return false
-        }
-    }
-    
     private func getTypeOf(type: String) -> String {
-        return isValidURL(type) ? "URL" : "Text"
+        return type.isValidURL() ? "URL" : "Text"
     }
     
     var body: some View {
@@ -296,7 +202,7 @@ struct History: View {
                                                 .environmentObject(qrCodeStore)
                                         } label: {
                                             HStack {
-                                                if isValidURL(i.text) {
+                                                if i.text.isValidURL() {
                                                     AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
                                                         i
                                                             .resizable()
@@ -313,16 +219,16 @@ struct History: View {
                                                 }
                                                 
                                                 VStack(alignment: .leading) {
-                                                    if isValidURL(i.text) {
-                                                        let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                    if i.text.isValidURL() {
+                                                        let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
                                                         
                                                         Text(fixedURL)
                                                             .bold()
-                                                            .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                            .lineLimit(2)
                                                     } else {
                                                         Text(i.text)
                                                             .bold()
-                                                            .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                            .lineLimit(2)
                                                     }
                                                     
                                                     Text(i.date, format: .dateTime)
@@ -331,7 +237,7 @@ struct History: View {
                                             }
                                         }
                                         .contextMenu {
-                                            if isValidURL(i.text) {
+                                            if i.text.isValidURL() {
                                                 Button {
                                                     if let url = URL(string: i.text) {
                                                         UIApplication.shared.open(url)
@@ -344,7 +250,7 @@ struct History: View {
                                             Button {
                                                 UIPasteboard.general.string = i.text
                                             } label: {
-                                                Label(isValidURL(i.text) ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
+                                                Label(i.text.isValidURL() ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
                                             }
                                             
                                             Divider()
@@ -369,12 +275,16 @@ struct History: View {
                                             
                                             Divider()
                                             
-                                            if isValidURL(i.text) {
+                                            if i.text.isValidURL() {
                                                 Button {
                                                     showShareSheet(url: URL(string: i.text)!)
                                                 } label: {
                                                     Label("Share URL", systemImage: "square.and.arrow.up")
                                                 }
+                                            }
+                                            
+                                            Button {} label: {
+                                                Label("Share QR Code (coming soon)", systemImage: "square.and.arrow.up")
                                             }
                                             
                                             Button(role: .destructive) {
@@ -441,7 +351,7 @@ struct History: View {
                                             .environmentObject(qrCodeStore)
                                     } label: {
                                         HStack {
-                                            if isValidURL(i.text) {
+                                            if i.text.isValidURL() {
                                                 AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
                                                     i
                                                         .resizable()
@@ -458,16 +368,20 @@ struct History: View {
                                             }
                                             
                                             VStack(alignment: .leading) {
-                                                if isValidURL(i.text) {
-                                                    let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "/", with: "").replacingOccurrences(of: ":", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                if i.text.isValidURL() {
+                                                    let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                    
+//                                                    if fixedURL.last == "/" {
+//                                                        print(fixedURL)
+//                                                    }
                                                     
                                                     Text(fixedURL)
                                                         .bold()
-                                                        .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                        .lineLimit(2)
                                                 } else {
                                                     Text(i.text)
                                                         .bold()
-                                                        .lineLimit(searchText.isEmpty ? 2 : 3)
+                                                        .lineLimit(2)
                                                 }
                                                 
                                                 Text(i.date, format: .dateTime)
@@ -476,7 +390,7 @@ struct History: View {
                                         }
                                     }
                                     .contextMenu {
-                                        if isValidURL(i.text) {
+                                        if i.text.isValidURL() {
                                             Button {
                                                 if let url = URL(string: i.text) {
                                                     UIApplication.shared.open(url)
@@ -489,7 +403,7 @@ struct History: View {
                                         Button {
                                             UIPasteboard.general.string = i.text
                                         } label: {
-                                            Label(isValidURL(i.text) ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
+                                            Label(i.text.isValidURL() ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
                                         }
                                         
                                         Divider()
@@ -514,12 +428,16 @@ struct History: View {
                                         
                                         Divider()
                                         
-                                        if isValidURL(i.text) {
+                                        if i.text.isValidURL() {
                                             Button {
                                                 showShareSheet(url: URL(string: i.text)!)
                                             } label: {
                                                 Label("Share URL", systemImage: "square.and.arrow.up")
                                             }
+                                        }
+                                        
+                                        Button {} label: {
+                                            Label("Share QR Code (coming soon)", systemImage: "square.and.arrow.up")
                                         }
                                         
                                         Button(role: .destructive) {

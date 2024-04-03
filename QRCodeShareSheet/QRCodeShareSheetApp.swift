@@ -1,36 +1,5 @@
 import SwiftUI
 
-struct SplashView<SplashContent: View>: ViewModifier {
-    private let splashContent: () -> SplashContent
-    
-    @State private var isActive = true
-    
-    init(@ViewBuilder splashContent: @escaping () -> SplashContent) {
-        self.splashContent = splashContent
-    }
-    
-    func body(content: Content) -> some View {
-        if isActive {
-            splashContent()
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        withAnimation {
-                            self.isActive = false
-                        }
-                    }
-                }
-        } else {
-            content
-        }
-    }
-}
-
-extension View {
-    func splashView<SplashContent: View>(@ViewBuilder splashContent: @escaping () -> SplashContent) -> some View {
-        self.modifier(SplashView(splashContent: splashContent))
-    }
-}
-
 @main
 struct QRCodeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
