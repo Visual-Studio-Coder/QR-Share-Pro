@@ -271,7 +271,7 @@ struct Home: View {
                             Button {
                                 showingWhatsNewAlert = true
                             } label: {
-                                Label("TestFlight Beta 6", systemImage: "hammer")
+                                Label("TestFlight Beta 7", systemImage: "hammer")
                             }
                             .buttonStyle(PlainButtonStyle())
 #endif

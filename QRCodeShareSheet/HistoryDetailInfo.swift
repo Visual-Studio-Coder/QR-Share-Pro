@@ -28,6 +28,7 @@ struct HistoryDetailInfo: View {
     @State private var showingFullURLSheet = false
     @State private var showingAllTextSheet = false
     @State private var qrCodeImage: UIImage = UIImage()
+    @State private var locationName: String?
     
     private let monitor = NetworkMonitor()
     
@@ -120,6 +121,9 @@ struct HistoryDetailInfo: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                 } placeholder: {
                                     ProgressView()
+                                }
+                                .onTapGesture {
+                                    showingFullURLSheet = true
                                 }
                                 
                                 Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
@@ -254,12 +258,16 @@ struct HistoryDetailInfo: View {
                                 Button {
                                     showingAllTextSheet = true
                                 } label: {
-                                    Label("Show Full Text", systemImage: "arrow.up.right")
-                                        .padding(8)
-                                        .foregroundStyle(.white)
-                                        .background(Color.accentColor)
-                                        .clipShape(Capsule())
-                                        .bold()
+                                    HStack {
+                                        Text("Show Full Text")
+                                        
+                                        Image(systemName: "arrow.up.right")
+                                    }
+                                    .padding(8)
+                                    .foregroundStyle(.white)
+                                    .background(Color.accentColor)
+                                    .clipShape(Capsule())
+                                    .bold()
                                 }
                             }
                             .padding(.horizontal)
@@ -284,7 +292,7 @@ struct HistoryDetailInfo: View {
                                                     }
                                                 }
                                         } footer: {
-                                            Text("\(qrCode.text.count) characters")
+                                            Text(qrCode.text.count == 1 ? "1 character" : "\(qrCode.text.count) characters")
                                         }
                                     }
                                     .navigationTitle(qrCode.text)
@@ -312,7 +320,7 @@ struct HistoryDetailInfo: View {
                                 }
                             } label: {
                                 HStack {
-                                    Text("SCAN LOCATION")
+                                    Text(locationName ?? "SCAN LOCATION")
                                         .foregroundStyle(.secondary)
                                     Spacer()
                                     Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
@@ -321,14 +329,38 @@ struct HistoryDetailInfo: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .padding(.horizontal)
+                            .onAppear {
+                                let geocoder = CLGeocoder()
+                                let location = CLLocation(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1])
+                                geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+                                    if let placemark = placemarks?.first {
+                                        var locationString = ""
+                                        if let street = placemark.thoroughfare {
+                                            locationString += street
+                                        }
+                                        if let city = placemark.locality {
+                                            locationString += ", \(city)"
+                                        }
+                                        if let state = placemark.administrativeArea {
+                                            locationString += ", \(state)"
+                                        }
+                                        if let country = placemark.country {
+                                            locationString += ", \(country)"
+                                        }
+                                        locationName = locationString.isEmpty ? "UNKNOWN LOCATION" : locationString
+                                    } else if let error = error {
+                                        print("Failed to get location name: \(error)")
+                                    }
+                                }
+                            }
                             
                             if showingLocation {
-                                let annotation = [ScanLocation(name: "London", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
+                                let annotation = [ScanLocation(name: locationName ?? "UNKNOWN LOCATION", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
                                 
-                                Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5))), interactionModes: [.zoom], annotationItems: annotation) {
-                                    MapPin(coordinate: $0.coordinate, tint: .indigo)
+                                Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))), interactionModes: [.all], annotationItems: annotation) {
+                                    MapMarker(coordinate: $0.coordinate, tint: .accentColor)
                                 }
-                                .scaledToFit()
+                                .aspectRatio(16 / 9, contentMode: .fit)
                             }
                             
                             Divider()
