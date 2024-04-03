@@ -5,20 +5,11 @@ struct QRCode: Identifiable, Codable {
     var text: String
     var qrCode: Data?
     var date = Date.now
-    var pinned: Bool = false
-    //    var creationMethod: String = "Scanned" // Scanned
-    
+    var pinned = false
     var scanLocation: [Double] = []
-    var wasScanned: Bool = false
-}
-
-extension Data {
-    func toImage() -> Image? {
-        guard let uiImage = UIImage(data: self) else {
-            return nil
-        }
-        return Image(uiImage: uiImage)
-    }
+    var wasScanned = false
+    var wasCreated = false
+    var wasEdited = false
 }
 
 @MainActor
