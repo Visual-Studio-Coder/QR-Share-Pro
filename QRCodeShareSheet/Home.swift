@@ -264,7 +264,7 @@ struct Home: View {
                             Button {
                                 showingWhatsNewAlert = true
                             } label: {
-                                Label("Developer Beta 1", systemImage: "hammer")
+                                Label("Xcode Simulator", systemImage: "hammer")
                             }
                             .buttonStyle(PlainButtonStyle())
 #else
@@ -283,7 +283,7 @@ struct Home: View {
                                     .bold()
                             }
                         }
-                        .alert("This version contains:\n\n- Redesigned QR code form\n- Redesigned History tab\n- Updated URL shortening\n- Official passkey support without app crashing\n- QR Share is now QR Share Pro\n- Bug fixes & improvements", isPresented: $showingWhatsNewAlert) {}
+                        .alert("This version contains:\n\n- QR code form UI fixes\n- Redesigned History tab\n- Updated URL shortening\n- Passkey support without app crashing\n- Bug fixes & improvements\n - Prepare for RC1 next week! 😉", isPresented: $showingWhatsNewAlert) {}
                         
                         Section("App Icon & Themes") {
                             ForEach(allIcons) { i in
