@@ -320,7 +320,7 @@ struct HistoryDetailInfo: View {
                                 }
                             } label: {
                                 HStack {
-                                    Text(locationName ?? "SCAN LOCATION")
+                                    Text("SCAN LOCATION")
                                         .foregroundStyle(.secondary)
                                     Spacer()
                                     Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
@@ -361,6 +361,10 @@ struct HistoryDetailInfo: View {
                                     MapMarker(coordinate: $0.coordinate, tint: .accentColor)
                                 }
                                 .aspectRatio(16 / 9, contentMode: .fit)
+                                
+                                Text(locationName ?? "UNKNOWN LOCATION")
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal)
                             }
                             
                             Divider()
