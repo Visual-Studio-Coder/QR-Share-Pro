@@ -8,18 +8,13 @@
 import SwiftUI
 import MapKit
 
-struct ScanLocation: Identifiable {
-    let id = UUID()
-    let name: String
-    let coordinate: CLLocationCoordinate2D
-}
-
 struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
     @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
+    @State private var originalText = ""
     @State private var showingAboutAppSheet = false
     @State private var isEditing = false
     @State private var showingDeleteConfirmation = false
@@ -55,14 +50,6 @@ struct HistoryDetailInfo: View {
         }
     }
     
-    func isValidURL(_ string: String) -> Bool {
-        if let url = URLComponents(string: string) {
-            return url.scheme != nil && !url.scheme!.isEmpty
-        } else {
-            return false
-        }
-    }
-    
     var body: some View {
         VStack {
             if isEditing {
@@ -83,6 +70,13 @@ struct HistoryDetailInfo: View {
                             .padding(.horizontal)
                         
                         Section {
+                            Button {
+                                qrCode.text = originalText
+                            } label: {
+                                Image(systemName: "arrow.circlepath")
+                            }
+                            .disabled(qrCode.text == originalText)
+                            
                             Button {
                                 UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                                 showSavedAlert = true
@@ -111,7 +105,7 @@ struct HistoryDetailInfo: View {
                         .aspectRatio(1, contentMode: .fit)
                     
                     VStack(alignment: .leading) {
-                        if isValidURL(qrCode.text) {
+                        if qrCode.text.isValidURL() {
                             HStack {
                                 AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
                                     i
@@ -314,55 +308,61 @@ struct HistoryDetailInfo: View {
                             .padding(.bottom, 5)
                         
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
-                            Button {
-                                withAnimation {
-                                    showingLocation.toggle()
-                                }
-                            } label: {
-                                HStack {
-                                    Text("SCAN LOCATION")
-                                        .foregroundStyle(.secondary)
-                                    Spacer()
-                                    Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .padding(.horizontal)
-                            .onAppear {
-                                let geocoder = CLGeocoder()
-                                let location = CLLocation(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1])
-                                geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
-                                    if let placemark = placemarks?.first {
-                                        var locationString = ""
-                                        if let street = placemark.thoroughfare {
-                                            locationString += street
-                                        }
-                                        if let city = placemark.locality {
-                                            locationString += ", \(city)"
-                                        }
-                                        if let state = placemark.administrativeArea {
-                                            locationString += ", \(state)"
-                                        }
-                                        if let country = placemark.country {
-                                            locationString += ", \(country)"
-                                        }
-                                        locationName = locationString.isEmpty ? "UNKNOWN LOCATION" : locationString
-                                    } else if let error = error {
-                                        print("Failed to get location name: \(error)")
+                            if monitor.isActive {
+                                Button {
+                                    withAnimation {
+                                        showingLocation.toggle()
+                                    }
+                                } label: {
+                                    HStack {
+                                        Text("SCAN LOCATION")
+                                            .foregroundStyle(.secondary)
+                                        Spacer()
+                                        Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
-                            }
-                            
-                            if showingLocation {
-                                let annotation = [ScanLocation(name: locationName ?? "UNKNOWN LOCATION", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
-                                
-                                Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))), interactionModes: [.all], annotationItems: annotation) {
-                                    MapMarker(coordinate: $0.coordinate, tint: .accentColor)
+                                .buttonStyle(PlainButtonStyle())
+                                .padding(.horizontal)
+                                .onAppear {
+                                    let geocoder = CLGeocoder()
+                                    let location = CLLocation(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1])
+                                    geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+                                        if let placemark = placemarks?.first {
+                                            var locationString = ""
+                                            if let street = placemark.thoroughfare {
+                                                locationString += street
+                                            }
+                                            if let city = placemark.locality {
+                                                locationString += ", \(city)"
+                                            }
+                                            if let state = placemark.administrativeArea {
+                                                locationString += ", \(state)"
+                                            }
+                                            if let country = placemark.country {
+                                                locationString += ", \(country)"
+                                            }
+                                            locationName = locationString.isEmpty ? "UNKNOWN LOCATION" : locationString
+                                        } else if let error = error {
+                                            print("Failed to get location name: \(error)")
+                                        }
+                                    }
                                 }
-                                .aspectRatio(16 / 9, contentMode: .fit)
                                 
-                                Text(locationName ?? "UNKNOWN LOCATION")
+                                if showingLocation {
+                                    let annotation = [ScanLocation(name: locationName ?? "UNKNOWN LOCATION", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
+                                    
+                                    Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))), interactionModes: [.all], annotationItems: annotation) {
+                                        MapMarker(coordinate: $0.coordinate, tint: .accentColor)
+                                    }
+                                    .aspectRatio(16 / 9, contentMode: .fit)
+                                    
+                                    Text(locationName ?? "UNKNOWN LOCATION")
+                                        .foregroundStyle(.secondary)
+                                        .padding(.horizontal)
+                                }
+                            } else {
+                                Text("You're offline. Unable to show Apple Maps.")
                                     .foregroundStyle(.secondary)
                                     .padding(.horizontal)
                             }
@@ -373,10 +373,14 @@ struct HistoryDetailInfo: View {
                         }
                         
                         HStack(spacing: 0) {
-                            if qrCode.wasScanned {
+                            if qrCode.wasEdited {
+                                Text("Last edited: ")
+                            } else if qrCode.wasCreated {
+                                Text("Created on: ")
+                            } else if qrCode.wasScanned {
                                 Text("Scanned on: ")
                             } else {
-                                Text("Last updated: ")
+                                Text("Generated on: ")
                             }
                             
                             Text(qrCode.date, format: .dateTime)
@@ -389,6 +393,7 @@ struct HistoryDetailInfo: View {
         }
         .onAppear {
             Task {
+                originalText = qrCode.text
                 generateQRCode(from: qrCode.text)
             }
         }
@@ -396,7 +401,7 @@ struct HistoryDetailInfo: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                if isValidURL(qrCode.text) {
+                if qrCode.text.isValidURL() {
                     ShareLink(item: URL(string: qrCode.text)!) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
@@ -444,6 +449,7 @@ struct HistoryDetailInfo: View {
                         if isEditing {
                             if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
                                 qrCode.date = Date.now
+                                qrCode.wasEdited = true
                                 qrCodeStore.history[idx] = qrCode
                                 
                                 Task {

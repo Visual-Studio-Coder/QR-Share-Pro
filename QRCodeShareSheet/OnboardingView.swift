@@ -1,45 +1,6 @@
 import SwiftUI
 import ColorfulX
 
-struct OnboardingPageView: View {
-    var image: Image
-    var title: String
-    var description: String
-    
-    var body: some View {
-        VStack {
-            image
-                .resizable()
-                .scaledToFit()
-                .frame(height: 200)
-                .padding(.top, 50)
-                .padding(.bottom, 50)
-            Text(title)
-                .font(.title)
-                .bold()
-            Text(description)
-                .font(.subheadline)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 50)
-            Spacer()
-        }
-    }
-}
-
-enum Tab: String, CaseIterable {
-    case Scanner
-    case NewQRCode
-    case History
-}
-
-struct Feature: Decodable, Identifiable {
-    var id = UUID()
-    let title: String
-    let description: String
-    let image: String
-}
-
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
@@ -48,7 +9,9 @@ struct OnboardingView: View {
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
+    @State private var showingPrivacySheet = false
     @State private var showingTabView = true
+    @State private var completedStep1 = false
     @State private var selection: Tab = .NewQRCode
     @State private var colors: [Color] = [.purple, .indigo, .pink, .orange, .red]
     
@@ -116,7 +79,6 @@ struct OnboardingView: View {
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 15, height: 15)
                                     .frame(maxWidth: .infinity)
-                                    .rotationEffect(Angle(degrees: selection == tab ? -360 : 0))
                                     .animation(Animation.easeInOut(duration: 0.75).delay(0.01), value: selection)
                                     .foregroundStyle(selection == tab ? Color.accentColor : .gray)
                                     .scaleEffect(selection == tab ? 2 : 1)
@@ -130,143 +92,171 @@ struct OnboardingView: View {
                     .padding([.horizontal, .top])
                 }
             } else {
-                ZStack {
-                    ColorfulView(color: $colors)
-                        .ignoresSafeArea()
-                        .opacity(0.8)
-                    
-                    VStack(spacing: 20) {
-                        ScrollView {
-                            VStack(spacing: 20) {
-                                Image(uiImage: UIImage(named: "AppIcon") ?? UIImage())
-                                    .resizable()
-                                    .frame(width: 150, height: 150)
-                                    .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-                                    .accessibilityHidden(true)
-                                    .shadow(color: .accentColor, radius: 15)
-                                    .padding(.top, 20)
-                                
-                                VStack {
-                                    Text("Say \"hello\" to")
+                if !completedStep1 {
+                    ZStack {
+                        ColorfulView(color: $colors)
+                            .ignoresSafeArea()
+                            .opacity(0.8)
+                        
+                        VStack(spacing: 20) {
+                            ScrollView {
+                                VStack(spacing: 20) {
+                                    Image(uiImage: UIImage(named: "AppIcon") ?? UIImage()) // shouldn't this be a force-unwrap? this will cause issues with the user not being able to see our app icon
+                                        .resizable()
+                                        .frame(width: 150, height: 150)
+                                        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                                        .accessibilityHidden(true)
+                                        .shadow(color: .accentColor, radius: 15)
+                                        .padding(.top, 20)
+                                    
+                                    VStack {
+                                        Text("Say \"hello\" to")
+                                            .foregroundStyle(.white)
+                                        
+                                        Text("QR Share Pro")
+                                            .foregroundStyle(.cyan)
+                                    }
+                                    .multilineTextAlignment(.center)
+                                    .font(.largeTitle)
+                                    .bold()
+                                    
+                                    ForEach(features) { feature in
+                                        HStack {
+                                            Image(systemName: feature.image)
+                                                .frame(width: 44)
+                                                .font(.title)
+                                                .foregroundStyle(Color.accentColor)
+                                                .accessibilityHidden(true)
+                                            
+                                            VStack(alignment: .leading) {
+                                                Text(feature.title)
+                                                    .foregroundStyle(.white)
+                                                    .font(.headline)
+                                                    .bold()
+                                                
+                                                Text(feature.description)
+                                                    .foregroundStyle(.white.opacity(0.7))
+                                            }
+                                            .accessibilityElement(children: .combine)
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                }
+                            }
+                            
+                            VStack {
+                                Button {
+                                    showingPrivacySheet = true
+                                } label: {
+                                    Text("We *actually* respect your privacy. Our app is 100% offline, with all data stored **on-device*.")
                                         .foregroundStyle(.white)
                                     
-                                    Text("QR Share Pro")
-                                        .foregroundStyle(.cyan)
+                                    Text("Learn more...")
+                                        .foregroundStyle(.blue)
+                                        .bold()
                                 }
-                                .multilineTextAlignment(.center)
-                                .font(.largeTitle)
-                                .bold()
+                                .buttonStyle(PlainButtonStyle())
                                 
-                                ForEach(features) { feature in
-                                    HStack {
-                                        Image(systemName: feature.image)
-                                            .frame(width: 44)
-                                            .font(.title)
-                                            .foregroundStyle(Color.accentColor)
-                                            .accessibilityHidden(true)
-                                        
-                                        VStack(alignment: .leading) {
-                                            Text(feature.title)
-                                                .foregroundStyle(.white)
-                                                .font(.headline)
-                                                .bold()
-                                            
-                                            Text(feature.description)
-                                                .foregroundStyle(.white.opacity(0.7))
-                                        }
-                                        .accessibilityElement(children: .combine)
+                                Button {
+                                    completedStep1 = true
+                                } label: {
+                                    Text("Continue")
+                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                        .background(Color.accentColor)
+                                        .foregroundStyle(.white)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        .bold()
+                                }
+                            }
+                            .sheet(isPresented: $showingPrivacySheet) {
+                                List {
+                                    Section("All Features") {
+                                        Text("We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone. In fact, our app is 100% offline, with all data stored **on-device**, only using the internet for querying website favicons and displaying where you scanned QR codes.")
                                     }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    
+                                    Section("Website Favicons") {
+                                        Text("We query website favicon images through DuckDuckGo, in which DuckDuckGo collects no data about you, except the website URL to fulfill the query. DuckDuckGo does not log website URLs.")
+                                        
+                                        Button {
+                                            if let url = URL(string: "https://duckduckgo.com/privacy") {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Text("Read DuckDuckGo's Privacy Policy")
+                                        }
+                                    }
+                                    
+                                    Section("Apple Maps") {
+                                        Text("If you enable Location Services, your location will be tagged to scanned QR codes to display where you scanned QR codes, we use Apple Maps's API. This is not shared with anyone else, and is stored on-device.")
+                                        
+                                        Button {
+                                            if let url = URL(string: "https://apple.com/legal/privacy") {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Text("Read Apple's Privacy Policy")
+                                        }
+                                    }
+                                }
+                                .navigationTitle("We ❤️ Privacy")
+                                .toolbar {
+                                    Button("Done") {
+                                        showingPrivacySheet = false
+                                    }
                                 }
                             }
                         }
-                        
-                        VStack {
-                            Text("We *actually* respect your privacy.")
-                                .foregroundStyle(.white)
+                        .padding()
+                    }
+                } else {
+                    ZStack {
+                        ScrollView {
+                            Image(systemName: "square.and.arrow.up")
+                                .resizable()
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .scaledToFit()
+                                .frame(height: 200)
+                                .padding(.top, 50)
+                                .padding(.bottom, 50)
                             
-                            Button {} label: {
-                                Text("Learn more...")
-                                    .bold()
+                            Text("Add QR Share Pro to the Share Menu")
+                                .font(.title)
+                                .bold()
+                                .multilineTextAlignment(.center)
+                            
+                            Text("Quickly share text & URLs with QR codes!")
+                                .font(.subheadline)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 50)
+                                .padding(.bottom, 50)
+                            
+                            ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
+                                Label {
+                                    Text("Show Share Menu")
+                                } icon: {
+                                    Image(systemName: "gear")
+                                }
                             }
+                            .padding()
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 18))
                             
-                            Button {
-                                isOnboardingDone = true
-                            } label: {
-                                Text("Continue")
-                                    .frame(maxWidth: .infinity, minHeight: 44)
-                                    .background(Color.accentColor)
-                                    .foregroundStyle(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .bold()
+                            VStack {
+                                Button {
+                                    isOnboardingDone = true
+                                } label: {
+                                    Text("Get Started")
+                                        .font(.title)
+                                        .bold()
+                                        .padding()
+                                        .foregroundStyle(.white)
+                                }
+                                .background(Color.accentColor)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .padding(.bottom, 20)
                             }
                         }
                     }
-                    .padding()
-                    //                    VStack {
-                    //                        Spacer()
-                    //                        Image(systemName: "square.and.arrow.up")
-                    //                            .resizable()
-                    //                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    //                            .scaledToFit()
-                    //                            .frame(height: 200)
-                    //                            .padding(.top, 50)
-                    //                            .padding(.bottom, 50)
-                    //                        Text("Add QR Share Pro to the Share Menu")
-                    //                            .font(.title)
-                    //                            .bold()
-                    //                            .multilineTextAlignment(.center)
-                    //                        Text("Generate QR Codes from any app. \nClick \"Show Share Menu,\" scroll through the list of apps, tap \"more,\" and add QR Share Pro!")
-                    //                            .font(.subheadline)
-                    //                            .multilineTextAlignment(.center)
-                    //                            .padding(.horizontal, 50)
-                    //                            .padding(.bottom, 50)
-                    //
-                    //                        ShareLink(item: "https://apple.com/") {
-                    //                            Label {
-                    //                                Text("Show Share Menu")
-                    //                            } icon: {
-                    //                                Image(systemName: "gear")
-                    //                            }
-                    //
-                    //                        }
-                    //                        .padding()
-                    //                        .background(.white)
-                    //                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                    //
-                    //                        Spacer()
-                    //                    }
-                    //                    VStack {
-                    //                        Spacer()
-                    //                        Image(uiImage: #imageLiteral(resourceName: "QR-scan-demo"))
-                    //                            .resizable()
-                    //                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    //                            .scaledToFit()
-                    //                            .padding(50)
-                    //                            .padding(.bottom, 50)
-                    //                        Text("Confidently scan QR codes.")
-                    //                            .font(.title)
-                    //                            .bold()
-                    //                            .multilineTextAlignment(.center)
-                    //                        Text("Some QR codes contain tracking links that collect sensitive info, such as your IP address, before redirecting you. We automatically unshorten these URLs so you know where you're *really* headed.")
-                    //                            .font(.subheadline)
-                    //                            .multilineTextAlignment(.center)
-                    //                            .padding(.horizontal, 50)
-                    //                            .padding(.bottom, 50)
-                    //
-                    //                        Text("Get Started")
-                    //                            .font(.title)
-                    //                            .bold()
-                    //                            .padding()
-                    //                            .background(.blue)
-                    //                            .foregroundStyle(.white)
-                    //                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    //                            .padding(.bottom, 20)
-                    //                            .onTapGesture {
-                    //                                isOnboardingDone = true
-                    //                            }
-                    //                        Spacer()
-                    //                    }
                 }
             }
         }

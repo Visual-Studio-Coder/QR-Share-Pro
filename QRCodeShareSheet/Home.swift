@@ -9,48 +9,14 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 import StoreKit
 
-class AccentColorManager: ObservableObject {
-    static let shared = AccentColorManager()
-    
-    var accentColor: Color {
-        get {
-            let colorData = UserDefaults.standard.data(forKey: "accentColor")
-            let uiColor = colorData != nil ? UIColor.colorWithData(colorData!) : UIColor(Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1)))
-            return Color(uiColor)
-        }
-        set {
-            let uiColor = UIColor(newValue)
-            UserDefaults.standard.set(uiColor.encode(), forKey: "accentColor")
-            objectWillChange.send()
-        }
-    }
-}
-
-extension UIColor {
-    func encode() -> Data {
-        return try! NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: false)
-    }
-    
-    static func colorWithData(_ data: Data) -> UIColor {
-        return try! NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data)!
-    }
-}
-
-struct AppIcon: Identifiable {
-    var id = UUID()
-    var iconURL: String
-    var iconName: String
-}
-
 struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
     
-    //    @State var showingTabView: Bool = false
-    
     @State private var showingAboutAppSheet = false
     @State private var text = ""
+    @State private var textIsEmptyWithAnimation = true
     @State private var showSavePhotosQuestionAlert = false
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
@@ -118,6 +84,15 @@ struct Home: View {
                     .interpolation(.none)
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
+                    .opacity(textIsEmptyWithAnimation ? 0.2 : 1)
+                    .overlay {
+                        if text.isEmpty {
+                            Text("Start typing to\ngenerate a QR code.")
+                                .font(.title)
+                                .multilineTextAlignment(.center)
+                                .bold()
+                        }
+                    }
                 
                 TextField("Create your own QR code...", text: $text)
                     .padding()
@@ -128,6 +103,10 @@ struct Home: View {
                     .autocorrectionDisabled()
                     .onChange(of: text) { newValue in
                         generateQRCode(from: newValue)
+                            
+                        withAnimation {
+                            textIsEmptyWithAnimation = newValue.isEmpty
+                        }
                     }
                     .onTapGesture {
                         isFocused = true
@@ -141,6 +120,8 @@ struct Home: View {
                     }
                     .focused($isFocused)
                     .padding(.horizontal)
+                    .padding(.top)
+                    .padding(.bottom, 5)
                 
                 Button {
                     showSavePhotosQuestionAlert = true
@@ -159,7 +140,7 @@ struct Home: View {
             .navigationTitle("New QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
-                generateQRCode(from: "never gonna give you up")
+                generateQRCode(from: "https://aaronhma.com")
             }
             .alert("Save to Photos?", isPresented: $showSavePhotosQuestionAlert) {
                 Button("Yes") {
@@ -260,21 +241,18 @@ struct Home: View {
                         }
                         
                         Section("Release Notes") {
-#if targetEnvironment(simulator)
                             Button {
                                 showingWhatsNewAlert = true
                             } label: {
-                                Label("Xcode Simulator", systemImage: "hammer")
+                                HStack {
+                                    Label("TestFlight Beta 9", systemImage: "hammer")
+                                        .bold()
+                                    Spacer()
+                                    Text("April 3, 2024")
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                             .buttonStyle(PlainButtonStyle())
-#else
-                            Button {
-                                showingWhatsNewAlert = true
-                            } label: {
-                                Label("TestFlight Beta 7", systemImage: "hammer")
-                            }
-                            .buttonStyle(PlainButtonStyle())
-#endif
                             
                             Button {
                                 showingWhatsNewAlert = true
@@ -283,7 +261,7 @@ struct Home: View {
                                     .bold()
                             }
                         }
-                        .alert("This version contains:\n\n- QR code form UI fixes\n- Redesigned History tab\n- Updated URL shortening\n- Passkey support without app crashing\n- Bug fixes & improvements\n - Prepare for RC1 next week! 😉", isPresented: $showingWhatsNewAlert) {}
+                        .alert("This version contains:\n\n- Final History tab design! 🥳\n- QR code form UI fixes\n- Redesigned History tab\n- Updated URL shortening\n- Passkey support without app crashing\n- Bug fixes & improvements\n - Prepare for RC1 next week! 😉", isPresented: $showingWhatsNewAlert) {}
                         
                         Section("App Icon & Themes") {
                             ForEach(allIcons) { i in
