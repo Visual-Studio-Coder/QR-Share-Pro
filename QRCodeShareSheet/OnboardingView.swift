@@ -50,13 +50,13 @@ struct OnboardingView: View {
     
     @State private var showingTabView = true
     @State private var selection: Tab = .NewQRCode
-    @State private var colors: [Color] = [.black, .indigo, .pink]
+    @State private var colors: [Color] = [.purple, .indigo, .pink, .orange, .red]
     
     let features = [
-        Feature(title: "Easily share QR codes.", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
-        Feature(title: "Confidently scan QR codes", description: "See where QR code links *actually* take you.", image: "qrcode.viewfinder"),
-        Feature(title: "Create New QR Code", description: "Create your own QR codes.", image: "plus"),
-        Feature(title: "History", description: "All your previously scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
+        Feature(title: "Create QR Codes from the Share Menu", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
+        Feature(title: "Confidently Scan QR Codes", description: "Prevent phishing attacks by seeing where QR code links *actually* take you.", image: "qrcode.viewfinder"),
+        Feature(title: "Create New QR Code", description: "Generate any type of QR code from URLs to Wi-Fi, all without being tracked.", image: "plus"),
+        Feature(title: "View QR Code History", description: "Scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
     ]
     
     func getImage(tab: Tab) -> String {
