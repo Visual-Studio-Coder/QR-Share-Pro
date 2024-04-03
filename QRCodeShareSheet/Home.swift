@@ -47,13 +47,14 @@ struct Home: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
     
-//    @State var showingTabView: Bool = false
+    //    @State var showingTabView: Bool = false
     
     @State private var showingAboutAppSheet = false
     @State private var text = ""
     @State private var showSavePhotosQuestionAlert = false
     @State private var showSavedAlert = false
     @State private var showHistorySavedAlert = false
+    @State private var showingWhatsNewAlert = false
     @State private var qrCodeImage: UIImage = UIImage()
     
     @FocusState private var isFocused
@@ -118,8 +119,6 @@ struct Home: View {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                 
-                Divider()
-                
                 TextField("Create your own QR code...", text: $text)
                     .padding()
                     .background(.gray.opacity(0.2))
@@ -135,7 +134,10 @@ struct Home: View {
                     }
                     .onSubmit {
                         isFocused = false
-                        showSavePhotosQuestionAlert = true
+                        
+                        if !text.isEmpty {
+                            showSavePhotosQuestionAlert = true
+                        }
                     }
                     .focused($isFocused)
                     .padding(.horizontal)
@@ -146,11 +148,11 @@ struct Home: View {
                     Label("Save", systemImage: "square.and.arrow.down")
                         .foregroundStyle(.white)
                         .opacity(text.isEmpty ? 0.3 : 1)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
-                .clipShape(RoundedRectangle(cornerRadius: 15))
                 .disabled(text.isEmpty)
                 .padding(.horizontal)
             }
@@ -210,7 +212,7 @@ struct Home: View {
                     Button {
                         showingAboutAppSheet = true
                     } label: {
-                        Label("About QR Share", systemImage: "info.circle")
+                        Label("About QR Share Pro", systemImage: "info.circle")
                     }
                 }
             }
@@ -218,7 +220,7 @@ struct Home: View {
                 NavigationStack {
                     List {
                         Section {
-                            ShareLink(item: URL(string: "https://aaronhma.com")!) {
+                            ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
                                 HStack {
                                     Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
                                         .resizable()
@@ -227,7 +229,7 @@ struct Home: View {
                                         .shadow(color: .accentColor, radius: 5)
                                     
                                     VStack(alignment: .leading) {
-                                        Text("QR Share")
+                                        Text("QR Share Pro")
                                             .bold()
                                         
                                         Text("Version \(appVersion)")
@@ -255,13 +257,33 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
-                            #if targetEnvironment(simulator)
-                            Label("QR Share Developer Beta 1", systemImage: "hammer")
-                            #else
-                            Label("QR Share TestFlight Beta 5", systemImage: "hammer")
-                            #endif
                         }
+                        
+                        Section("Release Notes") {
+#if targetEnvironment(simulator)
+                            Button {
+                                showingWhatsNewAlert = true
+                            } label: {
+                                Label("Developer Beta 1", systemImage: "hammer")
+                            }
+                            .buttonStyle(PlainButtonStyle())
+#else
+                            Button {
+                                showingWhatsNewAlert = true
+                            } label: {
+                                Label("TestFlight Beta 6", systemImage: "hammer")
+                            }
+                            .buttonStyle(PlainButtonStyle())
+#endif
+                            
+                            Button {
+                                showingWhatsNewAlert = true
+                            } label: {
+                                Text("See what's new...")
+                                    .bold()
+                            }
+                        }
+                        .alert("This version contains:\n\n- Redesigned QR code form\n- Redesigned History tab\n- Updated URL shortening\n- Official passkey support without app crashing\n- QR Share is now QR Share Pro\n- Bug fixes & improvements", isPresented: $showingWhatsNewAlert) {}
                         
                         Section("App Icon & Themes") {
                             ForEach(allIcons) { i in
@@ -320,7 +342,7 @@ struct Home: View {
                         }
                     }
                     .accentColor(accentColorManager.accentColor)
-                    .navigationBarTitle("About QR Share")
+                    .navigationBarTitle("About QR Share Pro")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {

@@ -443,7 +443,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QRCodeShareSheet/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
+				INFOPLIST_KEY_CFBundleDisplayName = "QR Share Pro";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. 100% offline.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. 100% offline.";
@@ -485,7 +485,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QRCodeShareSheet/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
+				INFOPLIST_KEY_CFBundleDisplayName = "QR Share Pro";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. 100% offline.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. 100% offline.";

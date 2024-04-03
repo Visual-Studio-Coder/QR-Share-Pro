@@ -8,20 +8,20 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.aaronhma.QRShare</string>
+			<string>com.aaronhma.QRSharePro</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>qrshare</string>
+				<string>qrsharepro</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.click.QRShare</string>
+			<string>com.click.QRSharePro</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>qrshare</string>
+				<string>qrsharepro</string>
 			</array>
 		</dict>
 	</array>
@@ -33,7 +33,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Scan QR Code</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>qrshare://scan</string>
+			<string>qrsharepro://scan</string>
 		</dict>
 		<dict>
 			<key>UIApplicationShortcutItemIconSymbolName</key>
@@ -41,7 +41,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>New QR Code</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>qrshare://new</string>
+			<string>qrsharepro://new</string>
 		</dict>
 		<dict>
 			<key>UIApplicationShortcutItemIconSymbolName</key>
@@ -49,7 +49,7 @@
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>History</string>
 			<key>UIApplicationShortcutItemType</key>
-			<string>qrshare://history</string>
+			<string>qrsharepro://history</string>
 		</dict>
 	</array>
 	<key>UILaunchScreen</key>

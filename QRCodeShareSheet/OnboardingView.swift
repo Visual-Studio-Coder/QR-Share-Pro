@@ -53,7 +53,7 @@ struct OnboardingView: View {
     @State private var colors: [Color] = [.black, .indigo, .pink]
     
     let features = [
-        Feature(title: "QR Share", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
+        Feature(title: "Easily share QR codes.", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
         Feature(title: "Confidently scan QR codes", description: "See where QR code links *actually* take you.", image: "qrcode.viewfinder"),
         Feature(title: "Create New QR Code", description: "Create your own QR codes.", image: "plus"),
         Feature(title: "History", description: "All your previously scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
@@ -150,7 +150,7 @@ struct OnboardingView: View {
                                     Text("Say \"hello\" to")
                                         .foregroundStyle(.white)
                                     
-                                    Text("QR Share")
+                                    Text("QR Share Pro")
                                         .foregroundStyle(.cyan)
                                 }
                                 .multilineTextAlignment(.center)
@@ -197,7 +197,7 @@ struct OnboardingView: View {
                                     .frame(maxWidth: .infinity, minHeight: 44)
                                     .background(Color.accentColor)
                                     .foregroundStyle(.white)
-                                    .cornerRadius(10)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                                     .bold()
                             }
                         }
@@ -212,11 +212,11 @@ struct OnboardingView: View {
                     //                            .frame(height: 200)
                     //                            .padding(.top, 50)
                     //                            .padding(.bottom, 50)
-                    //                        Text("Add QR Share to the Share Menu")
+                    //                        Text("Add QR Share Pro to the Share Menu")
                     //                            .font(.title)
                     //                            .bold()
                     //                            .multilineTextAlignment(.center)
-                    //                        Text("Generate QR Codes from any app. \nClick \"Show Share Menu,\" scroll through the list of apps, tap \"more,\" and add QR Share!")
+                    //                        Text("Generate QR Codes from any app. \nClick \"Show Share Menu,\" scroll through the list of apps, tap \"more,\" and add QR Share Pro!")
                     //                            .font(.subheadline)
                     //                            .multilineTextAlignment(.center)
                     //                            .padding(.horizontal, 50)
