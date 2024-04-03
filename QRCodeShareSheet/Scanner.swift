@@ -11,10 +11,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         manager.delegate = self
-    }
-    
-    func requestLocation() {
+        manager.desiredAccuracy = kCLLocationAccuracyBest
         manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -180,8 +179,6 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         
         // Check if qrCodeImage is not nil
         if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
-            locationManager.requestLocation()
-            
             var userLocation: [Double] = [] // rewrite user's location in memory
             
             if let location = locationManager.location {
