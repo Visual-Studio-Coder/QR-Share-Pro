@@ -10,7 +10,7 @@ import Network
 
 class NetworkMonitor: ObservableObject {
     private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "QR Share - Network Monitor")
+    private let queue = DispatchQueue(label: "QR Share Pro - Network Monitor")
     
     var isActive = false
     

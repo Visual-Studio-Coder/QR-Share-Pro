@@ -5,22 +5,22 @@ import WebKit
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     let manager = CLLocationManager()
-
+    
     @Published var location: CLLocationCoordinate2D?
-
+    
     override init() {
         super.init()
         manager.delegate = self
     }
-
+    
     func requestLocation() {
         manager.requestWhenInUseAuthorization()
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         location = locations.first?.coordinate
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Failed to get the user's location: \(error.localizedDescription)")
     }
@@ -145,7 +145,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         
         do {
             try save()
-            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
         } catch {
             print(error.localizedDescription)
         }
@@ -198,7 +198,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             Task {
                 do {
                     try save()
-                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
                 } catch {
                     print(error.localizedDescription)
                 }
@@ -341,7 +341,7 @@ struct Scanner: View {
                     }
                     .padding()
                     .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .cornerRadius(10)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 } else if let url = viewModel.unshortenedURL, url.host != viewModel.detectedURL?.host {
                     HStack {
                         Button {
@@ -386,7 +386,7 @@ struct Scanner: View {
                     }
                     .padding()
                     .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .cornerRadius(10)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 } else if let originalURL = viewModel.detectedURL {
                     HStack {
                         Button {
@@ -412,7 +412,7 @@ struct Scanner: View {
                     }
                     .padding()
                     .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .cornerRadius(10)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 } else if viewModel.cameraError {
                     Text("To scan QR codes, you need to enable camera permissions.")
                     
@@ -420,17 +420,19 @@ struct Scanner: View {
                         Text("Enable Camera Access")
                     }
                 } else {
+#if targetEnvironment(simulator)
                     Button("Use Sample Data") {
                         viewModel.sampleData()
-//                        viewModel.generateQRCode(from: "https://duckduckgo.com")
-//                        viewModel.didDetectQRCode(url: URL(string: "https://duckduckgo.com")!)
+                        //                        viewModel.generateQRCode(from: "https://duckduckgo.com")
+                        //                        viewModel.didDetectQRCode(url: URL(string: "https://duckduckgo.com")!)
                     }
+#endif
                     
                     Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
                         .foregroundStyle(.white)
                         .padding()
                         .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                        .cornerRadius(10)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             .padding(.bottom)

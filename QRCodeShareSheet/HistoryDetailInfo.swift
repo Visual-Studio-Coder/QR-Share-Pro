@@ -133,6 +133,16 @@ struct HistoryDetailInfo: View {
                                             Label("Copy URL", systemImage: "doc.on.doc")
                                                 .tint(Color.accentColor)
                                         }
+                                        
+                                        Button {
+                                            showingFullURLSheet = true
+                                        } label: {
+                                            Label("Show Full URL", systemImage: "arrow.up.right")
+                                                .tint(Color.accentColor)
+                                        }
+                                    }
+                                    .onTapGesture {
+                                        showingFullURLSheet = true
                                     }
                                 
                                 Spacer()
@@ -158,14 +168,14 @@ struct HistoryDetailInfo: View {
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
-                                        .onTapGesture {
-                                            showingFullURLSheet = true
-                                        }
                                     
                                     Spacer()
                                     
                                     Image(systemName: "arrow.up.right")
                                         .foregroundStyle(.secondary)
+                                }
+                                .onTapGesture {
+                                    showingFullURLSheet = true
                                 }
                                 .contextMenu {
                                     Button {

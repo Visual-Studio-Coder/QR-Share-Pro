@@ -61,7 +61,7 @@ struct QRCodeApp: App {
                                 .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
                                 .shadow(color: colorScheme == .dark ? accentColorManager.accentColor : accentColorManager.accentColor.opacity(0.1), radius: 50)
                             
-                            Text("QR Share")
+                            Text("QR Share Pro")
                                 .font(.largeTitle)
                                 .bold()
                                 .foregroundStyle(.white)
