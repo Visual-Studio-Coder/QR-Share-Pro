@@ -32,7 +32,7 @@ struct Home: View {
     private func changeColor(to iconName: String) {
         switch iconName {
         case "AppIcon2":
-            AccentColorManager.shared.accentColor = colorScheme == .dark ? .green.opacity(0.01) : .mint
+            AccentColorManager.shared.accentColor = colorScheme == .dark ? .green.opacity(1) : .mint
         case "AppIcon3":
             AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
         default:
