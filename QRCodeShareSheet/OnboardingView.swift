@@ -69,20 +69,18 @@ struct OnboardingView: View {
                     HStack(spacing: 0) {
                         ForEach(Tab.allCases, id: \.self) { tab in
                             Button {
-                                withAnimation(.easeOut(duration: 0.2).delay(0.07)) {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
                                     selection = tab
                                 }
                             } label: {
                                 Image(systemName: getImage(tab: tab))
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 15, height: 15)
-                                    .frame(maxWidth: .infinity)
-                                    .animation(Animation.easeInOut(duration: 0.75).delay(0.01), value: selection)
-                                    .foregroundStyle(selection == tab ? Color.accentColor : .gray)
-                                    .scaleEffect(selection == tab ? 2 : 1)
-                                    .bold(selection == tab)
+    .renderingMode(.template)
+    .aspectRatio(contentMode: .fit)
+    .frame(maxWidth: .infinity)
+    .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
+    .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+    .scaleEffect(selection == tab ? 2 : 1)
+    .bold(selection == tab)
                             }
                         }
                     }
@@ -148,12 +146,14 @@ struct OnboardingView: View {
                                 Button {
                                     showingPrivacySheet = true
                                 } label: {
-                                    Text("We *actually* respect your privacy. Our app is 100% offline, with all data stored **on-device*.")
-                                        .foregroundStyle(.white)
-                                    
-                                    Text("Learn more...")
-                                        .foregroundStyle(.blue)
-                                        .bold()
+                                    VStack {
+                                        Text("We *actually* respect your privacy. Our app is 100% offline, with all data stored **on-device*.")
+                                            .foregroundStyle(.white)
+                                        
+                                        Text("Learn more...")
+                                            .foregroundStyle(.blue)
+                                            .bold()
+                                    }
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 
@@ -169,39 +169,41 @@ struct OnboardingView: View {
                                 }
                             }
                             .sheet(isPresented: $showingPrivacySheet) {
-                                List {
-                                    Section("All Features") {
-                                        Text("We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone. In fact, our app is 100% offline, with all data stored **on-device**, only using the internet for querying website favicons and displaying where you scanned QR codes.")
-                                    }
-                                    
-                                    Section("Website Favicons") {
-                                        Text("We query website favicon images through DuckDuckGo, in which DuckDuckGo collects no data about you, except the website URL to fulfill the query. DuckDuckGo does not log website URLs.")
+                                NavigationStack {
+                                    List {
+                                        Section("All Features") {
+                                            Text("We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone. In fact, our app can operate 100% offline, with __all data stored **on-device**__, only using the internet for querying website favicons.")
+                                        }
                                         
-                                        Button {
-                                            if let url = URL(string: "https://duckduckgo.com/privacy") {
-                                                UIApplication.shared.open(url)
+                                        Section("Website Favicons") {
+                                            Text("We query website favicon images through DuckDuckGo, in which DuckDuckGo collects no data about you, except the website URL to fulfill the query. DuckDuckGo does not log website URLs.")
+                                            
+                                            Button {
+                                                if let url = URL(string: "https://duckduckgo.com/privacy") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Text("Read DuckDuckGo's Privacy Policy")
                                             }
-                                        } label: {
-                                            Text("Read DuckDuckGo's Privacy Policy")
+                                        }
+                                        
+                                        Section("Apple Maps") {
+                                            Text("We use Location Services in order to add information about where you scanned a QR code, and this information is visible in the history tab. We only access your location when you scan codes in the scanning tab, and it is not accessed when the app is closed. All location data is stored on-device and not shared with anybody.")
+                                            
+                                            Button {
+                                                if let url = URL(string: "https://apple.com/legal/privacy") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Text("Read Apple's Privacy Policy")
+                                            }
                                         }
                                     }
-                                    
-                                    Section("Apple Maps") {
-                                        Text("If you enable Location Services, your location will be tagged to scanned QR codes to display where you scanned QR codes, we use Apple Maps's API. This is not shared with anyone else, and is stored on-device.")
-                                        
-                                        Button {
-                                            if let url = URL(string: "https://apple.com/legal/privacy") {
-                                                UIApplication.shared.open(url)
-                                            }
-                                        } label: {
-                                            Text("Read Apple's Privacy Policy")
+                                    .navigationTitle("We ❤️ Privacy")
+                                    .toolbar {
+                                        Button("Close") {
+                                            showingPrivacySheet = false
                                         }
-                                    }
-                                }
-                                .navigationTitle("We ❤️ Privacy")
-                                .toolbar {
-                                    Button("Done") {
-                                        showingPrivacySheet = false
                                     }
                                 }
                             }
@@ -245,7 +247,7 @@ struct OnboardingView: View {
                                 Button {
                                     isOnboardingDone = true
                                 } label: {
-                                    Text("Get Started")
+                                    Text("Done")
                                         .font(.title)
                                         .bold()
                                         .padding()

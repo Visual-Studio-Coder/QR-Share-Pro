@@ -315,11 +315,10 @@ struct HistoryDetailInfo: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text("SCAN LOCATION")
+                                        Text(locationName ?? "(\(qrCode.scanLocation[0]),\(qrCode.scanLocation[1]))")
                                             .foregroundStyle(.secondary)
                                         Spacer()
                                         Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
-                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -352,24 +351,21 @@ struct HistoryDetailInfo: View {
                                 if showingLocation {
                                     let annotation = [ScanLocation(name: locationName ?? "UNKNOWN LOCATION", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
                                     
-                                    Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))), interactionModes: [.all], annotationItems: annotation) {
+                                    Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))), interactionModes: [.all], annotationItems: annotation) {
                                         MapMarker(coordinate: $0.coordinate, tint: .accentColor)
                                     }
                                     .aspectRatio(16 / 9, contentMode: .fit)
-                                    
-                                    Text(locationName ?? "UNKNOWN LOCATION")
-                                        .foregroundStyle(.secondary)
-                                        .padding(.horizontal)
                                 }
                             } else {
                                 Text("You're offline. Unable to show Apple Maps.")
                                     .foregroundStyle(.secondary)
                                     .padding(.horizontal)
                             }
-                            
-                            Divider()
-                                .padding(.horizontal)
-                                .padding(.top, 5)
+                            if !showingLocation {
+                                Divider()
+                                    .padding(.horizontal)
+                                    .padding(.top, 5)
+                            }
                         }
                         
                         HStack(spacing: 0) {
