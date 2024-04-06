@@ -16,8 +16,8 @@
 						$attachment,
 						ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.url" ||
 						ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.text"
-					).@count >= 1
-				).@count > 0
+					).@count &gt;= 1
+				).@count &gt; 0
 			</string>
 		</dict>
 		<key>NSExtensionMainStoryboard</key>
