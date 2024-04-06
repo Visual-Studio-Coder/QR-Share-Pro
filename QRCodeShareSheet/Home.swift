@@ -19,9 +19,14 @@ struct Home: View {
     @State private var textIsEmptyWithAnimation = true
     @State private var showSavePhotosQuestionAlert = false
     @State private var showSavedAlert = false
+    @State private var showExceededLimitAlert = false
     @State private var showHistorySavedAlert = false
     @State private var showingWhatsNewAlert = false
     @State private var qrCodeImage: UIImage = UIImage()
+    @State private var animatedText = ""
+    
+    let fullText = "Start typing to\ngenerate a QR code."
+    let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
     @FocusState private var isFocused
     
@@ -32,7 +37,7 @@ struct Home: View {
     private func changeColor(to iconName: String) {
         switch iconName {
         case "AppIcon2":
-            AccentColorManager.shared.accentColor = colorScheme == .dark ? .green.opacity(1) : .mint
+            AccentColorManager.shared.accentColor = .green
         case "AppIcon3":
             AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
         default:
@@ -87,12 +92,32 @@ struct Home: View {
                     .opacity(textIsEmptyWithAnimation ? 0.2 : 1)
                     .overlay {
                         if text.isEmpty {
-                            Text("Start typing to\ngenerate a QR code.")
+                            Text(animatedText)
                                 .font(.title)
                                 .multilineTextAlignment(.center)
                                 .bold()
+                                .onReceive(timer) { _ in
+                                    let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+                                    
+                                    if animatedText.count < fullText.count {
+                                        animatedText.append(fullText[fullText.index(fullText.startIndex, offsetBy: animatedText.count)])
+                                        hapticGenerator.impactOccurred()
+                                    } else {
+                                        timer.upstream.connect().cancel()
+                                    }
+                                }
                         }
                     }
+                
+                HStack {
+                    Spacer()
+                    
+                    Text("\(text.count)/2953 characters")
+                        .foregroundStyle(text.count > 2953 ? .red : .secondary)
+                        .bold()
+                }
+                .padding(.top, 3)
+                .padding(.trailing)
                 
                 TextField("Create your own QR code...", text: $text)
                     .padding()
@@ -103,7 +128,7 @@ struct Home: View {
                     .autocorrectionDisabled()
                     .onChange(of: text) { newValue in
                         generateQRCode(from: newValue)
-                            
+                        
                         withAnimation {
                             textIsEmptyWithAnimation = newValue.isEmpty
                         }
@@ -114,17 +139,22 @@ struct Home: View {
                     .onSubmit {
                         isFocused = false
                         
-                        if !text.isEmpty {
+                        if text.count > 2953 {
+                            showExceededLimitAlert = true
+                        } else if !text.isEmpty {
                             showSavePhotosQuestionAlert = true
                         }
                     }
                     .focused($isFocused)
                     .padding(.horizontal)
-                    .padding(.top)
                     .padding(.bottom, 5)
                 
                 Button {
-                    showSavePhotosQuestionAlert = true
+                    if text.count > 2953 {
+                        showExceededLimitAlert = true
+                    } else {
+                        showSavePhotosQuestionAlert = true
+                    }
                 } label: {
                     Label("Save", systemImage: "square.and.arrow.down")
                         .foregroundStyle(.white)
@@ -149,6 +179,7 @@ struct Home: View {
                     
                     let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
                     qrCodeStore.history.append(newCode)
+                    
                     Task {
                         do {
                             try await save()
@@ -162,6 +193,7 @@ struct Home: View {
                 Button("No") {
                     let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
                     qrCodeStore.history.append(newCode)
+                    
                     Task {
                         do {
                             try await save()
@@ -171,6 +203,9 @@ struct Home: View {
                     }
                     showHistorySavedAlert = true
                 }
+            }
+            .alert("You'll need to remove \(text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
+                Button("OK", role: .cancel) {}
             }
             .alert("Saved to Photos!", isPresented: $showSavedAlert) {
                 Button("OK", role: .cancel) {}
@@ -245,10 +280,10 @@ struct Home: View {
                                 showingWhatsNewAlert = true
                             } label: {
                                 HStack {
-                                    Label("TestFlight Beta 9", systemImage: "hammer")
+                                    Label("TestFlight RC 1", systemImage: "hammer")
                                         .bold()
                                     Spacer()
-                                    Text("April 3, 2024")
+                                    Text("April 6, 2024")
                                         .foregroundStyle(.secondary)
                                 }
                             }
@@ -261,9 +296,9 @@ struct Home: View {
                                     .bold()
                             }
                         }
-                        .alert("This version contains:\n\n- Final History tab design! 🥳\n- QR code form UI fixes\n- Redesigned History tab\n- Updated URL shortening\n- Passkey support without app crashing\n- Bug fixes & improvements\n - Prepare for RC1 next week! 😉", isPresented: $showingWhatsNewAlert) {}
+                        .alert("Release Candidate 1 contains:\n\n- History, History detail, and New QR code view finished! 🥳\n- Scanner improvements & updates\n- Full passkey support\n- Bug fixes & improvements", isPresented: $showingWhatsNewAlert) {}
                         
-                        Section("App Icon & Themes") {
+                        Section("App Icon & Theme") {
                             ForEach(allIcons) { i in
                                 Button {
                                     changeAppIcon(to: i.iconURL)
@@ -318,6 +353,50 @@ struct Home: View {
                             }
                             .tint(.primary)
                         }
+                        
+                        Section("Product Improvement") {
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Contribute", systemImage: "chevron.left.forwardslash.chevron.right")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Bug Report", systemImage: "ladybug")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                            
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QRCodeShareSheet/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Feature Request", systemImage: "lightbulb")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                        }
                     }
                     .accentColor(accentColorManager.accentColor)
                     .navigationBarTitle("About QR Share Pro")
@@ -328,6 +407,7 @@ struct Home: View {
                                 showingAboutAppSheet = false
                             } label: {
                                 Text("Done")
+                                    .tint(accentColorManager.accentColor)
                             }
                         }
                     }

@@ -10,9 +10,10 @@ class ShareViewController: UIViewController {
     var hostingView: UIHostingController<ShareView>!
     
     override func viewDidLoad() {
-        isModalInPresentation = true
+        super.viewDidLoad()
         
         hostingView = UIHostingController(rootView: ShareView(extensionContext: extensionContext))
+        hostingView.modalPresentationStyle = .pageSheet
         hostingView.view.frame = view.frame
         view.addSubview(hostingView.view)
     }
@@ -187,9 +188,9 @@ struct ShareView: View {
                         
                         let encoder = JSONEncoder()
                         if let encodedHistory = try? encoder.encode(history) {
-    userDefaults.set(encodedHistory, forKey: "history")
-    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
-}
+                            userDefaults.set(encodedHistory, forKey: "history")
+                            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
+                        }
                     }
                 } else {
                     print("Failed to generate QR code")
@@ -226,40 +227,41 @@ struct ShareView: View {
     }
     
     func loadSharedText(completion: @escaping (String) -> Void) {
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProvider = extensionItem.attachments?.first as? NSItemProvider else {
+        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem else {
             print("Failed to load shared item")
             return
         }
         
-        if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { (item, error) in
-                if let sharedURL = item as? URL {
-                    DispatchQueue.main.async {
-                        print("Shared URL: \(sharedURL.absoluteString)")
-                        completion(sharedURL.absoluteString)
+        for itemProvider in extensionItem.attachments ?? [] {
+            if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { (item, error) in
+                    if let sharedURL = item as? URL {
+                        DispatchQueue.main.async {
+                            print("Shared URL: \(sharedURL.absoluteString)")
+                            completion(sharedURL.absoluteString)
+                        }
+                    } else if let error = error {
+                        print("Failed to load item: \(error)")
+                    } else {
+                        print("Item is not a URL")
                     }
-                } else if let error = error {
-                    print("Failed to load item: \(error)")
-                } else {
-                    print("Item is not a URL")
                 }
-            }
-        } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { (item, error) in
-                if let sharedText = item as? String {
-                    DispatchQueue.main.async {
-                        print("Shared text: \(sharedText)")
-                        completion(sharedText)
+            } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                itemProvider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { (item, error) in
+                    if let sharedText = item as? String {
+                        DispatchQueue.main.async {
+                            print("Shared text: \(sharedText)")
+                            completion(sharedText)
+                        }
+                    } else if let error = error {
+                        print("Failed to load item: \(error)")
+                    } else {
+                        print("Item is not a string")
                     }
-                } else if let error = error {
-                    print("Failed to load item: \(error)")
-                } else {
-                    print("Item is not a string")
                 }
+            } else {
+                print("Shared item is neither a URL nor plain text")
             }
-        } else {
-            print("Shared item is neither a URL nor plain text")
         }
     }
 }
