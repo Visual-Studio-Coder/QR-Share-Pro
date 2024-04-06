@@ -13,7 +13,7 @@ class SceneDelegate: NSObject, UIWindowSceneDelegate {
             completionHandler(false)
             return
         }
-
+        
         windowScene.open(url, options: nil, completionHandler: completionHandler)
     }
     

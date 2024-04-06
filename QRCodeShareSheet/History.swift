@@ -211,6 +211,8 @@ struct History: View {
                                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                                     } placeholder: {
                                                         ProgressView()
+                                                            .controlSize(.large)
+                                                            .frame(width: 50, height: 50)
                                                     }
                                                 } else {
                                                     i.qrCode?.toImage()?
@@ -283,10 +285,6 @@ struct History: View {
                                                 }
                                             }
                                             
-                                            Button {} label: {
-                                                Label("Share QR Code (coming soon)", systemImage: "square.and.arrow.up")
-                                            }
-                                            
                                             Button(role: .destructive) {
                                                 currentQRCode = i
                                                 showingDeleteConfirmation = true
@@ -329,14 +327,15 @@ struct History: View {
                                 }
                             } header: {
                                 Button {
-                                    withAnimation {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
                                         showingAllPins.toggle()
                                     }
                                 } label: {
                                     HStack {
                                         Text(pinned.count == 1 ? "1 Pin" : "\(pinned.count) Pins")
                                         Spacer()
-                                        Image(systemName: showingAllPins ? "chevron.down" : "chevron.right")
+                                        Image(systemName: "chevron.down")
+                                            .rotationEffect(Angle(degrees: showingAllPins ? 0 : -90))
                                     }
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -360,6 +359,8 @@ struct History: View {
                                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                                 } placeholder: {
                                                     ProgressView()
+                                                        .controlSize(.large)
+                                                        .frame(width: 50, height: 50)
                                                 }
                                             } else {
                                                 i.qrCode?.toImage()?
@@ -371,9 +372,9 @@ struct History: View {
                                                 if i.text.isValidURL() {
                                                     let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
                                                     
-//                                                    if fixedURL.last == "/" {
-//                                                        print(fixedURL)
-//                                                    }
+                                                    //                                                    if fixedURL.last == "/" {
+                                                    //                                                        print(fixedURL)
+                                                    //                                                    }
                                                     
                                                     Text(fixedURL)
                                                         .bold()
@@ -434,10 +435,6 @@ struct History: View {
                                             } label: {
                                                 Label("Share URL", systemImage: "square.and.arrow.up")
                                             }
-                                        }
-                                        
-                                        Button {} label: {
-                                            Label("Share QR Code (coming soon)", systemImage: "square.and.arrow.up")
                                         }
                                         
                                         Button(role: .destructive) {

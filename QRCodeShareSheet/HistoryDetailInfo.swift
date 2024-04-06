@@ -18,7 +18,9 @@ struct HistoryDetailInfo: View {
     @State private var showingAboutAppSheet = false
     @State private var isEditing = false
     @State private var showingDeleteConfirmation = false
+    @State private var showingResetConfirmation = false
     @State private var showSavedAlert = false
+    @State private var showExceededLimitAlert = false
     @State private var showingLocation = false
     @State private var showingFullURLSheet = false
     @State private var showingAllTextSheet = false
@@ -26,6 +28,8 @@ struct HistoryDetailInfo: View {
     @State private var locationName: String?
     
     private let monitor = NetworkMonitor()
+    
+    @ObservedObject var accentColorManager = AccentColorManager.shared
     
     @State var qrCode: QRCode
     
@@ -60,6 +64,16 @@ struct HistoryDetailInfo: View {
                             .resizable()
                             .aspectRatio(1, contentMode: .fit)
                         
+                        HStack {
+                            Spacer()
+                            
+                            Text("\(qrCode.text.count)/2953 characters")
+                                .foregroundStyle(qrCode.text.count > 2953 ? .red : .secondary)
+                                .bold()
+                        }
+                        .padding(.top, 3)
+                        .padding(.trailing)
+                        
                         TextField("Create your own QR code...", text: $qrCode.text)
                             .padding()
                             .background(.gray.opacity(0.2))
@@ -68,29 +82,64 @@ struct HistoryDetailInfo: View {
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                             .padding(.horizontal)
+                            .onSubmit {
+                                if qrCode.text.count > 2953 {
+                                    showExceededLimitAlert = true
+                                } else if !qrCode.text.isEmpty {
+                                    if qrCode.text != originalText, let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                                        qrCode.date = Date.now
+                                        qrCode.wasEdited = true
+                                        qrCodeStore.history[idx] = qrCode
+                                        
+                                        Task {
+                                            do {
+                                                try await save()
+                                            } catch {
+                                                print(error.localizedDescription)
+                                            }
+                                        }
+                                    }
+                                    
+                                    isEditing.toggle()
+                                }
+                            }
+                            .alert("You'll need to remove \(qrCode.text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
+                                Button("OK", role: .cancel) {}
+                            }
                         
-                        Section {
+                        HStack {
                             Button {
-                                qrCode.text = originalText
+                                showingResetConfirmation = true
                             } label: {
                                 Image(systemName: "arrow.circlepath")
+                                    .foregroundStyle(colorScheme == .dark ? .white : qrCode.text == originalText ? .black : .white)
+                                    .opacity(qrCode.text.isEmpty ? 0.4 : 1)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.secondary.opacity(colorScheme == .dark ? 0.7 : 1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 15))
                             }
                             .disabled(qrCode.text == originalText)
+                            .opacity(qrCode.text == originalText ? 0.2 : 1)
+                            .padding(.leading)
                             
                             Button {
                                 UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                                 showSavedAlert = true
                             } label: {
-                                Label("Save to Photos", systemImage: "square.and.arrow.down")
+                                Label("Download", systemImage: "square.and.arrow.down")
                                     .foregroundStyle(.white)
                                     .opacity(qrCode.text.isEmpty ? 0.3 : 1)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 15))
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
                             .disabled(qrCode.text.isEmpty)
-                            .padding(.horizontal)
+                            .padding(.trailing)
+                            .alert("Saved to Photos!", isPresented: $showSavedAlert) {
+                                Button("OK", role: .cancel) {}
+                            }
                         }
                     }
                 }
@@ -103,6 +152,9 @@ struct HistoryDetailInfo: View {
                         .interpolation(.none)
                         .resizable()
                         .aspectRatio(1, contentMode: .fit)
+                        .opacity((showingFullURLSheet || showingAllTextSheet) ? 0.3 : 1)
+                        .transition(.opacity)
+                        .animation(Animation.easeInOut(duration: 0.3), value: (showingFullURLSheet || showingAllTextSheet))
                     
                     VStack(alignment: .leading) {
                         if qrCode.text.isValidURL() {
@@ -115,9 +167,24 @@ struct HistoryDetailInfo: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                 } placeholder: {
                                     ProgressView()
+                                        .controlSize(.large)
+                                        .frame(width: 50, height: 50)
                                 }
                                 .onTapGesture {
                                     showingFullURLSheet = true
+                                }
+                                .contextMenu {
+                                    Button {
+                                        UIPasteboard.general.string = qrCode.text
+                                    } label: {
+                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                    }
+                                    
+                                    Button {
+                                        showingFullURLSheet = true
+                                    } label: {
+                                        Label("Show Full URL", systemImage: "arrow.up.right")
+                                    }
                                 }
                                 
                                 Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
@@ -129,14 +196,12 @@ struct HistoryDetailInfo: View {
                                             UIPasteboard.general.string = qrCode.text
                                         } label: {
                                             Label("Copy URL", systemImage: "doc.on.doc")
-                                                .tint(Color.accentColor)
                                         }
                                         
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
                                             Label("Show Full URL", systemImage: "arrow.up.right")
-                                                .tint(Color.accentColor)
                                         }
                                     }
                                     .onTapGesture {
@@ -180,14 +245,12 @@ struct HistoryDetailInfo: View {
                                         UIPasteboard.general.string = qrCode.text
                                     } label: {
                                         Label("Copy URL", systemImage: "doc.on.doc")
-                                            .tint(Color.accentColor)
                                     }
                                     
                                     Button {
                                         showingFullURLSheet = true
                                     } label: {
                                         Label("Show Full URL", systemImage: "arrow.up.right")
-                                            .tint(Color.accentColor)
                                     }
                                 }
                             }
@@ -202,7 +265,7 @@ struct HistoryDetailInfo: View {
                                                 }
                                             } label: {
                                                 Label("Open URL", systemImage: "safari")
-                                                    .tint(Color.accentColor)
+                                                    .foregroundStyle(accentColorManager.accentColor)
                                             }
                                         }
                                         
@@ -211,7 +274,7 @@ struct HistoryDetailInfo: View {
                                                 UIPasteboard.general.string = qrCode.text
                                             } label: {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
-                                                    .tint(Color.accentColor)
+                                                    .foregroundStyle(accentColorManager.accentColor)
                                             }
                                             
                                             Text(qrCode.text)
@@ -220,7 +283,6 @@ struct HistoryDetailInfo: View {
                                                         UIPasteboard.general.string = qrCode.text
                                                     } label: {
                                                         Label("Copy URL", systemImage: "doc.on.doc")
-                                                            .tint(Color.accentColor)
                                                     }
                                                 }
                                         }
@@ -232,10 +294,11 @@ struct HistoryDetailInfo: View {
                                             Button("Done") {
                                                 showingFullURLSheet = false
                                             }
-                                            .tint(Color.accentColor)
+                                            .tint(accentColorManager.accentColor)
                                         }
                                     }
                                 }
+                                .presentationDetents([.medium, .large])
                             }
                         } else {
                             HStack {
@@ -245,6 +308,19 @@ struct HistoryDetailInfo: View {
                                     .font(.largeTitle)
                                     .onTapGesture {
                                         showingAllTextSheet = true
+                                    }
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = qrCode.text
+                                        } label: {
+                                            Label("Copy Text", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Button {
+                                            showingAllTextSheet = true
+                                        } label: {
+                                            Label("Show Full Text", systemImage: "arrow.up.right")
+                                        }
                                     }
                                 
                                 Spacer()
@@ -273,7 +349,7 @@ struct HistoryDetailInfo: View {
                                                 UIPasteboard.general.string = qrCode.text
                                             } label: {
                                                 Label("Copy Text", systemImage: "doc.on.doc")
-                                                    .tint(Color.accentColor)
+                                                    .foregroundStyle(accentColorManager.accentColor)
                                             }
                                             
                                             Text(qrCode.text)
@@ -282,7 +358,6 @@ struct HistoryDetailInfo: View {
                                                         UIPasteboard.general.string = qrCode.text
                                                     } label: {
                                                         Label("Copy Text", systemImage: "doc.on.doc")
-                                                            .tint(Color.accentColor)
                                                     }
                                                 }
                                         } footer: {
@@ -296,10 +371,11 @@ struct HistoryDetailInfo: View {
                                             Button("Done") {
                                                 showingAllTextSheet = false
                                             }
-                                            .tint(Color.accentColor)
+                                            .tint(accentColorManager.accentColor)
                                         }
                                     }
                                 }
+                                .presentationDetents([.medium, .large])
                             }
                         }
                         
@@ -310,15 +386,17 @@ struct HistoryDetailInfo: View {
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             if monitor.isActive {
                                 Button {
-                                    withAnimation {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
                                         showingLocation.toggle()
                                     }
                                 } label: {
                                     HStack {
-                                        Text(locationName ?? "(\(qrCode.scanLocation[0]),\(qrCode.scanLocation[1]))")
+                                        Text(locationName ?? "SCAN LOCATION")
                                             .foregroundStyle(.secondary)
                                         Spacer()
-                                        Image(systemName: showingLocation ? "chevron.down" : "chevron.right")
+                                        Image(systemName: "chevron.down")
+                                            .rotationEffect(Angle(degrees: showingLocation ? 0 : -90))
+                                            .foregroundStyle(.secondary)
                                     }
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -393,6 +471,7 @@ struct HistoryDetailInfo: View {
                 generateQRCode(from: qrCode.text)
             }
         }
+        .accentColor(accentColorManager.accentColor)
         .navigationTitle(qrCode.text)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -443,7 +522,7 @@ struct HistoryDetailInfo: View {
                 Button {
                     withAnimation {
                         if isEditing {
-                            if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                            if qrCode.text != originalText, let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
                                 qrCode.date = Date.now
                                 qrCode.wasEdited = true
                                 qrCodeStore.history[idx] = qrCode
@@ -463,6 +542,7 @@ struct HistoryDetailInfo: View {
                 } label: {
                     Text(isEditing ? "Done" : "Edit")
                 }
+                .disabled(qrCode.text.isEmpty)
             }
         }
         .confirmationDialog("Delete QR Code?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
@@ -481,6 +561,11 @@ struct HistoryDetailInfo: View {
                 
                 showingDeleteConfirmation = false
                 presentationMode.wrappedValue.dismiss()
+            }
+        }
+        .confirmationDialog("Discard Changes?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
+            Button("Discard Changes", role: .destructive) {
+                qrCode.text = originalText
             }
         }
     }
