@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  QRCodeShareSheet
+//  QRSharePro
 //
 //  Created by Aaron Ma on 3/25/24.
 //

@@ -1,6 +1,6 @@
 //
 //  SceneDelegate.swift
-//  QRCodeShareSheet
+//  QRSharePro
 //
 //  Created by Aaron Ma on 3/25/24.
 //
@@ -13,10 +13,10 @@ class SceneDelegate: NSObject, UIWindowSceneDelegate {
             completionHandler(false)
             return
         }
-        
+
         windowScene.open(url, options: nil, completionHandler: completionHandler)
     }
-    
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         if let shortcutItem = connectionOptions.shortcutItem {
             if let url = URL(string: shortcutItem.type) {
