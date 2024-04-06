@@ -55,6 +55,10 @@ struct OnboardingView: View {
                         History()
                     }
                 }
+                .onChange(of: selection) { tab in
+                    let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+                    hapticGenerator.impactOccurred()
+                }
                 .onAppear {
                     Task {
                         qrCodeStore.load()
@@ -74,13 +78,13 @@ struct OnboardingView: View {
                                 }
                             } label: {
                                 Image(systemName: getImage(tab: tab))
-    .renderingMode(.template)
-    .aspectRatio(contentMode: .fit)
-    .frame(maxWidth: .infinity)
-    .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
-    .foregroundStyle(selection == tab ? Color.accentColor : .gray)
-    .scaleEffect(selection == tab ? 2 : 1)
-    .bold(selection == tab)
+                                    .renderingMode(.template)
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(maxWidth: .infinity)
+                                    .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
+                                    .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+                                    .scaleEffect(selection == tab ? 2 : 1)
+                                    .bold(selection == tab)
                             }
                         }
                     }
@@ -99,7 +103,7 @@ struct OnboardingView: View {
                         VStack(spacing: 20) {
                             ScrollView {
                                 VStack(spacing: 20) {
-                                    Image(uiImage: UIImage(named: "AppIcon") ?? UIImage()) // shouldn't this be a force-unwrap? this will cause issues with the user not being able to see our app icon
+                                    Image(uiImage: UIImage(named: "AppIcon")!)
                                         .resizable()
                                         .frame(width: 150, height: 150)
                                         .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
@@ -201,7 +205,7 @@ struct OnboardingView: View {
                                     }
                                     .navigationTitle("We ❤️ Privacy")
                                     .toolbar {
-                                        Button("Close") {
+                                        Button("Done") {
                                             showingPrivacySheet = false
                                         }
                                     }
@@ -212,50 +216,56 @@ struct OnboardingView: View {
                     }
                 } else {
                     ZStack {
-                        ScrollView {
-                            Image(systemName: "square.and.arrow.up")
-                                .resizable()
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                                .scaledToFit()
-                                .frame(height: 200)
-                                .padding(.top, 50)
-                                .padding(.bottom, 50)
-                            
-                            Text("Add QR Share Pro to the Share Menu")
-                                .font(.title)
-                                .bold()
-                                .multilineTextAlignment(.center)
-                            
-                            Text("Quickly share text & URLs with QR codes!")
-                                .font(.subheadline)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 50)
-                                .padding(.bottom, 50)
-                            
-                            ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
-                                Label {
-                                    Text("Show Share Menu")
-                                } icon: {
-                                    Image(systemName: "gear")
+                        ColorfulView(color: $colors)
+                            .ignoresSafeArea()
+                            .opacity(0.8)
+                        
+                        VStack(spacing: 20) {
+                            ScrollView {
+                                Image(systemName: "square.and.arrow.up")
+                                    .resizable()
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .scaledToFit()
+                                    .frame(height: 200)
+                                    .padding(.top, 50)
+                                    .padding(.bottom, 50)
+                                
+                                Text("Add QR Share Pro to the Share Menu")
+                                    .font(.title)
+                                    .bold()
+                                    .multilineTextAlignment(.center)
+                                
+                                Text("Quickly share text & URLs with QR codes!")
+                                    .font(.subheadline)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 50)
+                                    .padding(.bottom, 50)
+                                
+                                ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
+                                    Label {
+                                        Text("Show Share Menu")
+                                    } icon: {
+                                        Image(systemName: "gear")
+                                    }
                                 }
-                            }
-                            .padding()
-                            .background(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-                            
-                            VStack {
-                                Button {
-                                    isOnboardingDone = true
-                                } label: {
-                                    Text("Done")
-                                        .font(.title)
-                                        .bold()
-                                        .padding()
-                                        .foregroundStyle(.white)
+                                .padding()
+                                .background(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 18))
+                                
+                                VStack {
+                                    Button {
+                                        isOnboardingDone = true
+                                    } label: {
+                                        Text("Done")
+                                            .font(.title)
+                                            .bold()
+                                            .padding()
+                                            .foregroundStyle(.white)
+                                    }
+                                    .background(Color.accentColor)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .padding(.bottom, 20)
                                 }
-                                .background(Color.accentColor)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .padding(.bottom, 20)
                             }
                         }
                     }
