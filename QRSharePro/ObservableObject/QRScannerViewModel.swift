@@ -115,10 +115,10 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
 
     @MainActor func didDetectQRCode(url: URL) {
         guard url != lastDetectedURL else { return }
-
+        
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
 
-        generateQRCode(from: url.absoluteString)
+        generateQRCode(from: url.absoluteString.removeTrackers())
 
         if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
             var userLocation: [Double] = [] // re-write user's location in memory
@@ -129,7 +129,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 print("Could not get user location.")
             }
 
-            let newCode = QRCode(text: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+            let newCode = QRCode(text: url.absoluteString.removeTrackers(), qrCode: pngData, scanLocation: userLocation, wasScanned: true)
 
             qrCodeStore.history.append(newCode)
 
@@ -143,17 +143,18 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             }
         }
 
-        lastDetectedURL = url
+        var cleanURL = URL(string: url.absoluteString.removeTrackers())!
+        lastDetectedURL = cleanURL
 
         DispatchQueue.main.async {
-            self.detectedURL = url
+            self.detectedURL = cleanURL
             self.isScanning = false
             self.isLoading = true
             self.isURL = true
         }
 
         // Unshorten the URL
-        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: cleanURL) { (data, response, error) in
             if let urlResponse = response, let finalURL = urlResponse.url {
                 DispatchQueue.main.async {
                     self.unshortenedURL = finalURL
