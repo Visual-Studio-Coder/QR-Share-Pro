@@ -181,7 +181,7 @@ struct ShareView: View {
                     qrCodeImage = qrImage
                     let newCode = QRCode(text: receivedText, qrCode: qrCodeImage?.pngData())
                     
-                    if let userDefaults = UserDefaults(suiteName: "group.com.click.QRSharePro") {
+                    if let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare") {
                         let decoder = JSONDecoder()
                         var history = userDefaults.data(forKey: "history").flatMap { try? decoder.decode([QRCode].self, from: $0) } ?? []
                         history.append(newCode)
@@ -189,7 +189,7 @@ struct ShareView: View {
                         let encoder = JSONEncoder()
                         if let encodedHistory = try? encoder.encode(history) {
                             userDefaults.set(encodedHistory, forKey: "history")
-                            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
+                            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
                         }
                     }
                 } else {

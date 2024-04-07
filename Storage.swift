@@ -16,16 +16,16 @@ struct QRCode: Identifiable, Codable {
 class QRCodeStore: ObservableObject {
     @Published var history: [QRCode] = []
     
-    private let userDefaults = UserDefaults(suiteName: "group.com.click.QRSharePro")
+    private let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare")
     
     init() {
-        let notificationName = CFNotificationName("com.click.QRSharePro.dataChanged" as CFString)
+        let notificationName = CFNotificationName("com.click.QRShare.dataChanged" as CFString)
         CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, { (_, _, _, _, _) in
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: NSNotification.Name("com.click.QRSharePro.dataChanged"), object: nil)
+                NotificationCenter.default.post(name: NSNotification.Name("com.click.QRShare.dataChanged"), object: nil)
             }
         }, notificationName.rawValue, nil, .deliverImmediately)
-        NotificationCenter.default.addObserver(self, selector: #selector(load), name: NSNotification.Name("com.click.QRSharePro.dataChanged"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(load), name: NSNotification.Name("com.click.QRShare.dataChanged"), object: nil)
         load()
     }
     

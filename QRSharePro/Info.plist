@@ -8,7 +8,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.aaronhma.QRSharePro</string>
+			<string>com.aaronhma.QRShare</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>qrsharepro</string>
@@ -18,7 +18,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.click.QRSharePro</string>
+			<string>com.click.QRShare</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>qrsharepro</string>
