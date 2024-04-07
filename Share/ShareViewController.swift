@@ -137,7 +137,8 @@ struct ShareView: View {
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .padding(.horizontal, 16)      .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                    .padding(.horizontal, 16)
+                    .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
                         if inProgress {
                             let generator = UIImpactFeedbackGenerator(style: .soft)
                             generator.impactOccurred()
@@ -175,9 +176,11 @@ struct ShareView: View {
             withAnimation(.easeIn(duration: 2.0)) {
                 isBackgroundVisible = true
             }
+            
             loadSharedText { sharedText in
-                receivedText = sharedText
-                if let qrImage = generateQRCode(from: sharedText) {
+                receivedText = sharedText.removeTrackers()
+                
+                if let qrImage = generateQRCode(from: receivedText) {
                     qrCodeImage = qrImage
                     let newCode = QRCode(text: receivedText, qrCode: qrCodeImage?.pngData())
                     

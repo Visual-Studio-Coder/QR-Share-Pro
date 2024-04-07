@@ -84,12 +84,15 @@ struct QRScanner: UIViewControllerRepresentable {
     
     var lastScannedURL: URL?
     var lastScannedString: String?
+    var cameraError = false
     
     mutating func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
            let stringValue = readableObject.stringValue,
            let url = URL(string: stringValue) {
+            cameraError = false
+            
             if stringValue.isValidURL() {
                 guard url != lastScannedURL else { return }
                 
@@ -105,6 +108,7 @@ struct QRScanner: UIViewControllerRepresentable {
             }
         } else {
             viewModel.didFailToDetectQRCode()
+            cameraError = true
         }
     }
 }
@@ -115,193 +119,207 @@ struct Scanner: View {
     
     @State private var showingFullTextSheet = false
     
+    @ObservedObject var accentColorManager = AccentColorManager.shared
+    
     var body: some View {
-        ZStack(alignment: .bottom) {
-            if monitor.isActive {
-                HStack {
-                    Label("You're offline.", systemImage: "network.slash")
-                        .tint(.primary)
-                    Spacer()
-                    Image(systemName: "multiply.circle.fill")
-                        .foregroundStyle(Color.gray)
+        VStack {
+            VStack {
+                if !monitor.isActive {
+                    Label("Offline", systemImage: "network.slash")
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             
             Spacer()
             
-            QRScanner(viewModel: viewModel)
-                .onAppear {
-                    viewModel.startScanning()
-                }
-                .onDisappear {
-                    viewModel.stopScanning()
-                }
-            
-            VStack {
-                if viewModel.isLoading {
-                    HStack {
-                        if let originalURL = viewModel.detectedURL {
+            ZStack(alignment: .bottom) {
+                QRScanner(viewModel: viewModel)
+                    .onAppear {
+                        viewModel.startScanning()
+                    }
+                    .onDisappear {
+                        viewModel.stopScanning()
+                    }
+                
+                VStack {
+                    if viewModel.isLoading {
+                        HStack {
+                            if let originalURL = viewModel.detectedURL {
+                                Button {
+                                    UIApplication.shared.open(originalURL)
+                                } label: {
+                                    HStack {
+                                        if let host = originalURL.host {
+                                            AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                image.resizable()
+                                            } placeholder: {
+                                                ProgressView()
+                                            }
+                                            .frame(width: 16, height: 16)
+                                        }
+                                        
+                                        Text(originalURL.absoluteString)
+                                            .lineLimit(2)
+                                    }
+                                }
+                                .foregroundStyle(Color.accentColor)
+                            }
+                        }
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else if let string = viewModel.detectedString {
+                        Button {
+                            showingFullTextSheet = true
+                        } label: {
+                            HStack {
+                                Text(string)
+                                    .lineLimit(3)
+                                    .foregroundStyle(.secondary)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "arrow.up.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .sheet(isPresented: $showingFullTextSheet) {
+                            List {
+                                Section {
+                                    Button {
+                                        UIPasteboard.general.string = string
+                                    } label: {
+                                        Label("Copy Text", systemImage: "doc.on.doc")
+                                            .tint(Color.accentColor)
+                                    }
+                                    
+                                    Text(string)
+                                        .contextMenu {
+                                            Button {
+                                                UIPasteboard.general.string = string
+                                            } label: {
+                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                            }
+                                        }
+                                } footer: {
+                                    Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                }
+                            }
+                            .navigationTitle(string)
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    Button("Done") {
+                                        showingFullTextSheet = false
+                                    }
+                                    .tint(accentColorManager.accentColor)
+                                }
+                            }
+                        }
+                    }  else if let url = viewModel.unshortenedURL, url.host != viewModel.detectedURL?.host {
+                        HStack {
+                            Button {
+                                UIApplication.shared.open(url)
+                            } label: {
+                                HStack {
+                                    if url.absoluteString.isValidURL() {
+                                        if let host = url.host {
+                                            AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                image.resizable()
+                                            } placeholder: {
+                                                ProgressView()
+                                            }
+                                            .frame(width: 16, height: 16)
+                                        }
+                                    }
+                                    
+                                    Text(url.absoluteString)
+                                        .lineLimit(2)
+                                }
+                            }
+                            .foregroundStyle(Color.accentColor)
+                            
+                            Menu {
+                                Section {
+                                    if let originalURL = viewModel.detectedURL {
+                                        Button {
+                                            UIApplication.shared.open(originalURL)
+                                        } label: {
+                                            Text("\(originalURL.absoluteString)")
+                                                .foregroundStyle(.blue)
+                                                .lineLimit(5)
+                                        }
+                                    }
+                                } header: {
+                                    Text("Original URL")
+                                }
+                            } label: {
+                                Image(systemName: "chevron.down")
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else if let originalURL = viewModel.detectedURL {
+                        HStack {
                             Button {
                                 UIApplication.shared.open(originalURL)
                             } label: {
                                 HStack {
-                                    if let host = originalURL.host {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                            image.resizable()
-                                        } placeholder: {
-                                            ProgressView()
+                                    if originalURL.absoluteString.isValidURL() {
+                                        if let host = originalURL.host {
+                                            AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                image.resizable()
+                                            } placeholder: {
+                                                ProgressView()
+                                            }
+                                            .frame(width: 16, height: 16)
                                         }
-                                        .frame(width: 16, height: 16)
                                     }
                                     
                                     Text(originalURL.absoluteString)
                                         .lineLimit(2)
                                 }
                             }
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(.blue)
                         }
-                    }
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let url = viewModel.unshortenedURL, url.host != viewModel.detectedURL?.host {
-                    HStack {
-                        Button {
-                            UIApplication.shared.open(url)
-                        } label: {
-                            HStack {
-                                if url.absoluteString.isValidURL() {
-                                    if let host = url.host {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                            image.resizable()
-                                        } placeholder: {
-                                            ProgressView()
-                                        }
-                                        .frame(width: 16, height: 16)
-                                    }
-                                }
-                                
-                                Text(url.absoluteString)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .foregroundStyle(Color.accentColor)
-                        
-                        Menu {
-                            Section {
-                                if let originalURL = viewModel.detectedURL {
-                                    Button {
-                                        UIApplication.shared.open(originalURL)
-                                    } label: {
-                                        Text("\(originalURL.absoluteString)")
-                                            .foregroundStyle(.blue)
-                                            .lineLimit(5)
-                                    }
-                                }
-                            } header: {
-                                Text("Original URL")
-                            }
-                        } label: {
-                            Image(systemName: "chevron.down")
-                                .foregroundStyle(.white)
-                        }
-                    }
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let originalURL = viewModel.detectedURL {
-                    HStack {
-                        Button {
-                            UIApplication.shared.open(originalURL)
-                        } label: {
-                            HStack {
-                                if originalURL.absoluteString.isValidURL() {
-                                    if let host = originalURL.host {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                            image.resizable()
-                                        } placeholder: {
-                                            ProgressView()
-                                        }
-                                        .frame(width: 16, height: 16)
-                                    }
-                                }
-                                
-                                Text(originalURL.absoluteString)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .foregroundStyle(.blue)
-                    }
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let string = viewModel.detectedString {
-                    Button {
-                        showingFullTextSheet = true
-                    } label: {
-                        HStack {
-                            Text(string)
-                                .lineLimit(3)
-                                .foregroundStyle(Color.accentColor)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "arrow.up.right")
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .sheet(isPresented: $showingFullTextSheet) {
-                        List {
-                            Section {
-                                Button {
-                                    UIPasteboard.general.string = string
-                                } label: {
-                                    Label("Copy Text", systemImage: "doc.on.doc")
-                                        .tint(Color.accentColor)
-                                }
-                                
-                                Text(string)
-                                    .contextMenu {
-                                        Button {
-                                            UIPasteboard.general.string = string
-                                        } label: {
-                                            Label("Copy Text", systemImage: "doc.on.doc")
-                                        }
-                                    }
-                            } footer: {
-                                Text(string.count == 1 ? "1 character" : "\(string.count) characters")
-                            }
-                        }
-                        .navigationTitle(string)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button("Done") {
-                                    showingFullTextSheet = false
-                                }
-                            }
-                        }
-                    }
-                } else if viewModel.cameraError {
-                    Text("To scan QR codes, you need to enable camera permissions.")
-                    
-                    Button {} label: {
-                        Text("Enable Camera Access")
-                    }
-                } else {
-                    Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
-                        .foregroundStyle(.white)
                         .padding()
                         .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else if viewModel.cameraError {
+                        VStack {
+                            Text("To scan QR codes, you need to enable camera permissions.")
+                            
+                            Button("Enable Camera Access") {
+                                if let settingsURL = URL(string: UIApplication.openSettingsURLString),
+                                   UIApplication.shared.canOpenURL(settingsURL) {
+                                    UIApplication.shared.open(settingsURL)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else {
+                        Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
+                            .foregroundStyle(.white)
+                            .padding()
+                            .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
                 }
+                .padding(.bottom)
             }
-            .padding(.bottom)
         }
         .background(Color.black)
+        .accentColor(accentColorManager.accentColor)
     }
 }
 

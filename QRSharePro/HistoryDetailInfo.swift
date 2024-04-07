@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import Photos
 
 struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
@@ -26,6 +27,8 @@ struct HistoryDetailInfo: View {
     @State private var showingAllTextSheet = false
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var locationName: String?
+    @State private var showPermissionsError = false
+    @State private var authorizationStatus = PHAuthorizationStatus.notDetermined
 
     private let monitor = NetworkMonitor()
 
@@ -106,6 +109,14 @@ struct HistoryDetailInfo: View {
                             .alert("You'll need to remove \(qrCode.text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
                                 Button("OK", role: .cancel) {}
                             }
+                            .alert("We need permission to save this QR code to your photo library.", isPresented: $showPermissionsError) {
+                                Button("Open Settings", role: .cancel) {
+                                    if let settingsURL = URL(string: UIApplication.openSettingsURLString),
+                                       UIApplication.shared.canOpenURL(settingsURL) {
+                                        UIApplication.shared.open(settingsURL)
+                                    }
+                                }
+                            }
 
                         HStack {
                             Button {
@@ -124,8 +135,20 @@ struct HistoryDetailInfo: View {
                             .padding(.leading)
 
                             Button {
-                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                showSavedAlert = true
+                                if qrCode.text.count > 2953 {
+                                    showExceededLimitAlert = true
+                                } else {
+                                    PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                        authorizationStatus = status
+                                        
+                                        if status == .denied {
+                                            showPermissionsError = true
+                                        } else {
+                                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                            showSavedAlert = true
+                                        }
+                                    }
+                                }
                             } label: {
                                 Label("Download", systemImage: "square.and.arrow.down")
                                     .foregroundStyle(.white)
