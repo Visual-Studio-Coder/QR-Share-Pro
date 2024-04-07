@@ -96,7 +96,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             Task {
                 do {
                     try save()
-                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
+                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
                 } catch {
                     print(error.localizedDescription)
                 }
@@ -136,7 +136,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             Task {
                 do {
                     try save()
-                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRSharePro.dataChanged" as CFString), nil, nil, true)
+                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
                 } catch {
                     print(error.localizedDescription)
                 }
