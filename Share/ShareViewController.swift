@@ -5,6 +5,7 @@ import CoreImage.CIFilterBuiltins
 import MobileCoreServices
 import UniformTypeIdentifiers
 import ColorfulX
+import Photos
 
 class ShareViewController: UIViewController {
     var hostingView: UIHostingController<ShareView>!
@@ -36,6 +37,7 @@ struct ShareView: View {
     @State private var isBackgroundVisible = false
     @State private var receivedText: String = ""
     @State private var showAlert = false
+    @State private var showPermissionsError = false
     @State private var colors: [Color] = [.gray, .orange, .yellow, .green, .blue, .white, .purple, .pink, .gray, .white]
     
     var shareLabel: String {
@@ -87,9 +89,15 @@ struct ShareView: View {
                             let ciImage = CIImage(cgImage: qrCodeImage.cgImage!)
                             let context = CIContext()
                             if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
-                                let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .up)
-                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                showAlert = true
+                                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                    if status == .denied {
+                                        showPermissionsError = true
+                                    } else {
+                                        let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .up)
+                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                        showAlert = true
+                                    }
+                                }
                             }
                         }) {
                             HStack {
@@ -107,6 +115,8 @@ struct ShareView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .alert(isPresented: $showAlert) {
                             Alert(title: Text("Saved!"), message: Text("The QR code has been saved to your photos."), dismissButton: .default(Text("OK")))
+                        }
+                        .alert("We need permission to save this QR code to your photo library. Open Settings > QR Share, then enable \"Add Photos Only\".", isPresented: $showPermissionsError) {
                         }
                         Button(action: {
                             let ciImage = CIImage(cgImage: qrCodeImage.cgImage!)

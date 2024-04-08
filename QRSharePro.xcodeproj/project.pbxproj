@@ -229,14 +229,22 @@
 			path = ObservableObject;
 			sourceTree = "<group>";
 		};
+		8B255E772BC396F6008BE876 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		8BB6E1642B99575C0094D652 /* Share */ = {
 			isa = PBXGroup;
 			children = (
+				8B255E772BC396F6008BE876 /* Extensions */,
 				78B575872BAD106B0057A709 /* Share.entitlements */,
 				8BB6E1652B99575C0094D652 /* ShareViewController.swift */,
 				8BB6E1672B99575C0094D652 /* MainInterface.storyboard */,
 				8BB6E16A2B99575C0094D652 /* Info.plist */,
-				8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */,
 			);
 			path = Share;
 			sourceTree = "<group>";
