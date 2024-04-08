@@ -29,7 +29,7 @@ struct History: View {
     @State private var showingClearFaviconsConfirmation = false
     @State private var showingClearAllPinsConfirmation = false
     @State private var showingClearHistoryConfirmation = false
-
+    
     private let monitor = NetworkMonitor()
 
     private var allSearchTags = ["All", "URL", "Text"]
@@ -284,7 +284,7 @@ struct History: View {
                                                     Label("Share URL", systemImage: "square.and.arrow.up")
                                                 }
                                             }
-
+                                            
                                             Button(role: .destructive) {
                                                 currentQRCode = i
                                                 showingDeleteConfirmation = true
@@ -436,7 +436,7 @@ struct History: View {
                                                 Label("Share URL", systemImage: "square.and.arrow.up")
                                             }
                                         }
-
+                                        
                                         Button(role: .destructive) {
                                             currentQRCode = i
                                             showingDeleteConfirmation = true

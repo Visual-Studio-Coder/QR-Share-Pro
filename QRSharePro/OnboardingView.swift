@@ -16,13 +16,12 @@ struct OnboardingView: View {
     @State private var colors: [Color] = [.purple, .indigo, .pink, .orange, .red]
     @State private var currentPage = 0
     @State private var isDragging = false
-
     
     let features = [
-        Feature(title: "Create QR Codes from the Share Menu", description: "Share text & URL with just a QR code.", image: "square.and.arrow.up"),
-        Feature(title: "Confidently Scan QR Codes", description: "Prevent phishing attacks by seeing where QR code links *actually* take you.", image: "qrcode.viewfinder"),
-        Feature(title: "Create New QR Code", description: "Generate any type of QR code from URLs to Wi-Fi, all without being tracked.", image: "plus"),
-        Feature(title: "View QR Code History", description: "Scanned QR codes, created codes, and shared QR codes live in one place.", image: "clock.arrow.circlepath")
+        Feature(title: "Share QR Codes from the Share Menu", description: "When you tap the share icon, we easily generate a beautiful QR code that anyone nearby can scan!", image: "square.and.arrow.up"),
+        Feature(title: "Scan Securely & Privately", description: "Sus short link? We unshorten it automatically, with trackers removed.", image: "qrcode.viewfinder"),
+        Feature(title: "History", description: "See what you’ve scanned, created, and shared.", image: "clock.arrow.circlepath"),
+        Feature(title: "Privacy Included", description: "QR Share Pro can operate 100% offline, with all data stored on-device.", image: "checkmark.shield")
     ]
     
     func getImage(tab: Tab) -> String {
@@ -67,9 +66,9 @@ struct OnboardingView: View {
                         qrCodeStore.load()
                     }
                     
-                    //#if targetEnvironment(simulator)
-                    //                UserDefaults.standard.set(false, forKey: "isOnboardingDone")
-                    //#endif
+//#if targetEnvironment(simulator)
+//                    UserDefaults.standard.set(false, forKey: "isOnboardingDone")
+//#endif
                 }
                 
                 if showingTabView {
@@ -96,7 +95,7 @@ struct OnboardingView: View {
                     .padding(.bottom, 10)
                     .padding([.horizontal, .top])
                 }
-            } else {                
+            } else {
                 ZStack {
                     ColorfulView(color: $colors)
                         .ignoresSafeArea()
@@ -114,11 +113,13 @@ struct OnboardingView: View {
                                             .padding(.top, 20)
                                         
                                         VStack {
-                                            Text("Say \"hello\" to")
-                                                .foregroundStyle(.white)
-                                            
                                             Text("QR Share Pro")
+                                                .font(.largeTitle)
                                                 .foregroundStyle(.cyan)
+                                            
+                                            Text("QR codes, done *right*.")
+                                                .font(.headline)
+                                                .foregroundStyle(.white)
                                         }
                                         .multilineTextAlignment(.center)
                                         .font(.largeTitle)
@@ -138,8 +139,24 @@ struct OnboardingView: View {
                                                         .font(.headline)
                                                         .bold()
                                                     
-                                                    Text("\(feature.description)")
-                                                        .foregroundStyle(.white.opacity(0.7))
+                                                    if feature.title == "Privacy Included" {
+                                                        Button {
+                                                            showingPrivacySheet = true
+                                                        } label: {
+                                                            VStack(alignment: .leading) {
+                                                                Text("\(feature.description)")
+                                                                    .foregroundStyle(.white.opacity(0.7))
+                                                                
+                                                                Text("Learn more...")
+                                                                    .foregroundStyle(Color.accentColor)
+                                                                    .bold()
+                                                            }
+                                                        }
+                                                        .buttonStyle(PlainButtonStyle())
+                                                    } else {
+                                                        Text("\(feature.description)")
+                                                            .foregroundStyle(.white.opacity(0.7))
+                                                    }
                                                 }
                                                 .accessibilityElement(children: .combine)
                                             }
@@ -154,6 +171,7 @@ struct OnboardingView: View {
                                         withAnimation {
                                             currentPage = 1
                                         }
+                                        
                                         completedStep1 = true
                                     } label: {
                                         Text("Continue")
@@ -164,20 +182,6 @@ struct OnboardingView: View {
                                             .bold()
                                             .padding(.horizontal)
                                     }
-                                    Button {
-                                        showingPrivacySheet = true
-                                    } label: {
-                                        VStack {
-                                            Text("We *actually* respect your privacy. Our app is 100% offline, with all data stored *on-device*.")
-                                                .foregroundStyle(.white)
-                                                .padding(.horizontal)
-                                            
-                                            Text("Learn more...")
-                                                .foregroundStyle(.blue)
-                                                .bold()
-                                        }
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
                                 }
                                 .sheet(isPresented: $showingPrivacySheet) {
                                     NavigationStack {
@@ -223,59 +227,101 @@ struct OnboardingView: View {
                             
                             VStack {
                                 Spacer()
-                                    Text("Add QR Share Pro to the Share Menu")
-                                        .font(.title)
-                                        .bold()
-                                        .multilineTextAlignment(.center)
-                                    
-                                    Image("QR-share-sheet")
-                                        .resizable()
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        .scaledToFit()
-                                        //.frame(height: 200)
-                                        .padding(.horizontal, 50)
+                                
+                                Text("Add QR Share Pro to the Share Menu")
+                                    .foregroundStyle(.white)
+                                    .font(.title)
+                                    .bold()
+                                    .multilineTextAlignment(.center)
+                                
+                                Text("Quickly share text & URLs with QR codes by accessing it directly from the share menu!")
+                                    .font(.subheadline)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 50)
+                                    .padding(.bottom, 10)
+                                
+                                Image("QR-share-sheet")
+                                    .resizable()
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .scaledToFit()
+                                    .padding(.horizontal, 50)
+                                
                                 ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
                                     HStack {
                                         Spacer()
-                                        Label("Show Share Menu", systemImage: "gear")
-                                        .padding()
+                                        Label("Show Share Menu", systemImage: "square.and.arrow.up")
+                                            .bold()
+                                            .padding()
                                         Spacer()
                                     }
                                 }
                                 .background(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 18))
                                 .padding(.horizontal, 50)
-                                    Text("Quickly share text & URLs with QR codes by accessing it directly from the share menu!")
-                                        .font(.subheadline)
-                                        .multilineTextAlignment(.center)
-                                        .padding(.horizontal, 50)
-                                        .padding(.bottom, 10)
+                                
+                                HStack {
                                     Spacer()
-                                    Button {
-                                        isOnboardingDone = true
-                                    } label: {
-                                        Text("Done")
-                                            .frame(maxWidth: .infinity, minHeight: 44)
-                                            .background(Color.accentColor)
-                                            .foregroundStyle(.white)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                            .bold()
-                                            .padding(.horizontal)
-                                    }
-                                Button {
-                                    showingPrivacySheet = true
-                                } label: {
-                                    VStack {
-                                        Text("We *actually* respect your privacy. Our app is 100% offline, with all data stored *on-device*.")
-                                            .foregroundStyle(.white)
-                                            .padding(.horizontal)
+                                    
+                                    VStack(alignment: .leading) {
+                                        HStack {
+                                            Text("1")
+                                                .bold()
+                                                .padding()
+                                                .foregroundStyle(.white)
+                                                .background(Color.accentColor)
+                                                .clipShape(Circle())
+                                            
+                                            Text("Open the share sheet, then scroll right and tap on **More**.")
+                                                .foregroundStyle(.white)
+                                                .multilineTextAlignment(.leading)
+                                        }
                                         
-                                        Text("Learn more...")
-                                            .foregroundStyle(.blue)
-                                            .bold()
+                                        HStack {
+                                            Text("2")
+                                                .bold()
+                                                .padding()
+                                                .foregroundStyle(.white)
+                                                .background(Color.accentColor)
+                                                .clipShape(Circle())
+                                            
+                                            Text("Tap on **Edit** in the top right corner.")
+                                                .foregroundStyle(.white)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        
+                                        HStack {
+                                            Text("3")
+                                                .bold()
+                                                .padding()
+                                                .foregroundStyle(.white)
+                                                .background(Color.accentColor)
+                                                .clipShape(Circle())
+                                            
+                                            Text("Add **QR Share Pro** and re-order it to the top.")
+                                                .foregroundStyle(.white)
+                                                .multilineTextAlignment(.leading)
+                                        }
                                     }
+                                    
+                                    Spacer()
                                 }
-                                .buttonStyle(PlainButtonStyle())
+                                
+                                Spacer()
+                                
+                                Button {
+                                    withAnimation {
+                                        isOnboardingDone = true
+                                    }
+                                } label: {
+                                    Text("Done")
+                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                        .background(Color.accentColor)
+                                        .foregroundStyle(.white)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        .bold()
+                                        .padding(.horizontal)
+                                }
                             }
                             .tag(1)
                         }
@@ -283,7 +329,7 @@ struct OnboardingView: View {
                     }
                 }
                 .opacity(isOnboardingDone ? 0 : 1)
-        .animation(.easeInOut, value: isOnboardingDone)
+                .animation(.easeInOut, value: isOnboardingDone)
             }
         }
         .onOpenURL(perform: openURL)
