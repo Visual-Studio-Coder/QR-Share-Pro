@@ -26,7 +26,7 @@ struct Home: View {
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var animatedText = ""
     
-    let fullText = "Start typing to\ngenerate a QR code."
+    let fullText = "Start typing to\ngenerate a QR code..."
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     
     @FocusState private var isFocused
