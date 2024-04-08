@@ -104,7 +104,7 @@ struct Home: View {
                                             UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                                             showSavedAlert = true
                                             
-                                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                                            let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                                             qrCodeStore.history.append(newCode)
                                             
                                             Task {
@@ -127,7 +127,7 @@ struct Home: View {
                                 if text.count > 2953 {
                                     showExceededLimitAlert = true
                                 } else {
-                                    let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                                    let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                                     qrCodeStore.history.append(newCode)
                                     
                                     Task {
@@ -244,7 +244,7 @@ struct Home: View {
                             UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                             showSavedAlert = true
                             
-                            let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                            let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                             qrCodeStore.history.append(newCode)
                             
                             Task {
@@ -261,7 +261,7 @@ struct Home: View {
                 }
                 
                 Button("No") {
-                    let newCode = QRCode(text: text, qrCode: qrCodeImage.pngData())
+                    let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                     qrCodeStore.history.append(newCode)
                     
                     Task {
