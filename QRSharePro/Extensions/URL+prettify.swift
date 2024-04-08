@@ -9,17 +9,33 @@ import Foundation
 
 extension URL {
     func prettify() -> URL {
-        var components = URLComponents(url: self, resolvingAgainstBaseURL: false)!
+//        var modifiedURLString = self
+//        
+//        if let hashIndex = absoluteString.firstIndex(of: "#") {
+//            var components = URLComponents(url: modifiedURLString, resolvingAgainstBaseURL: false)!
+//            components.fragment = nil
+//            modifiedURLString = components.url!
+//        }
+//        
+//        if let queryIndex = absoluteString.firstIndex(of: "?") {
+//            var components = URLComponents(url: modifiedURLString, resolvingAgainstBaseURL: false)!
+//            components.queryItems = nil
+//            modifiedURLString = components.url!
+//        }
+        var absoluteString = self.absoluteString
         
-        // Remove the last slash from the path
-        if let lastSlashIndex = components.path.lastIndex(of: "/") {
-            components.path = String(components.path[components.path.startIndex..<lastSlashIndex])
+        if let hashIndex = absoluteString.firstIndex(of: "#") {
+            absoluteString = String(absoluteString[..<hashIndex])
         }
         
-        // Remove query parameters and fragment identifier
-        components.queryItems = nil
-        components.fragment = nil
+        if let queryIndex = absoluteString.firstIndex(of: "?") {
+            absoluteString = String(absoluteString[..<queryIndex])
+        }
         
-        return components.url!
+        if !absoluteString.isEmpty && absoluteString.last == "/" {
+            absoluteString = String(absoluteString.dropLast())
+        }
+        
+        return URL(string: absoluteString)!
     }
 }

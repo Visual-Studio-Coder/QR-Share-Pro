@@ -364,7 +364,7 @@ struct HistoryDetailInfo: View {
                                             }
                                         }
                                     }
-                                    .navigationTitle(URL(string: qrCode.text)!.host!)
+                                    .navigationTitle(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
                                     .navigationBarTitleDisplayMode(.inline)
                                     .toolbar {
                                         ToolbarItem(placement: .topBarTrailing) {
@@ -569,7 +569,7 @@ struct HistoryDetailInfo: View {
             }
         }
         .accentColor(accentColorManager.accentColor)
-        .navigationTitle(qrCode.text)
+        .navigationTitle(qrCode.text.isValidURL() ? URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: "") : qrCode.text)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
