@@ -205,6 +205,7 @@ struct Scanner: View {
                             Image(systemName: "chevron.down")
                                 .foregroundStyle(.white)
                         }
+                        .padding(10)
                     }
                     .padding()
                     .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
