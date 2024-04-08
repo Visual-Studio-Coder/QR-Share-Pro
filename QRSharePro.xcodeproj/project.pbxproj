@@ -31,8 +31,8 @@
 		8B0C94532BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
 		8B255E762BC33BEC008BE876 /* String+removeTrackers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */; };
 		8B255E792BC39C79008BE876 /* URL+prettify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E782BC39C79008BE876 /* URL+prettify.swift */; };
-		8B255E7C2BC451FE008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E7B2BC451FE008BE876 /* ColorfulX */; };
-		8B255E7E2BC45203008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E7D2BC45203008BE876 /* ColorfulX */; };
+		8B255E812BC484C3008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E802BC484C3008BE876 /* ColorfulX */; };
+		8B255E832BC484CA008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E822BC484CA008BE876 /* ColorfulX */; };
 		8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */; };
 		8B2EE4B62B981066001C7997 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B52B981066001C7997 /* Home.swift */; };
 		8BA2748C2BB26F8D00EF9631 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA2748B2BB26F8D00EF9631 /* History.swift */; };
@@ -128,7 +128,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B255E7C2BC451FE008BE876 /* ColorfulX in Frameworks */,
+				8B255E812BC484C3008BE876 /* ColorfulX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +136,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B255E7E2BC45203008BE876 /* ColorfulX in Frameworks */,
+				8B255E832BC484CA008BE876 /* ColorfulX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,7 +272,7 @@
 			);
 			name = QRSharePro;
 			packageProductDependencies = (
-				8B255E7B2BC451FE008BE876 /* ColorfulX */,
+				8B255E802BC484C3008BE876 /* ColorfulX */,
 			);
 			productName = QRSharePro;
 			productReference = 78F2F23D2B91677000CDF3EC /* QRSharePro.app */;
@@ -292,7 +292,7 @@
 			);
 			name = Share;
 			packageProductDependencies = (
-				8B255E7D2BC45203008BE876 /* ColorfulX */,
+				8B255E822BC484CA008BE876 /* ColorfulX */,
 			);
 			productName = Share;
 			productReference = 8BB6E1632B99575C0094D652 /* Share.appex */;
@@ -326,7 +326,7 @@
 			);
 			mainGroup = 78F2F2342B91676F00CDF3EC;
 			packageReferences = (
-				8B255E7A2BC451FE008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */,
+				8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */,
 			);
 			productRefGroup = 78F2F23E2B91677000CDF3EC /* Products */;
 			projectDirPath = "";
@@ -725,7 +725,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		8B255E7A2BC451FE008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
+		8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Lakr233/ColorfulX.git";
 			requirement = {
@@ -736,14 +736,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8B255E7B2BC451FE008BE876 /* ColorfulX */ = {
+		8B255E802BC484C3008BE876 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8B255E7A2BC451FE008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
-		8B255E7D2BC45203008BE876 /* ColorfulX */ = {
+		8B255E822BC484CA008BE876 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8B255E7A2BC451FE008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
 /* End XCSwiftPackageProductDependency section */
