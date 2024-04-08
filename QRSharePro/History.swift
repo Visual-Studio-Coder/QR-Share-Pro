@@ -222,7 +222,7 @@ struct History: View {
 
                                                 VStack(alignment: .leading) {
                                                     if i.text.isValidURL() {
-                                                        let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                        let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
 
                                                         Text(fixedURL)
                                                             .bold()
@@ -370,7 +370,7 @@ struct History: View {
 
                                             VStack(alignment: .leading) {
                                                 if i.text.isValidURL() {
-                                                    let fixedURL = URL(string: i.text)!.absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                    let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
 
                                                     //                                                    if fixedURL.last == "/" {
                                                     //                                                        print(fixedURL)
