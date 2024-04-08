@@ -121,7 +121,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         detectedURL = URL(string: sanitizedURL) // Store the sanitized URL
         
         var request = URLRequest(url: detectedURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
-        request.httpMethod = "HEAD"
+        request.httpMethod = "GET" // Change this to "GET"
         
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
         
@@ -145,8 +145,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                         print("Could not get user location.")
                     }
                     
-                    let originalURL = self.lastDetectedURL?.absoluteString != sanitizedURL ? self.lastDetectedURL?.absoluteString : nil
-                    let newCode = QRCode(text: finalSanitizedURL.absoluteString, originalURL: originalURL, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                    let newCode = QRCode(text: finalSanitizedURL.absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                     
                     self.qrCodeStore.history.append(newCode)
                     
@@ -155,7 +154,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                             try self.save()
                             CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
                         } catch {
-                            print(error.localizedDescription)
+                            print("Failed to save: \(error.localizedDescription)")
                         }
                     }
                 }
