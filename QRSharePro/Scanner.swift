@@ -118,13 +118,8 @@ struct Scanner: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             if monitor.isActive {
-                HStack {
-                    Label("You're offline.", systemImage: "network.slash")
-                        .tint(.primary)
-                    Spacer()
-                    Image(systemName: "multiply.circle.fill")
-                        .foregroundStyle(Color.gray)
-                }
+                Label("Offline", systemImage: "network.slash")
+                    .tint(.primary)
             }
             
             Spacer()

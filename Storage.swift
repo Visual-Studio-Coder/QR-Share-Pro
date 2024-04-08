@@ -3,7 +3,7 @@ import SwiftUI
 struct QRCode: Identifiable, Codable {
     var id = UUID()
     var text: String
-    var originalURL: String? // New property for the unshortened URL
+    var originalURL: String
     var qrCode: Data?
     var date = Date.now
     var pinned = false

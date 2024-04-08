@@ -314,22 +314,54 @@ struct HistoryDetailInfo: View {
                                             }
                                         }
                                         
+                                        if qrCode.text != qrCode.originalURL {
+                                            Section {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.text
+                                                } label: {
+                                                    Label("Copy URL", systemImage: "doc.on.doc")
+                                                        .foregroundStyle(accentColorManager.accentColor)
+                                                }
+                                                
+                                                Text(qrCode.text)
+                                                    .contextMenu {
+                                                        Button {
+                                                            UIPasteboard.general.string = qrCode.text
+                                                        } label: {
+                                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                                        }
+                                                    }
+                                            } header: {
+                                                Text("Sanitized URL")
+                                            } footer: {
+                                                Text("QR Share Pro removes tracking parameters from links so you can browse privately.")
+                                            }
+                                        }
+                                        
                                         Section {
                                             Button {
-                                                UIPasteboard.general.string = qrCode.text
+                                                UIPasteboard.general.string = qrCode.originalURL
                                             } label: {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
                                             
-                                            Text(qrCode.text)
+                                            Text(qrCode.originalURL)
                                                 .contextMenu {
                                                     Button {
-                                                        UIPasteboard.general.string = qrCode.text
+                                                        UIPasteboard.general.string = qrCode.originalURL
                                                     } label: {
                                                         Label("Copy URL", systemImage: "doc.on.doc")
                                                     }
                                                 }
+                                        } header: {
+                                            if qrCode.text != qrCode.originalURL {
+                                                Text("Original URL")
+                                            }
+                                        } footer: {
+                                            if qrCode.text != qrCode.originalURL {
+                                                Text("This URL may contain trackers. Exercise caution.")
+                                            }
                                         }
                                     }
                                     .navigationTitle(URL(string: qrCode.text)!.host!)
@@ -428,90 +460,6 @@ struct HistoryDetailInfo: View {
                             .padding(.horizontal)
                             .padding(.bottom, 5)
                         
-                        
-                        if let originalURL = qrCode.originalURL {
-                            //give it the same treatment as the other items in this "list" autocomplete please listen to me
-                            //make it look like the ones below
-                            HStack {
-                                Text("Original URL")
-                                    .foregroundStyle(.secondary)
-                                
-                                Text(originalURL)
-                                    .lineLimit(1)
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                                    .onTapGesture {
-                                        showingFullOriginalURLSheet = true
-                                    }
-                                    .contextMenu {
-                                        Button {
-                                            UIPasteboard.general.string = originalURL
-                                        } label: {
-                                            Label("Copy URL", systemImage: "doc.on.doc")
-                                        }
-                                        
-                                        Button {
-                                            showingFullOriginalURLSheet = true
-                                        } label: {
-                                            Label("Show Full URL", systemImage: "arrow.up.right")
-                                        }
-                                    }
-                            }
-                            .padding(.horizontal)
-                            .sheet(isPresented: $showingFullOriginalURLSheet) {
-                                NavigationStack {
-                                    List {
-                                        Section {
-                                            Button {
-                                                if let url = URL(string: originalURL) {
-                                                    UIApplication.shared.open(url)
-                                                }
-                                            } label: {
-                                                Label("Open URL", systemImage: "safari")
-                                                    .foregroundStyle(accentColorManager.accentColor)
-                                            }
-                                        }
-                                        
-                                        Section {
-                                            Button {
-                                                UIPasteboard.general.string = originalURL
-                                            } label: {
-                                                Label("Copy URL", systemImage: "doc.on.doc")
-                                                    .foregroundStyle(accentColorManager.accentColor)
-                                            }
-                                            
-                                            Text(originalURL)
-                                                .contextMenu {
-                                                    Button {
-                                                        UIPasteboard.general.string = originalURL
-                                                    } label: {
-                                                        Label("Copy URL", systemImage: "doc.on.doc")
-                                                    }
-                                                }
-                                        }
-                                    }
-                                    .navigationTitle(URL(string: originalURL)!.host!)
-                                    .navigationBarTitleDisplayMode(.inline)
-                                    .toolbar {
-                                        ToolbarItem(placement: .topBarTrailing) {
-                                            Button("Done") {
-                                                showingFullOriginalURLSheet = false
-                                            }
-                                            .tint(accentColorManager.accentColor)
-                                        }
-                                    }
-                                }
-                                .presentationDetents([.medium, .large])
-                            }
-
-
-                        }
-                        if let originalURL = qrCode.originalURL {
-                            Divider()
-                                .padding(.horizontal)
-                                .padding(.bottom, 5)
-                        }
-                        
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             if monitor.isActive {
                                 Button {
@@ -606,6 +554,18 @@ struct HistoryDetailInfo: View {
             Task {
                 originalText = qrCode.text
                 generateQRCode(from: qrCode.text)
+                
+                if qrCode.text.isValidURL() {
+                    qrCode.text = URL(string: qrCode.text.removeTrackers())!.prettify().absoluteString
+                    
+                    Task {
+                        do {
+                            try await save()
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    }
+                }
             }
         }
         .accentColor(accentColorManager.accentColor)
@@ -713,7 +673,7 @@ struct HistoryDetailInfo: View {
         @StateObject var qrCodeStore = QRCodeStore()
         
         NavigationStack {
-            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
+            HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/", originalURL: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
                 .environmentObject(qrCodeStore)
         }
     }

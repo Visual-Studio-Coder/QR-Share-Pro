@@ -33,7 +33,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     
     init(qrCodeStore: QRCodeStore) {
         self.qrCodeStore = qrCodeStore
-        self.qrCode = QRCode(text: "")
+        self.qrCode = QRCode(text: "", originalURL: "")
         scannerController.delegate = self
     }
     
@@ -89,7 +89,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 print("Could not get user location.")
             }
             
-            let newCode = QRCode(text: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+            let newCode = QRCode(text: string, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
             
             qrCodeStore.history.append(newCode)
             
@@ -120,7 +120,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         let sanitizedURL = url.absoluteString.removeTrackers() // Sanitize the original URL
         detectedURL = URL(string: sanitizedURL) // Store the sanitized URL
         
-        var request = URLRequest(url: detectedURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
+        var request = URLRequest(url: detectedURL!.prettify(), cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
         request.httpMethod = "GET" // Change this to "GET"
         
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
@@ -145,7 +145,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                         print("Could not get user location.")
                     }
                     
-                    let newCode = QRCode(text: finalSanitizedURL.absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                    let newCode = QRCode(text: finalSanitizedURL.prettify().absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                     
                     self.qrCodeStore.history.append(newCode)
                     
