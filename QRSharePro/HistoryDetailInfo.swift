@@ -12,9 +12,9 @@ import Photos
 struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
     @Environment(\.colorScheme) var colorScheme
-
+    
     @EnvironmentObject var qrCodeStore: QRCodeStore
-
+    
     @State private var originalText = ""
     @State private var showingAboutAppSheet = false
     @State private var isEditing = false
@@ -28,35 +28,34 @@ struct HistoryDetailInfo: View {
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var locationName: String?
     @State private var showPermissionsError = false
-    @State private var authorizationStatus = PHAuthorizationStatus.notDetermined
-
+    
     private let monitor = NetworkMonitor()
-
+    
     @ObservedObject var accentColorManager = AccentColorManager.shared
-
+    
     @State var qrCode: QRCode
-
+    
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
-
+    
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
-
+    
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
-
+        
         if let qrCode = filter.outputImage {
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledQrCode = qrCode.transformed(by: transform)
-
+            
             if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
     }
-
+    
     var body: some View {
         VStack {
             if isEditing {
@@ -66,17 +65,37 @@ struct HistoryDetailInfo: View {
                             .interpolation(.none)
                             .resizable()
                             .aspectRatio(1, contentMode: .fit)
-
+                            .contextMenu {
+                                if !qrCode.text.isEmpty {
+                                    Button {
+                                        if qrCode.text.count > 2953 {
+                                            showExceededLimitAlert = true
+                                        } else {
+                                            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                                if status == .denied {
+                                                    showPermissionsError = true
+                                                } else {
+                                                    UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                                    showSavedAlert = true
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Label("Save to Photos", systemImage: "square.and.arrow.down")
+                                    }
+                                }
+                            }
+                        
                         HStack {
                             Spacer()
-
+                            
                             Text("\(qrCode.text.count)/2953 characters")
                                 .foregroundStyle(qrCode.text.count > 2953 ? .red : .secondary)
                                 .bold()
                         }
                         .padding(.top, 3)
                         .padding(.trailing)
-
+                        
                         TextField("Create your own QR code...", text: $qrCode.text)
                             .padding()
                             .background(.gray.opacity(0.2))
@@ -93,7 +112,7 @@ struct HistoryDetailInfo: View {
                                         qrCode.date = Date.now
                                         qrCode.wasEdited = true
                                         qrCodeStore.history[idx] = qrCode
-
+                                        
                                         Task {
                                             do {
                                                 try await save()
@@ -102,22 +121,13 @@ struct HistoryDetailInfo: View {
                                             }
                                         }
                                     }
-
+                                    
                                     isEditing.toggle()
                                 }
                             }
                             .alert("You'll need to remove \(qrCode.text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
-                                Button("OK", role: .cancel) {}
                             }
-                            .alert("We need permission to save this QR code to your photo library.", isPresented: $showPermissionsError) {
-                                Button("Open Settings", role: .cancel) {
-                                    if let settingsURL = URL(string: UIApplication.openSettingsURLString),
-                                       UIApplication.shared.canOpenURL(settingsURL) {
-                                        UIApplication.shared.open(settingsURL)
-                                    }
-                                }
-                            }
-
+                        
                         HStack {
                             Button {
                                 showingResetConfirmation = true
@@ -133,14 +143,12 @@ struct HistoryDetailInfo: View {
                             .disabled(qrCode.text == originalText)
                             .opacity(qrCode.text == originalText ? 0.2 : 1)
                             .padding(.leading)
-
+                            
                             Button {
                                 if qrCode.text.count > 2953 {
                                     showExceededLimitAlert = true
                                 } else {
                                     PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                        authorizationStatus = status
-                                        
                                         if status == .denied {
                                             showPermissionsError = true
                                         } else {
@@ -161,7 +169,6 @@ struct HistoryDetailInfo: View {
                             .disabled(qrCode.text.isEmpty)
                             .padding(.trailing)
                             .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                                Button("OK", role: .cancel) {}
                             }
                         }
                     }
@@ -178,7 +185,21 @@ struct HistoryDetailInfo: View {
                         .opacity((showingFullURLSheet || showingAllTextSheet) ? 0.3 : 1)
                         .transition(.opacity)
                         .animation(Animation.easeInOut(duration: 0.3), value: (showingFullURLSheet || showingAllTextSheet))
-
+                        .contextMenu {
+                            Button {
+                                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                    if status == .denied {
+                                        showPermissionsError = true
+                                    } else {
+                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                        showSavedAlert = true
+                                    }
+                                }
+                            } label: {
+                                Label("Save to Photos", systemImage: "square.and.arrow.down")
+                            }
+                        }
+                    
                     VStack(alignment: .leading) {
                         if qrCode.text.isValidURL() {
                             HStack {
@@ -202,14 +223,14 @@ struct HistoryDetailInfo: View {
                                     } label: {
                                         Label("Copy URL", systemImage: "doc.on.doc")
                                     }
-
+                                    
                                     Button {
                                         showingFullURLSheet = true
                                     } label: {
                                         Label("Show Full URL", systemImage: "arrow.up.right")
                                     }
                                 }
-
+                                
                                 Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
                                     .font(.largeTitle)
                                     .bold()
@@ -220,7 +241,7 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy URL", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
@@ -230,9 +251,9 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingFullURLSheet = true
                                     }
-
+                                
                                 Spacer()
-
+                                
                                 Button {
                                     if let url = URL(string: qrCode.text) {
                                         UIApplication.shared.open(url)
@@ -247,16 +268,16 @@ struct HistoryDetailInfo: View {
                                 }
                             }
                             .padding(.horizontal)
-
+                            
                             VStack(alignment: .leading) {
                                 HStack {
                                     Text(qrCode.text)
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
-
+                                    
                                     Spacer()
-
+                                    
                                     Image(systemName: "arrow.up.right")
                                         .foregroundStyle(.secondary)
                                 }
@@ -269,7 +290,7 @@ struct HistoryDetailInfo: View {
                                     } label: {
                                         Label("Copy URL", systemImage: "doc.on.doc")
                                     }
-
+                                    
                                     Button {
                                         showingFullURLSheet = true
                                     } label: {
@@ -291,7 +312,7 @@ struct HistoryDetailInfo: View {
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
                                         }
-
+                                        
                                         Section {
                                             Button {
                                                 UIPasteboard.general.string = qrCode.text
@@ -299,7 +320,7 @@ struct HistoryDetailInfo: View {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
-
+                                            
                                             Text(qrCode.text)
                                                 .contextMenu {
                                                     Button {
@@ -338,22 +359,22 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy Text", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Button {
                                             showingAllTextSheet = true
                                         } label: {
                                             Label("Show Full Text", systemImage: "arrow.up.right")
                                         }
                                     }
-
+                                
                                 Spacer()
-
+                                
                                 Button {
                                     showingAllTextSheet = true
                                 } label: {
                                     HStack {
                                         Text("Show Full Text")
-
+                                        
                                         Image(systemName: "arrow.up.right")
                                     }
                                     .padding(8)
@@ -374,7 +395,7 @@ struct HistoryDetailInfo: View {
                                                 Label("Copy Text", systemImage: "doc.on.doc")
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
-
+                                            
                                             Text(qrCode.text)
                                                 .contextMenu {
                                                     Button {
@@ -401,11 +422,11 @@ struct HistoryDetailInfo: View {
                                 .presentationDetents([.medium, .large])
                             }
                         }
-
+                        
                         Divider()
                             .padding(.horizontal)
                             .padding(.bottom, 5)
-
+                        
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             if monitor.isActive {
                                 Button {
@@ -448,10 +469,10 @@ struct HistoryDetailInfo: View {
                                         }
                                     }
                                 }
-
+                                
                                 if showingLocation {
                                     let annotation = [ScanLocation(name: locationName ?? "UNKNOWN LOCATION", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
-
+                                    
                                     Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))), interactionModes: [.all], annotationItems: annotation) {
                                         MapMarker(coordinate: $0.coordinate, tint: .accentColor)
                                     }
@@ -468,7 +489,7 @@ struct HistoryDetailInfo: View {
                                     .padding(.top, 5)
                             }
                         }
-
+                        
                         HStack(spacing: 0) {
                             if qrCode.wasEdited {
                                 Text("Last edited: ")
@@ -479,12 +500,20 @@ struct HistoryDetailInfo: View {
                             } else {
                                 Text("Generated on: ")
                             }
-
+                            
                             Text(qrCode.date, format: .dateTime)
                         }
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
                     }
+                }
+            }
+        }
+        .alert("We need permission to save this QR code to your photo library.", isPresented: $showPermissionsError) {
+            Button("Open Settings", role: .cancel) {
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString),
+                   UIApplication.shared.canOpenURL(settingsURL) {
+                    UIApplication.shared.open(settingsURL)
                 }
             }
         }
@@ -505,20 +534,20 @@ struct HistoryDetailInfo: View {
                     }
                 } else {
                     let qrCodeImage = Image(uiImage: qrCodeImage)
-
+                    
                     ShareLink(item: qrCodeImage, preview: SharePreview(qrCode.text, image: qrCodeImage)) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                 }
             }
-
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
                         withAnimation {
                             qrCodeStore.history[idx].pinned.toggle()
                             qrCode.pinned.toggle()
-
+                            
                             Task {
                                 do {
                                     try await save()
@@ -532,7 +561,7 @@ struct HistoryDetailInfo: View {
                     Label(qrCode.pinned ? "Unpin" : "Pin", systemImage: qrCode.pinned ? "pin.slash.fill" : "pin")
                 }
             }
-
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     showingDeleteConfirmation = true
@@ -540,7 +569,7 @@ struct HistoryDetailInfo: View {
                     Label("Delete", systemImage: "trash")
                 }
             }
-
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     withAnimation {
@@ -549,7 +578,7 @@ struct HistoryDetailInfo: View {
                                 qrCode.date = Date.now
                                 qrCode.wasEdited = true
                                 qrCodeStore.history[idx] = qrCode
-
+                                
                                 Task {
                                     do {
                                         try await save()
@@ -559,7 +588,7 @@ struct HistoryDetailInfo: View {
                                 }
                             }
                         }
-
+                        
                         isEditing.toggle()
                     }
                 } label: {
@@ -572,7 +601,7 @@ struct HistoryDetailInfo: View {
             Button("Delete QR Code", role: .destructive) {
                 if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
                     qrCodeStore.history.remove(at: idx)
-
+                    
                     Task {
                         do {
                             try await save()
@@ -581,7 +610,7 @@ struct HistoryDetailInfo: View {
                         }
                     }
                 }
-
+                
                 showingDeleteConfirmation = false
                 presentationMode.wrappedValue.dismiss()
             }
@@ -597,7 +626,7 @@ struct HistoryDetailInfo: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-
+        
         NavigationStack {
             HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
                 .environmentObject(qrCodeStore)

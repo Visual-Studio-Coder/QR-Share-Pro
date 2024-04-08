@@ -25,7 +25,6 @@ struct Home: View {
     @State private var showPermissionsError = false
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var animatedText = ""
-    @State private var authorizationStatus = PHAuthorizationStatus.notDetermined
     
     let fullText = "Start typing to\ngenerate a QR code."
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
@@ -99,8 +98,6 @@ struct Home: View {
                                     showExceededLimitAlert = true
                                 } else {
                                     PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                        authorizationStatus = status
-                                        
                                         if status == .denied {
                                             showPermissionsError = true
                                         } else {
@@ -241,8 +238,6 @@ struct Home: View {
             .alert("Save to Photos?", isPresented: $showSavePhotosQuestionAlert) {
                 Button("Yes") {
                     PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                        authorizationStatus = status
-                        
                         if status == .denied {
                             showPermissionsError = true
                         } else {
@@ -283,10 +278,8 @@ struct Home: View {
                 Button("OK", role: .cancel) {}
             }
             .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                Button("OK", role: .cancel) {}
             }
             .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
-                Button("OK", role: .cancel) {}
             }
             
             .toolbar {
@@ -335,13 +328,6 @@ struct Home: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 .tint(.primary)
-                            }
-                            
-                            HStack {
-                                Label("TestFlight RC 2", systemImage: "hammer")
-                                Spacer()
-                                Text("April 7, 2024")
-                                    .foregroundStyle(.secondary)
                             }
                             
                             Button {
