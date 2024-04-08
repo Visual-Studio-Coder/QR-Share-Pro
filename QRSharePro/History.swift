@@ -22,7 +22,7 @@ struct History: View {
     @State private var showingEditButtonDeleteConfirmation = false
     @State private var showingAllPins = true
     @State private var showingDeleteConfirmation = false
-    @State private var currentQRCode = QRCode(text: "")
+    @State private var currentQRCode = QRCode(text: "", originalURL: "")
 
     @State private var showOfflineText = true
 
@@ -252,7 +252,7 @@ struct History: View {
                                             Button {
                                                 UIPasteboard.general.string = i.text
                                             } label: {
-                                                Label(i.text.isValidURL() ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
+                                                Label(i.text.isValidURL() ? "Copy URL" : "Copy Text", systemImage: "doc.on.doc")
                                             }
 
                                             Divider()
@@ -372,10 +372,6 @@ struct History: View {
                                                 if i.text.isValidURL() {
                                                     let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
 
-                                                    //                                                    if fixedURL.last == "/" {
-                                                    //                                                        print(fixedURL)
-                                                    //                                                    }
-
                                                     Text(fixedURL)
                                                         .bold()
                                                         .lineLimit(2)
@@ -404,7 +400,7 @@ struct History: View {
                                         Button {
                                             UIPasteboard.general.string = i.text
                                         } label: {
-                                            Label(i.text.isValidURL() ? "Copy URL" : "Copy", systemImage: "doc.on.doc")
+                                            Label(i.text.isValidURL() ? "Copy URL" : "Copy Text", systemImage: "doc.on.doc")
                                         }
 
                                         Divider()
