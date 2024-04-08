@@ -10,89 +10,89 @@ import AVFoundation
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
-
+    
     @Published var isURL: Bool = true
     @Published var detectedURL: URL?
     @Published var unshortenedURL: URL?
     @Published var detectedString: String?
-
+    
     @Published var isScanning = false
     @Published var isLoading = false
     @Published var cameraError = false
-
+    
     @Published var qrCodeImage: UIImage?
     @Published var qrCode: QRCode
-
+    
     var qrCodeStore: QRCodeStore
-
+    
     func save() throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
-
+    
     let scannerController = QRScannerController()
-
+    
     init(qrCodeStore: QRCodeStore) {
         self.qrCodeStore = qrCodeStore
         self.qrCode = QRCode(text: "")
         scannerController.delegate = self
     }
-
+    
     func startScanning() {
         isScanning = true
-
+        
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.startScanning()
         }
     }
-
+    
     func stopScanning() {
         isScanning = false
-
+        
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.stopScanning()
         }
     }
-
-    var lastDetectedURL: URL?
+    
+    @Published var lastDetectedURL: URL?
     var lastDetectedString: String?
-
+    
     let filter = CIFilter.qrCodeGenerator()
     let context = CIContext()
-
+    
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
-
+        
         if let qrCode = filter.outputImage {
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledQrCode = qrCode.transformed(by: transform)
-
+            
             if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
     }
-
+    
     @MainActor func didDetectQRCode(string: String) {
         guard string != lastDetectedString else { return }
-
+        
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-
+        
         generateQRCode(from: string)
-
+        
         if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
             var userLocation: [Double] = [] // re-write user's location in memory
-
+            
             if let location = locationManager.location {
                 userLocation = [location.latitude, location.longitude]
             } else {
                 print("Could not get user location.")
             }
-
+            
             let newCode = QRCode(text: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
-
+            
             qrCodeStore.history.append(newCode)
-
+            
             Task {
                 do {
                     try save()
@@ -102,9 +102,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 }
             }
         }
-
+        
         lastDetectedString = string
-
+        
         DispatchQueue.main.async {
             self.detectedString = string
             self.isScanning = false
@@ -112,70 +112,57 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             self.isURL = false
         }
     }
-
+    
     @MainActor func didDetectQRCode(url: URL) {
         guard url != lastDetectedURL else { return }
         
+        lastDetectedURL = url
+        let sanitizedURL = url.absoluteString.removeTrackers() // Sanitize the original URL
+        detectedURL = URL(string: sanitizedURL) // Store the sanitized URL
+        
+        var request = URLRequest(url: detectedURL!, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
+        request.httpMethod = "HEAD"
+        
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-
-        generateQRCode(from: url.absoluteString.removeTrackers())
-
-        if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
-            var userLocation: [Double] = [] // re-write user's location in memory
-
-            if let location = locationManager.location {
-                userLocation = [location.latitude, location.longitude]
-            } else {
-                print("Could not get user location.")
-            }
-
-            let newCode = QRCode(text: url.absoluteString.removeTrackers(), qrCode: pngData, scanLocation: userLocation, wasScanned: true)
-
-            qrCodeStore.history.append(newCode)
-
-            Task {
-                do {
-                    try save()
-                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
-        }
-
-        var cleanURL = URL(string: url.absoluteString.removeTrackers())!
-        lastDetectedURL = cleanURL
-
-        DispatchQueue.main.async {
-            self.detectedURL = cleanURL
-            self.isScanning = false
-            self.isLoading = true
-            self.isURL = true
-        }
-
-        // Unshorten the URL
-        let task = URLSession.shared.dataTask(with: cleanURL) { (data, response, error) in
-            if let urlResponse = response, let finalURL = urlResponse.url {
-                DispatchQueue.main.async {
-                    self.unshortenedURL = finalURL
-                    self.isLoading = false
-
-                    // Delete cookies
-                    let cookieJar = HTTPCookieStorage.shared
-                    for cookie in cookieJar.cookies ?? [] {
-                        cookieJar.deleteCookie(cookie)
+        
+        URLSession.shared.dataTask(with: request) { (data, response, error) in
+            guard let finalURL = response?.url else { return }
+            
+            let sanitizedFinalURL = finalURL.absoluteString.removeTrackers() // Sanitize the final URL
+            guard let finalSanitizedURL = URL(string: sanitizedFinalURL) else { return }
+            
+            DispatchQueue.main.async {
+                self.unshortenedURL = finalSanitizedURL // Update unshortenedURL with the final sanitized URL
+                
+                self.generateQRCode(from: sanitizedURL)
+                
+                if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
+                    var userLocation: [Double] = [] // re-write user's location in memory
+                    
+                    if let location = self.locationManager.location {
+                        userLocation = [location.latitude, location.longitude]
+                    } else {
+                        print("Could not get user location.")
+                    }
+                    
+                    let originalURL = self.lastDetectedURL?.absoluteString != sanitizedURL ? self.lastDetectedURL?.absoluteString : nil
+                    let newCode = QRCode(text: finalSanitizedURL.absoluteString, originalURL: originalURL, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                    
+                    self.qrCodeStore.history.append(newCode)
+                    
+                    Task {
+                        do {
+                            try self.save()
+                            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                        } catch {
+                            print(error.localizedDescription)
+                        }
                     }
                 }
-            } else {
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                }
             }
-        }
-
-        task.resume()
+        }.resume()
     }
-
+    
     func didFailToDetectQRCode() {
         DispatchQueue.main.async {
             self.isScanning = false
