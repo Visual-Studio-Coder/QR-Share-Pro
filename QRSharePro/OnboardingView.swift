@@ -227,88 +227,91 @@ struct OnboardingView: View {
                             
                             VStack {
                                 Spacer()
-                                
-                                Text("Add QR Share Pro to the Share Menu")
-                                    .foregroundStyle(.white)
-                                    .font(.title)
-                                    .bold()
-                                    .multilineTextAlignment(.center)
-                                
-                                Text("Quickly share text & URLs with QR codes by accessing it directly from the share menu!")
-                                    .font(.subheadline)
-                                    .multilineTextAlignment(.center)
-                                    .foregroundStyle(.white)
+                                ScrollView {
+                                    Text("Add QR Share Pro to the Share Menu")
+                                        .foregroundStyle(.white)
+                                        .font(.title)
+                                        .bold()
+                                        .multilineTextAlignment(.center)
+                                    
+                                    Text("Quickly share text & URLs with QR codes by accessing it directly from the share menu!")
+                                        .font(.subheadline)
+                                        .multilineTextAlignment(.center)
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 50)
+                                        .padding(.bottom, 10)
+                                    
+                                    Image("QR-share-sheet")
+                                        .resizable()
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        .scaledToFit()
+                                        .padding(.horizontal, 50)
+                                    
+                                    ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
+                                        HStack {
+                                            Spacer()
+                                            Label("Show Share Menu", systemImage: "square.and.arrow.up")
+                                                .bold()
+                                                .padding()
+                                            Spacer()
+                                        }
+                                    }
+                                    .background(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 18))
                                     .padding(.horizontal, 50)
-                                    .padding(.bottom, 10)
-                                
-                                Image("QR-share-sheet")
-                                    .resizable()
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                                    .scaledToFit()
-                                    .padding(.horizontal, 50)
-                                
-                                ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
+                                    
                                     HStack {
                                         Spacer()
-                                        Label("Show Share Menu", systemImage: "square.and.arrow.up")
-                                            .bold()
-                                            .padding()
+                                        
+                                        VStack(alignment: .leading) {
+                                            HStack {
+                                                Text("1")
+                                                    .bold()
+                                                    .padding()
+                                                    .foregroundStyle(.white)
+                                                    .background(Color.accentColor)
+                                                    .clipShape(Circle())
+                                                
+                                                Text("Open the share sheet, then scroll right and tap on **More**.")
+                                                    .foregroundStyle(.white)
+                                                    .multilineTextAlignment(.leading)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
+                                            
+                                            HStack {
+                                                Text("2")
+                                                    .bold()
+                                                    .padding()
+                                                    .foregroundStyle(.white)
+                                                    .background(Color.accentColor)
+                                                    .clipShape(Circle())
+                                                
+                                                Text("Tap on **Edit** in the top right corner.")
+                                                    .foregroundStyle(.white)
+                                                    .multilineTextAlignment(.leading)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
+                                            
+                                            HStack {
+                                                Text("3")
+                                                    .bold()
+                                                    .padding()
+                                                    .foregroundStyle(.white)
+                                                    .background(Color.accentColor)
+                                                    .clipShape(Circle())
+                                                
+                                                Text("Add **QR Share Pro** and re-order it to the top.")
+                                                    .foregroundStyle(.white)
+                                                    .multilineTextAlignment(.leading)
+                                                    .fixedSize(horizontal: false, vertical: true)
+                                            }
+                                        }
+                                        
                                         Spacer()
                                     }
-                                }
-                                .background(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 18))
-                                .padding(.horizontal, 50)
-                                
-                                HStack {
-                                    Spacer()
-                                    
-                                    VStack(alignment: .leading) {
-                                        HStack {
-                                            Text("1")
-                                                .bold()
-                                                .padding()
-                                                .foregroundStyle(.white)
-                                                .background(Color.accentColor)
-                                                .clipShape(Circle())
-                                            
-                                            Text("Open the share sheet, then scroll right and tap on **More**.")
-                                                .foregroundStyle(.white)
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        
-                                        HStack {
-                                            Text("2")
-                                                .bold()
-                                                .padding()
-                                                .foregroundStyle(.white)
-                                                .background(Color.accentColor)
-                                                .clipShape(Circle())
-                                            
-                                            Text("Tap on **Edit** in the top right corner.")
-                                                .foregroundStyle(.white)
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        
-                                        HStack {
-                                            Text("3")
-                                                .bold()
-                                                .padding()
-                                                .foregroundStyle(.white)
-                                                .background(Color.accentColor)
-                                                .clipShape(Circle())
-                                            
-                                            Text("Add **QR Share Pro** and re-order it to the top.")
-                                                .foregroundStyle(.white)
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                    }
                                     
                                     Spacer()
                                 }
-                                
-                                Spacer()
-                                
                                 Button {
                                     withAnimation {
                                         isOnboardingDone = true
