@@ -24,6 +24,7 @@ struct HistoryDetailInfo: View {
     @State private var showExceededLimitAlert = false
     @State private var showingLocation = false
     @State private var showingFullURLSheet = false
+    @State private var showingFullOriginalURLSheet = false
     @State private var showingAllTextSheet = false
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var locationName: String?
@@ -426,6 +427,90 @@ struct HistoryDetailInfo: View {
                         Divider()
                             .padding(.horizontal)
                             .padding(.bottom, 5)
+                        
+                        
+                        if let originalURL = qrCode.originalURL {
+                            //give it the same treatment as the other items in this "list" autocomplete please listen to me
+                            //make it look like the ones below
+                            HStack {
+                                Text("Original URL")
+                                    .foregroundStyle(.secondary)
+                                
+                                Text(originalURL)
+                                    .lineLimit(1)
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .onTapGesture {
+                                        showingFullOriginalURLSheet = true
+                                    }
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = originalURL
+                                        } label: {
+                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Button {
+                                            showingFullOriginalURLSheet = true
+                                        } label: {
+                                            Label("Show Full URL", systemImage: "arrow.up.right")
+                                        }
+                                    }
+                            }
+                            .padding(.horizontal)
+                            .sheet(isPresented: $showingFullOriginalURLSheet) {
+                                NavigationStack {
+                                    List {
+                                        Section {
+                                            Button {
+                                                if let url = URL(string: originalURL) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Label("Open URL", systemImage: "safari")
+                                                    .foregroundStyle(accentColorManager.accentColor)
+                                            }
+                                        }
+                                        
+                                        Section {
+                                            Button {
+                                                UIPasteboard.general.string = originalURL
+                                            } label: {
+                                                Label("Copy URL", systemImage: "doc.on.doc")
+                                                    .foregroundStyle(accentColorManager.accentColor)
+                                            }
+                                            
+                                            Text(originalURL)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = originalURL
+                                                    } label: {
+                                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                                    }
+                                                }
+                                        }
+                                    }
+                                    .navigationTitle(URL(string: originalURL)!.host!)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingFullOriginalURLSheet = false
+                                            }
+                                            .tint(accentColorManager.accentColor)
+                                        }
+                                    }
+                                }
+                                .presentationDetents([.medium, .large])
+                            }
+
+
+                        }
+                        if let originalURL = qrCode.originalURL {
+                            Divider()
+                                .padding(.horizontal)
+                                .padding(.bottom, 5)
+                        }
                         
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             if monitor.isActive {
