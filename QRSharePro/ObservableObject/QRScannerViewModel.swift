@@ -54,7 +54,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     }
     
     @Published var lastDetectedURL: URL?
-    var lastDetectedString: String?
+    @Published var lastDetectedString: String?
     
     let filter = CIFilter.qrCodeGenerator()
     let context = CIContext()
@@ -117,22 +117,19 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         guard url != lastDetectedURL else { return }
         
         lastDetectedURL = url
-        let sanitizedURL = url.absoluteString.removeTrackers() // Sanitize the original URL
-        detectedURL = URL(string: sanitizedURL) // Store the sanitized URL
+        let sanitizedURL = url.absoluteString.removeTrackers()
+        detectedURL = URL(string: sanitizedURL)
         
         var request = URLRequest(url: detectedURL!.prettify(), cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
-        request.httpMethod = "GET" // Change this to "GET"
+        request.httpMethod = "GET"
         
         AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
         
         URLSession.shared.dataTask(with: request) { (data, response, error) in
-            guard let finalURL = response?.url else { return }
-            
-            let sanitizedFinalURL = finalURL.absoluteString.removeTrackers() // Sanitize the final URL
-            guard let finalSanitizedURL = URL(string: sanitizedFinalURL) else { return }
+            guard let finalURL = response?.url else { return } // don't use force-unwrap to prevent maliciously crafted qr codes
             
             DispatchQueue.main.async {
-                self.unshortenedURL = finalSanitizedURL // Update unshortenedURL with the final sanitized URL
+                self.unshortenedURL = finalURL.prettify()
                 
                 self.generateQRCode(from: sanitizedURL)
                 
@@ -145,7 +142,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                         print("Could not get user location.")
                     }
                     
-                    let newCode = QRCode(text: finalSanitizedURL.prettify().absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                    let newCode = QRCode(text: finalURL.prettify().absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                     
                     self.qrCodeStore.history.append(newCode)
                     
@@ -157,6 +154,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                             print("Failed to save: \(error.localizedDescription)")
                         }
                     }
+                    
+                    userLocation = [] // re-write user's location in memory
                 }
             }
         }.resume()

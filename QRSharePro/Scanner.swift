@@ -57,9 +57,12 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
-           let stringValue = readableObject.stringValue,
-           let url = URL(string: stringValue) {
-            delegate?.didDetectQRCode(url: url)
+           let stringValue = readableObject.stringValue {
+            if stringValue.isValidURL(), let url = URL(string: stringValue) {
+                delegate?.didDetectQRCode(url: url)
+            } else {
+                delegate?.didDetectQRCode(string: stringValue)
+            }
         } else {
             delegate?.didFailToDetectQRCode()
         }
@@ -88,9 +91,8 @@ struct QRScanner: UIViewControllerRepresentable {
     mutating func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
-           let stringValue = readableObject.stringValue,
-           let url = URL(string: stringValue) {
-            if stringValue.isValidURL() {
+           let stringValue = readableObject.stringValue {
+            if stringValue.isValidURL(), let url = URL(string: stringValue) {
                 guard url != lastScannedURL else { return }
                 
                 lastScannedURL = url
@@ -114,29 +116,42 @@ struct Scanner: View {
     private let monitor = NetworkMonitor()
     
     @State private var showingFullTextSheet = false
+    @State private var showingError = true // false
     
     var body: some View {
         ZStack(alignment: .bottom) {
             if monitor.isActive {
-                HStack {
-                    Label("You're offline.", systemImage: "network.slash")
-                        .tint(.primary)
-                    Spacer()
-                    Image(systemName: "multiply.circle.fill")
-                        .foregroundStyle(Color.gray)
-                }
+                Label("Offline", systemImage: "network.slash")
+                    .tint(.primary)
+                    .padding(.bottom, 25)
             }
             
             QRScanner(viewModel: viewModel)
                 .onAppear {
                     viewModel.startScanning()
+                    showingError = viewModel.cameraError
                 }
                 .onDisappear {
                     viewModel.stopScanning()
                 }
+                .onChange(of: viewModel.cameraError) { cameraStatus in
+                    showingError = cameraStatus
+                }
             
             VStack {
-                if viewModel.isLoading {
+                if showingError {
+                    VStack {
+                        Text("To scan QR codes, you need to enable camera permissions.")
+                            .multilineTextAlignment(.center)
+                        
+                        Button("Open Settings") {
+                            if let settingsURL = URL(string: UIApplication.openSettingsURLString),
+                               UIApplication.shared.canOpenURL(settingsURL) {
+                                UIApplication.shared.open(settingsURL)
+                            }
+                        }
+                    }
+                } else if viewModel.isLoading {
                     HStack {
                         if let originalURL = viewModel.detectedURL {
                             Button {
@@ -283,12 +298,6 @@ struct Scanner: View {
                                 }
                             }
                         }
-                    }
-                } else if viewModel.cameraError {
-                    Text("To scan QR codes, you need to enable camera permissions.")
-                    
-                    Button {} label: {
-                        Text("Enable Camera Access")
                     }
                 } else {
                     Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
