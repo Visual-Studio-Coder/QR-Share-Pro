@@ -116,7 +116,7 @@ struct Scanner: View {
     private let monitor = NetworkMonitor()
     
     @State private var showingFullTextSheet = false
-    @State private var showingError = true // false
+    @State private var showingError = true
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -128,8 +128,8 @@ struct Scanner: View {
             
             QRScanner(viewModel: viewModel)
                 .onAppear {
-                    viewModel.startScanning()
                     showingError = viewModel.cameraError
+                    viewModel.startScanning()
                 }
                 .onDisappear {
                     viewModel.stopScanning()
