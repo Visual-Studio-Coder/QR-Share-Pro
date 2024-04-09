@@ -29,6 +29,11 @@ struct HistoryDetailInfo: View {
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var locationName: String?
     @State private var showPermissionsError = false
+    @State private var navigationBarTitle = ""
+    
+    @State private var copiedText = false
+    @State private var copiedCleanURL = false
+    @State private var copiedOriginalURL = false
     
     private let monitor = NetworkMonitor()
     
@@ -129,48 +134,31 @@ struct HistoryDetailInfo: View {
                             .alert("You'll need to remove \(qrCode.text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
                             }
                         
-                        HStack {
-                            Button {
-                                showingResetConfirmation = true
-                            } label: {
-                                Image(systemName: "arrow.circlepath")
-                                    .foregroundStyle(colorScheme == .dark ? .white : qrCode.text == originalText ? .black : .white)
-                                    .opacity(qrCode.text.isEmpty ? 0.4 : 1)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.secondary.opacity(colorScheme == .dark ? 0.7 : 1))
-                                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                            }
-                            .disabled(qrCode.text == originalText)
-                            .opacity(qrCode.text == originalText ? 0.2 : 1)
-                            .padding(.leading)
-                            
-                            Button {
-                                if qrCode.text.count > 2953 {
-                                    showExceededLimitAlert = true
-                                } else {
-                                    PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                        if status == .denied {
-                                            showPermissionsError = true
-                                        } else {
-                                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                            showSavedAlert = true
-                                        }
+                        Button {
+                            if qrCode.text.count > 2953 {
+                                showExceededLimitAlert = true
+                            } else {
+                                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                    if status == .denied {
+                                        showPermissionsError = true
+                                    } else {
+                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                        showSavedAlert = true
                                     }
                                 }
-                            } label: {
-                                Label("Download", systemImage: "square.and.arrow.down")
-                                    .foregroundStyle(.white)
-                                    .opacity(qrCode.text.isEmpty ? 0.3 : 1)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
-                                    .clipShape(RoundedRectangle(cornerRadius: 15))
                             }
-                            .disabled(qrCode.text.isEmpty)
-                            .padding(.trailing)
-                            .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                            }
+                        } label: {
+                            Label("Save to Photos", systemImage: "square.and.arrow.down")
+                                .foregroundStyle(.white)
+                                .opacity(qrCode.text.isEmpty ? 0.3 : 1)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                        }
+                        .disabled(qrCode.text.isEmpty)
+                        .padding(.horizontal)
+                        .alert("Saved to Photos!", isPresented: $showSavedAlert) {
                         }
                     }
                 }
@@ -317,10 +305,21 @@ struct HistoryDetailInfo: View {
                                         if qrCode.text != qrCode.originalURL {
                                             Section {
                                                 Button {
+                                                    withAnimation {
+                                                        copiedCleanURL = true
+                                                    }
+                                                    
                                                     UIPasteboard.general.string = qrCode.text
                                                 } label: {
-                                                    Label("Copy URL", systemImage: "doc.on.doc")
+                                                    Label(copiedCleanURL ? "Copied URL" : "Copy URL", systemImage: copiedCleanURL ? "checkmark" : "doc.on.doc")
                                                         .foregroundStyle(accentColorManager.accentColor)
+                                                }
+                                                .onChange(of: copiedCleanURL) { _ in
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                        withAnimation {
+                                                            copiedCleanURL = false
+                                                        }
+                                                    }
                                                 }
                                                 
                                                 Text(qrCode.text)
@@ -340,10 +339,21 @@ struct HistoryDetailInfo: View {
                                         
                                         Section {
                                             Button {
+                                                withAnimation {
+                                                    copiedOriginalURL = true
+                                                }
+                                                
                                                 UIPasteboard.general.string = qrCode.originalURL
                                             } label: {
-                                                Label("Copy URL", systemImage: "doc.on.doc")
+                                                Label(copiedOriginalURL ? "Copied URL" : "Copy URL", systemImage: copiedOriginalURL ? "checkmark" : "doc.on.doc")
                                                     .foregroundStyle(accentColorManager.accentColor)
+                                            }
+                                            .onChange(of: copiedOriginalURL) { _ in
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                    withAnimation {
+                                                        copiedOriginalURL = false
+                                                    }
+                                                }
                                             }
                                             
                                             Text(qrCode.originalURL)
@@ -423,10 +433,21 @@ struct HistoryDetailInfo: View {
                                     List {
                                         Section {
                                             Button {
+                                                withAnimation {
+                                                    copiedText = true
+                                                }
+                                                
                                                 UIPasteboard.general.string = qrCode.text
                                             } label: {
-                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                                Label(copiedText ? "Copied Text" : "Copy Text", systemImage: copiedText ? "checkmark" : "doc.on.doc")
                                                     .foregroundStyle(accentColorManager.accentColor)
+                                            }
+                                            .onChange(of: copiedText) { _ in
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                    withAnimation {
+                                                        copiedText = false
+                                                    }
+                                                }
                                             }
                                             
                                             Text(qrCode.text)
@@ -565,13 +586,26 @@ struct HistoryDetailInfo: View {
                             print(error.localizedDescription)
                         }
                     }
+                    
+                    navigationBarTitle = URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: "")
+                } else {
+                    navigationBarTitle = qrCode.text
                 }
             }
         }
         .accentColor(accentColorManager.accentColor)
-        .navigationTitle(qrCode.text.isValidURL() ? URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: "") : qrCode.text)
+        .navigationTitle(isEditing ? "" : navigationBarTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(isEditing)
         .toolbar {
+            if isEditing {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        showingResetConfirmation = true
+                    }
+                }
+            }
+            
             ToolbarItem(placement: .topBarLeading) {
                 if qrCode.text.isValidURL() {
                     ShareLink(item: URL(string: qrCode.text)!) {
@@ -663,6 +697,19 @@ struct HistoryDetailInfo: View {
         .confirmationDialog("Discard Changes?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
             Button("Discard Changes", role: .destructive) {
                 qrCode.text = originalText
+                
+                withAnimation {
+                    isEditing = false
+                }
+            }
+        }
+        .onChange(of: isEditing) { _ in
+            if qrCode.text.isValidURL() {
+                qrCode.originalURL = qrCode.text
+                qrCode.text = URL(string: qrCode.text.removeTrackers())!.prettify().absoluteString
+                navigationBarTitle = URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: "")
+            } else {
+                navigationBarTitle = qrCode.text
             }
         }
     }
