@@ -18,7 +18,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     
     @Published var isScanning = false
     @Published var isLoading = false
-    @Published var cameraError = false
+    @Published var cameraError = true
     
     @Published var qrCodeImage: UIImage?
     @Published var qrCode: QRCode
@@ -42,6 +42,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.startScanning()
+            self.cameraError = false
         }
     }
     
