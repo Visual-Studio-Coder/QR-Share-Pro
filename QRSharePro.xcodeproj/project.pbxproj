@@ -563,8 +563,8 @@
 				INFOPLIST_FILE = QRSharePro/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share Pro";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. 100% offline.";
-				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. 100% offline.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. This is done 100% offline.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. Apple Maps is used to show your location on a map.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Enable this so you know exactly where you scanned a code. Nobody else will have access to your location data.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to save this QR code to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -605,8 +605,8 @@
 				INFOPLIST_FILE = QRSharePro/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share Pro";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. 100% offline.";
-				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. 100% offline.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan QR codes. This is done 100% offline.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "You'll be able to see where you scanned QR codes. Apple Maps is used to show your location on a map.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Enable this so you know exactly where you scanned a code. Nobody else will have access to your location data.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to save this QR code to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
