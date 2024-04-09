@@ -11,7 +11,7 @@ import AVFoundation
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
     
-    @Published var isURL: Bool = true
+    //    @Published var isURL: Bool = true
     @Published var detectedURL: URL?
     @Published var unshortenedURL: URL?
     @Published var detectedString: String?
@@ -109,12 +109,14 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             self.detectedString = string
             self.isScanning = false
             self.isLoading = true
-            self.isURL = false
+            //            self.isURL = false
         }
     }
     
     @MainActor func didDetectQRCode(url: URL) {
         guard url != lastDetectedURL else { return }
+        
+        AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
         
         lastDetectedURL = url
         let sanitizedURL = url.absoluteString.removeTrackers()
@@ -123,40 +125,41 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         var request = URLRequest(url: detectedURL!.prettify(), cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
         request.httpMethod = "GET"
         
-        AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-        
         URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard let finalURL = response?.url else { return } // don't use force-unwrap to prevent maliciously crafted qr codes
             
             DispatchQueue.main.async {
-                self.unshortenedURL = finalURL.prettify()
-                
                 self.generateQRCode(from: sanitizedURL)
                 
-                if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
-                    var userLocation: [Double] = [] // re-write user's location in memory
-                    
-                    if let location = self.locationManager.location {
-                        userLocation = [location.latitude, location.longitude]
-                    } else {
-                        print("Could not get user location.")
-                    }
-                    
-                    let newCode = QRCode(text: finalURL.prettify().absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
-                    
-                    self.qrCodeStore.history.append(newCode)
-                    
-                    Task {
-                        do {
-                            try self.save()
-                            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
-                        } catch {
-                            print("Failed to save: \(error.localizedDescription)")
-                        }
-                    }
-                    
-                    userLocation = [] // re-write user's location in memory
+                let qrCodeImage = self.qrCodeImage!
+                let pngData = qrCodeImage.pngData()!
+                var userLocation: [Double] = [] // re-write user's location in memory
+                
+                if let location = self.locationManager.location {
+                    userLocation = [location.latitude, location.longitude]
+                } else {
+                    print("Could not get user location.")
                 }
+                
+                let newCode = QRCode(text: finalURL.prettify().absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                
+                self.qrCodeStore.history.append(newCode)
+                
+                Task {
+                    do {
+                        try self.save()
+                        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                    } catch {
+                        print("Failed to save: \(error.localizedDescription)")
+                    }
+                }
+                
+                userLocation = [] // re-write user's location in memory
+                
+                self.detectedURL = finalURL.prettify()
+                self.unshortenedURL = finalURL.prettify()
+                self.isScanning = false
+                self.isLoading = true
             }
         }.resume()
     }
