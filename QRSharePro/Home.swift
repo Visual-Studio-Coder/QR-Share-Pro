@@ -330,6 +330,24 @@ struct Home: View {
                                 .tint(.primary)
                             }
                             
+                            NavigationLink {
+                                NavigationStack {
+                                    List {
+                                        Section("Last updated: April 9, 2024") {
+                                            Label("We don't collect anything.", systemImage: "1.circle")
+                                            Label("QR Share Pro stores all data on-device.", systemImage: "2.circle")
+                                            Label("Website favicons are queried through DuckDuckGo.", systemImage: "3.circle")
+                                            Label("Scanned QR code locations are stored on-device. Apple Maps displays the saved coordinates onto a map.", systemImage: "4.circle")
+                                        }
+                                    }
+                                    .navigationTitle("We ❤️ Privacy")
+                                    .navigationBarTitleDisplayMode(.inline)
+                                }
+                                .accentColor(accentColorManager.accentColor)
+                            } label: {
+                                Label("Privacy", systemImage: "checkmark.shield")
+                            }
+                            
                             Button {
                                 requestReview()
                             } label: {
