@@ -186,32 +186,11 @@ struct OnboardingView: View {
                                 .sheet(isPresented: $showingPrivacySheet) {
                                     NavigationStack {
                                         List {
-                                            Section("All Features") {
-                                                Text("We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone. In fact, our app can operate 100% offline, with __all data stored **on-device**__, only using the internet for querying website favicons.")
-                                            }
-                                            
-                                            Section("Website Favicons") {
-                                                Text("We query website favicon images through DuckDuckGo, in which DuckDuckGo collects no data about you, except the website URL to fulfill the query. DuckDuckGo does not log website URLs.")
-                                                
-                                                Button {
-                                                    if let url = URL(string: "https://duckduckgo.com/privacy") {
-                                                        UIApplication.shared.open(url)
-                                                    }
-                                                } label: {
-                                                    Text("Read DuckDuckGo's Privacy Policy")
-                                                }
-                                            }
-                                            
-                                            Section("Apple Maps") {
-                                                Text("We use Location Services in order to add information about where you scanned a QR code, and this information is visible in the history tab. We only access your location when you scan codes in the scanning tab, and it is not accessed when the app is closed. All location data is stored on-device and not shared with anybody.")
-                                                
-                                                Button {
-                                                    if let url = URL(string: "https://apple.com/legal/privacy") {
-                                                        UIApplication.shared.open(url)
-                                                    }
-                                                } label: {
-                                                    Text("Read Apple's Privacy Policy")
-                                                }
+                                            Section("Last updated: April 9, 2024") {
+                                                Label("We don't collect anything.", systemImage: "1.circle")
+                                                Label("QR Share Pro stores all data on-device.", systemImage: "2.circle")
+                                                Label("Website favicons are queried through DuckDuckGo.", systemImage: "3.circle")
+                                                Label("Scanned QR code locations are stored on-device. Apple Maps displays the saved coordinates onto a map.", systemImage: "4.circle")
                                             }
                                         }
                                         .navigationTitle("We ❤️ Privacy")
