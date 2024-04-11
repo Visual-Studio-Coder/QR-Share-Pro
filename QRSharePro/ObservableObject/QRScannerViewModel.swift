@@ -4,7 +4,6 @@ import AVFoundation
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
     
-    //    @Published var isURL: Bool = true
     @Published var unshortenedURL: URL?
     @Published var detectedString: String?
     
@@ -58,11 +57,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     }
     
     @MainActor func didDetectQRCode(string: String) {
-        let isDeepLinkStyle = string.hasPrefix("http://") || string.hasPrefix("https://")
-        let containsNoWhiteSpaces = !string.contains(" ")
-        
-        if isDeepLinkStyle && containsNoWhiteSpaces, let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
-            // Handle URL
+        if string.isValidURL(), let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
             guard url != URL(string: lastDetectedString!) else { return }
             
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
@@ -109,7 +104,6 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 }
             }.resume()
         } else {
-            // Handle String
             guard string != lastDetectedString else { return }
             
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
@@ -144,11 +138,6 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             DispatchQueue.main.async {
                 self.detectedString = string
             }
-        }
-    }
-    
-    func didFailToDetectQRCode() {
-        DispatchQueue.main.async {
         }
     }
 }
