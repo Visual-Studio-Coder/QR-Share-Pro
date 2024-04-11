@@ -1,5 +1,7 @@
 import SwiftUI
 import AVFoundation
+import PermissionsKit
+import CameraPermission
 
 class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var captureSession = AVCaptureSession()
@@ -58,11 +60,9 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
            let stringValue = readableObject.stringValue {
-            if stringValue.isValidURL(), let url = URL(string: stringValue) {
-                delegate?.didDetectQRCode(url: url)
-            } else {
+
                 delegate?.didDetectQRCode(string: stringValue)
-            }
+
         } else {
             delegate?.didFailToDetectQRCode()
         }
@@ -70,7 +70,6 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
 }
 
 protocol QRScannerControllerDelegate: AnyObject {
-    func didDetectQRCode(url: URL)
     func didDetectQRCode(string: String)
     func didFailToDetectQRCode()
 }
@@ -92,19 +91,8 @@ struct QRScanner: UIViewControllerRepresentable {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
            let stringValue = readableObject.stringValue {
-            if stringValue.isValidURL(), let url = URL(string: stringValue) {
-                guard url != lastScannedURL else { return }
-                
-                lastScannedURL = url
-                
-                viewModel.didDetectQRCode(url: url)
-            } else {
-                guard stringValue != lastScannedString else { return }
-                
-                lastScannedString = stringValue
-                
                 viewModel.didDetectQRCode(string: stringValue)
-            }
+            
         } else {
             viewModel.didFailToDetectQRCode()
         }
@@ -114,7 +102,7 @@ struct QRScanner: UIViewControllerRepresentable {
 struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     private let monitor = NetworkMonitor()
-    
+    let authorized = Permission.camera.authorized
     @State private var showingFullTextSheet = false
     @State private var showingError = true
     
@@ -128,18 +116,14 @@ struct Scanner: View {
             
             QRScanner(viewModel: viewModel)
                 .onAppear {
-                    showingError = viewModel.cameraError
                     viewModel.startScanning()
                 }
                 .onDisappear {
                     viewModel.stopScanning()
                 }
-                .onChange(of: viewModel.cameraError) { cameraStatus in
-                    showingError = cameraStatus
-                }
             
             VStack {
-                if showingError {
+                if !authorized {
                     VStack {
                         Text("To scan QR codes, you need to enable camera permissions.")
                             .multilineTextAlignment(.center)
@@ -151,39 +135,14 @@ struct Scanner: View {
                             }
                         }
                     }
-                } else if viewModel.isLoading {
-                    HStack {
-                        if let originalURL = viewModel.detectedURL {
+                } else if let string = viewModel.detectedString {
+                    if string.hasPrefix("https://") || string.hasPrefix("http://"), let url = URL(string: string) {
+                        // This is a URL
+                        HStack {
                             Button {
-                                UIApplication.shared.open(originalURL)
+                                UIApplication.shared.open(url)
                             } label: {
                                 HStack {
-                                    if let host = originalURL.host {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                            image.resizable()
-                                        } placeholder: {
-                                            ProgressView()
-                                        }
-                                        .frame(width: 16, height: 16)
-                                    }
-                                    
-                                    Text(originalURL.absoluteString)
-                                        .lineLimit(2)
-                                }
-                            }
-                            .foregroundStyle(Color.accentColor)
-                        }
-                    }
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let url = viewModel.unshortenedURL, url.host != viewModel.detectedURL?.host {
-                    HStack {
-                        Button {
-                            UIApplication.shared.open(url)
-                        } label: {
-                            HStack {
-                                if url.absoluteString.isValidURL() {
                                     if let host = url.host {
                                         AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
                                             image.resizable()
@@ -192,124 +151,90 @@ struct Scanner: View {
                                         }
                                         .frame(width: 16, height: 16)
                                     }
+                                    
+                                    Text(url.absoluteString)
+                                        .lineLimit(2)
                                 }
-                                
-                                Text(url.absoluteString)
-                                    .lineLimit(2)
                             }
-                        }
-                        .foregroundStyle(Color.accentColor)
-                        
-                        Menu {
-                            Section {
-                                if let originalURL = viewModel.lastDetectedURL {
-                                    Button {
-                                        UIApplication.shared.open(originalURL)
-                                    } label: {
-                                        Text("\(originalURL.absoluteString)")
-                                            .foregroundStyle(.blue)
-                                            .lineLimit(5)
-                                    }
-                                }
-                            } header: {
-                                Text("Original URL")
-                            }
-                        } label: {
-                            Image(systemName: "chevron.down")
-                                .foregroundStyle(.white)
-                        }
-                        .padding(10)
-                    }
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let originalURL = viewModel.detectedURL {
-                    HStack {
-                        Button {
-                            UIApplication.shared.open(originalURL)
-                        } label: {
-                            HStack {
-                                if originalURL.absoluteString.isValidURL() {
-                                    if let host = originalURL.host {
-                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                            image.resizable()
-                                        } placeholder: {
-                                            ProgressView()
+                            .padding(.bottom)
+                            .foregroundStyle(.blue)
+                            if viewModel.lastDetectedString != url.absoluteString {
+                                Menu {
+                                    Section {
+                                        if let originalURL = viewModel.lastDetectedString {
+                                            Button {
+                                                UIApplication.shared.open(URL(string: originalURL)!)
+                                            } label: {
+                                                Text("\(originalURL)")
+                                                    .foregroundStyle(.blue)
+                                                    .lineLimit(5)
+                                            }
                                         }
-                                        .frame(width: 16, height: 16)
+                                    } header: {
+                                        Text("Original URL")
                                     }
-                                }
-                                
-                                Text(originalURL.absoluteString)
-                                    .lineLimit(2)
-                            }
-                        }
-                        .foregroundStyle(.blue)
-                    }
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if let string = viewModel.detectedString {
-                    Button {
-                        showingFullTextSheet = true
-                    } label: {
-                        HStack {
-                            Text(string)
-                                .lineLimit(3)
-                                .foregroundStyle(Color.accentColor)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "arrow.up.right")
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding()
-                    .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .sheet(isPresented: $showingFullTextSheet) {
-                        List {
-                            Section {
-                                Button {
-                                    UIPasteboard.general.string = string
                                 } label: {
-                                    Label("Copy Text", systemImage: "doc.on.doc")
-                                        .tint(Color.accentColor)
-                                }
-                                
-                                Text(string)
-                                    .contextMenu {
-                                        Button {
-                                            UIPasteboard.general.string = string
-                                        } label: {
-                                            Label("Copy Text", systemImage: "doc.on.doc")
-                                        }
-                                    }
-                            } footer: {
-                                Text(string.count == 1 ? "1 character" : "\(string.count) characters")
-                            }
-                        }
-                        .navigationTitle(string)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button("Done") {
-                                    showingFullTextSheet = false
+                                    Image(systemName: "chevron.down")
+                                        .foregroundStyle(.white)
                                 }
                             }
                         }
-                    }
-                } else {
-                    Text(viewModel.isScanning ? "Scanning..." : "No QR code detected")
-                        .foregroundStyle(.white)
                         .padding()
                         .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else {
+                        // This is a text
+                        Button {
+                            showingFullTextSheet = true
+                        } label: {
+                            HStack {
+                                Text(string)
+                                    .lineLimit(3)
+                                    .foregroundStyle(Color.accentColor)
+                                Image(systemName: "arrow.up.right")
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .sheet(isPresented: $showingFullTextSheet) {
+                            List {
+                                Section {
+                                    Button {
+                                        UIPasteboard.general.string = string
+                                    } label: {
+                                        Label("Copy Text", systemImage: "doc.on.doc")
+                                            .tint(Color.accentColor)
+                                    }
+                                    
+                                    Text(string)
+                                        .contextMenu {
+                                            Button {
+                                                UIPasteboard.general.string = string
+                                            } label: {
+                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                            }
+                                        }
+                                } footer: {
+                                    Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                }
+                            }
+                            .navigationTitle(string)
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    Button("Done") {
+                                        showingFullTextSheet = false
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            .padding(.bottom)
+            //.background(Color.black)
         }
-        .background(Color.black)
     }
 }
 
