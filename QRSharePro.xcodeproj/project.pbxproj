@@ -33,8 +33,8 @@
 		8B0C94532BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
 		8B255E762BC33BEC008BE876 /* String+removeTrackers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */; };
 		8B255E792BC39C79008BE876 /* URL+prettify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E782BC39C79008BE876 /* URL+prettify.swift */; };
-		8B255E812BC484C3008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E802BC484C3008BE876 /* ColorfulX */; };
-		8B255E832BC484CA008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E822BC484CA008BE876 /* ColorfulX */; };
+		8B255E8B2BC84B33008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E8A2BC84B33008BE876 /* ColorfulX */; };
+		8B255E8D2BC84B39008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E8C2BC84B39008BE876 /* ColorfulX */; };
 		8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */; };
 		8B2EE4B62B981066001C7997 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B52B981066001C7997 /* Home.swift */; };
 		8BA2748C2BB26F8D00EF9631 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA2748B2BB26F8D00EF9631 /* History.swift */; };
@@ -131,7 +131,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783912EF2BC6DEE700233852 /* CameraPermission in Frameworks */,
-				8B255E812BC484C3008BE876 /* ColorfulX in Frameworks */,
+				8B255E8B2BC84B33008BE876 /* ColorfulX in Frameworks */,
 				783912F12BC6DEE700233852 /* PhotoLibraryPermission in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,7 +140,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B255E832BC484CA008BE876 /* ColorfulX in Frameworks */,
+				8B255E8D2BC84B39008BE876 /* ColorfulX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,9 +276,9 @@
 			);
 			name = QRSharePro;
 			packageProductDependencies = (
-				8B255E802BC484C3008BE876 /* ColorfulX */,
 				783912EE2BC6DEE700233852 /* CameraPermission */,
 				783912F02BC6DEE700233852 /* PhotoLibraryPermission */,
+				8B255E8A2BC84B33008BE876 /* ColorfulX */,
 			);
 			productName = QRSharePro;
 			productReference = 78F2F23D2B91677000CDF3EC /* QRSharePro.app */;
@@ -298,7 +298,7 @@
 			);
 			name = Share;
 			packageProductDependencies = (
-				8B255E822BC484CA008BE876 /* ColorfulX */,
+				8B255E8C2BC84B39008BE876 /* ColorfulX */,
 			);
 			productName = Share;
 			productReference = 8BB6E1632B99575C0094D652 /* Share.appex */;
@@ -332,8 +332,8 @@
 			);
 			mainGroup = 78F2F2342B91676F00CDF3EC;
 			packageReferences = (
-				8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */,
 				783912ED2BC6DEE700233852 /* XCRemoteSwiftPackageReference "PermissionsKit" */,
+				8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */,
 			);
 			productRefGroup = 78F2F23E2B91677000CDF3EC /* Products */;
 			projectDirPath = "";
@@ -564,7 +564,7 @@
 				CODE_SIGN_ENTITLEMENTS = QRSharePro/QRSharePro.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 11;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QRSharePro/Info.plist;
@@ -583,7 +583,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -606,7 +606,7 @@
 				CODE_SIGN_ENTITLEMENTS = QRSharePro/QRSharePro.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 11;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QRSharePro/Info.plist;
@@ -625,7 +625,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -643,7 +643,7 @@
 				CODE_SIGN_ENTITLEMENTS = Share/Share.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Share/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
@@ -655,7 +655,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare.Share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare.Share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -674,7 +674,7 @@
 				CODE_SIGN_ENTITLEMENTS = Share/Share.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Share/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
@@ -686,7 +686,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare.Share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare.Share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -740,7 +740,7 @@
 				minimumVersion = 10.0.1;
 			};
 		};
-		8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
+		8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Lakr233/ColorfulX.git";
 			requirement = {
@@ -761,14 +761,14 @@
 			package = 783912ED2BC6DEE700233852 /* XCRemoteSwiftPackageReference "PermissionsKit" */;
 			productName = PhotoLibraryPermission;
 		};
-		8B255E802BC484C3008BE876 /* ColorfulX */ = {
+		8B255E8A2BC84B33008BE876 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
-		8B255E822BC484CA008BE876 /* ColorfulX */ = {
+		8B255E8C2BC84B39008BE876 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8B255E7F2BC484C3008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
 /* End XCSwiftPackageProductDependency section */
