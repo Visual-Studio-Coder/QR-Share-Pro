@@ -60,18 +60,13 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
            let stringValue = readableObject.stringValue {
-
-                delegate?.didDetectQRCode(string: stringValue)
-
-        } else {
-            delegate?.didFailToDetectQRCode()
+            delegate?.didDetectQRCode(string: stringValue)
         }
     }
 }
 
 protocol QRScannerControllerDelegate: AnyObject {
     func didDetectQRCode(string: String)
-    func didFailToDetectQRCode()
 }
 
 struct QRScanner: UIViewControllerRepresentable {
@@ -91,10 +86,8 @@ struct QRScanner: UIViewControllerRepresentable {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
            let stringValue = readableObject.stringValue {
-                viewModel.didDetectQRCode(string: stringValue)
+            viewModel.didDetectQRCode(string: stringValue)
             
-        } else {
-            viewModel.didFailToDetectQRCode()
         }
     }
 }
@@ -136,8 +129,7 @@ struct Scanner: View {
                         }
                     }
                 } else if let string = viewModel.detectedString {
-                    if string.hasPrefix("https://") || string.hasPrefix("http://"), let url = URL(string: string) {
-                        // This is a URL
+                    if string.isValidURL(), let url = URL(string: string) {
                         HStack {
                             Button {
                                 UIApplication.shared.open(url)
@@ -158,6 +150,7 @@ struct Scanner: View {
                             }
                             .padding(.bottom)
                             .foregroundStyle(.blue)
+                            
                             if viewModel.lastDetectedString != url.absoluteString {
                                 Menu {
                                     Section {
@@ -183,7 +176,6 @@ struct Scanner: View {
                         .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     } else {
-                        // This is a text
                         Button {
                             showingFullTextSheet = true
                         } label: {
@@ -233,7 +225,6 @@ struct Scanner: View {
                     }
                 }
             }
-            //.background(Color.black)
         }
     }
 }
