@@ -192,7 +192,6 @@ struct Scanner: View {
                                         .lineLimit(2)
                                 }
                             }
-                            .padding(.bottom)
                             .foregroundStyle(.blue)
                             
                             if viewModel.lastDetectedString != url.absoluteString {
@@ -267,6 +266,8 @@ struct Scanner: View {
                             }
                         }
                     }
+                    }
+                    .padding(.bottom)
                 }
             }
         }
