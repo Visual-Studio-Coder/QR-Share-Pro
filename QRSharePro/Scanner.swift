@@ -1,13 +1,18 @@
 import SwiftUI
 import AVFoundation
-import PermissionsKit
-import CameraPermission
 
 class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     
     weak var delegate: QRScannerControllerDelegate?
+    
+    func requestCameraPermission() {
+        AVCaptureDevice.requestAccess(for: .video, completionHandler: {accessGranted in
+            guard accessGranted == true else { return }
+            //            self.presentCamera()
+        })
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -87,7 +92,6 @@ struct QRScanner: UIViewControllerRepresentable {
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
            let stringValue = readableObject.stringValue {
             viewModel.didDetectQRCode(string: stringValue)
-            
         }
     }
 }
@@ -95,9 +99,9 @@ struct QRScanner: UIViewControllerRepresentable {
 struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     private let monitor = NetworkMonitor()
-    let authorized = Permission.camera.authorized
     @State private var showingFullTextSheet = false
-    @State private var showingError = true
+    @State private var showingCameraError = true
+    @State private var showingCameraErrorSheet = true
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -107,28 +111,68 @@ struct Scanner: View {
                     .padding(.bottom, 25)
             }
             
-            QRScanner(viewModel: viewModel)
-                .onAppear {
-                    viewModel.startScanning()
+            if showingCameraError {
+                VStack {
+                    Spacer()
+                    
+                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
+                        .resizable()
+                        .frame(width: 150, height: 150)
+                        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                        .accessibilityHidden(true)
+                        .shadow(color: .accentColor, radius: 15)
+                        .padding(.top, 20)
+                    
+                    Text("QR Share Pro")
+                        .font(.largeTitle)
+                        .foregroundStyle(Color.accentColor)
+                        .bold()
+                    
+                    Text("is requesting:")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.bottom, 20)
+                    
+                    Label("Camera", systemImage: "camera")
+                        .bold()
+                    
+                    Text("Your camera is used to scan QR codes. This is done 100% offline.")
+                        .padding(.horizontal, 50)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 50)
+                        .foregroundStyle(.secondary)
+                    
+                    Label("Location", systemImage: "location")
+                        .bold()
+                    
+                    Text("You'll be able to see where you scanned QR codes. This is done 100% offline, with Apple Maps used to show your location on a map.")
+                        .padding(.horizontal, 50)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 50)
+                        .foregroundStyle(.secondary)
+                    
+                    Label("We don't track you.", systemImage: "checkmark.shield")
+                    
+                    Button {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
+                    } label: {
+                        Text("Open Settings")
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Color.accentColor)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .bold()
+                    .padding(.horizontal)
+                    
+                    Spacer()
                 }
-                .onDisappear {
-                    viewModel.stopScanning()
-                }
+            } else {
+                QRScanner(viewModel: viewModel)
+            }
             
             VStack {
-                if !authorized {
-                    VStack {
-                        Text("To scan QR codes, you need to enable camera permissions.")
-                            .multilineTextAlignment(.center)
-                        
-                        Button("Open Settings") {
-                            if let settingsURL = URL(string: UIApplication.openSettingsURLString),
-                               UIApplication.shared.canOpenURL(settingsURL) {
-                                UIApplication.shared.open(settingsURL)
-                            }
-                        }
-                    }
-                } else if let string = viewModel.detectedString {
+                if let string = viewModel.detectedString {
                     if string.isValidURL(), let url = URL(string: string) {
                         HStack {
                             Button {
