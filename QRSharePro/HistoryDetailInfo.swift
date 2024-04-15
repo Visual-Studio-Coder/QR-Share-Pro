@@ -29,7 +29,6 @@ struct HistoryDetailInfo: View {
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var locationName: String?
     @State private var showPermissionsError = false
-    @State private var navigationBarTitle = ""
     
     @State private var copiedText = false
     @State private var copiedCleanURL = false
@@ -133,33 +132,6 @@ struct HistoryDetailInfo: View {
                             }
                             .alert("You'll need to remove \(qrCode.text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
                             }
-                        
-                        Button {
-                            if qrCode.text.count > 2953 {
-                                showExceededLimitAlert = true
-                            } else {
-                                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                    if status == .denied {
-                                        showPermissionsError = true
-                                    } else {
-                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                        showSavedAlert = true
-                                    }
-                                }
-                            }
-                        } label: {
-                            Label("Save to Photos", systemImage: "square.and.arrow.down")
-                                .foregroundStyle(.white)
-                                .opacity(qrCode.text.isEmpty ? 0.3 : 1)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.accentColor.opacity(colorScheme == .dark ? 0.7 : 1))
-                                .clipShape(RoundedRectangle(cornerRadius: 15))
-                        }
-                        .disabled(qrCode.text.isEmpty)
-                        .padding(.horizontal)
-                        .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-                        }
                     }
                 }
                 .onTapGesture {
@@ -368,10 +340,6 @@ struct HistoryDetailInfo: View {
                                             if qrCode.text != qrCode.originalURL {
                                                 Text("Original URL")
                                             }
-                                        } footer: {
-                                            if qrCode.text != qrCode.originalURL {
-                                                Text("This URL may contain trackers. Exercise caution.")
-                                            }
                                         }
                                     }
                                     .navigationTitle(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
@@ -579,29 +547,25 @@ struct HistoryDetailInfo: View {
                 if qrCode.text.isValidURL() {
                     qrCode.text = URL(string: qrCode.text.removeTrackers())!.prettify().absoluteString
                     
-                    Task {
-                        do {
-                            try await save()
-                        } catch {
-                            print(error.localizedDescription)
-                        }
+                    do {
+                        try await save()
+                    } catch {
+                        print(error.localizedDescription)
                     }
-                    
-                    navigationBarTitle = URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: "")
-                } else {
-                    navigationBarTitle = qrCode.text
                 }
             }
         }
         .accentColor(accentColorManager.accentColor)
-        .navigationTitle(isEditing ? "" : navigationBarTitle)
+        .navigationTitle(!qrCode.text.isValidURL() ? qrCode.text : URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(isEditing)
         .toolbar {
             if isEditing {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
-                        showingResetConfirmation = true
+                        if qrCode.text != originalText {
+                            showingResetConfirmation = true
+                        }
                     }
                 }
             }
@@ -618,6 +582,26 @@ struct HistoryDetailInfo: View {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                 }
+            }
+            
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    if qrCode.text.count > 2953 {
+                        showExceededLimitAlert = true
+                    } else {
+                        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                            if status == .denied {
+                                showPermissionsError = true
+                            } else {
+                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                showSavedAlert = true
+                            }
+                        }
+                    }
+                } label: {
+                    Label("Save to Photos", systemImage: "square.and.arrow.down")
+                }
+                .disabled(qrCode.text.isEmpty)
             }
             
             ToolbarItem(placement: .topBarTrailing) {
@@ -703,14 +687,7 @@ struct HistoryDetailInfo: View {
                 }
             }
         }
-        .onChange(of: isEditing) { _ in
-            if qrCode.text.isValidURL() {
-                qrCode.originalURL = qrCode.text
-                qrCode.text = URL(string: qrCode.text.removeTrackers())!.prettify().absoluteString
-                navigationBarTitle = URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: "")
-            } else {
-                navigationBarTitle = qrCode.text
-            }
+        .alert("Saved to Photos!", isPresented: $showSavedAlert) {
         }
     }
 }

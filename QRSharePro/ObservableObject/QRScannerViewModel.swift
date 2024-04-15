@@ -65,11 +65,11 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             lastDetectedString = url.absoluteString
             let sanitizedURL = url.absoluteString.removeTrackers()
             
-            var request = URLRequest(url: URL(string: sanitizedURL)!.prettify(), cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 15.0)
-            request.httpMethod = "GET"
-            
-            URLSession.shared.dataTask(with: request) { (data, response, error) in
-                guard let finalURL = response?.url else { return } // don't use force-unwrap to prevent maliciously crafted qr codes
+            URLSession.shared.dataTask(with: URL(string: sanitizedURL)!.prettify()) { (data, response, error) in
+                // prevent maliciously crafted qr codes + actually check we visited the page
+                guard error == nil else { return }
+                guard let response = response else { return }
+                guard let finalURL = response.url else { return }
                 
                 DispatchQueue.main.async {
                     self.generateQRCode(from: sanitizedURL)
