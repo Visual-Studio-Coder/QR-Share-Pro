@@ -355,6 +355,155 @@ struct HistoryDetailInfo: View {
                                 }
                                 .presentationDetents([.medium, .large])
                             }
+                        } else if UIApplication.shared.canOpenURL(URL(string: qrCode.text)!){
+                            HStack {
+                                Image(systemName: "link.circle.fill")
+                                        .resizable()
+                                        .aspectRatio(1, contentMode: .fit)
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .onTapGesture {
+                                    showingFullURLSheet = true
+                                }
+                                .contextMenu {
+                                    Button {
+                                        UIPasteboard.general.string = qrCode.text
+                                    } label: {
+                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                    }
+                                    
+                                    Button {
+                                        showingFullURLSheet = true
+                                    } label: {
+                                        Label("Show Full URL", systemImage: "arrow.up.right")
+                                    }
+                                }
+                                
+                                Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
+                                    .font(.largeTitle)
+                                    .bold()
+                                    .lineLimit(1)
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = qrCode.text
+                                        } label: {
+                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Button {
+                                            showingFullURLSheet = true
+                                        } label: {
+                                            Label("Show Full URL", systemImage: "arrow.up.right")
+                                        }
+                                    }
+                                    .onTapGesture {
+                                        showingFullURLSheet = true
+                                    }
+                                
+                                Spacer()
+                                
+                                Button {
+                                    if let url = URL(string: qrCode.text) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                } label: {
+                                    Label("Open", systemImage: "link.circle.fill")
+                                        .padding(8)
+                                        .foregroundStyle(.white)
+                                        .background(Color.accentColor)
+                                        .clipShape(Capsule())
+                                        .bold()
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Text(qrCode.text)
+                                        .lineLimit(2)
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "arrow.up.right")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .onTapGesture {
+                                    showingFullURLSheet = true
+                                }
+                                .contextMenu {
+                                    Button {
+                                        UIPasteboard.general.string = qrCode.text
+                                    } label: {
+                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                    }
+                                    
+                                    Button {
+                                        showingFullURLSheet = true
+                                    } label: {
+                                        Label("Show Full URL", systemImage: "arrow.up.right")
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .sheet(isPresented: $showingFullURLSheet) {
+                                NavigationStack {
+                                    List {
+                                        Section {
+                                            Button {
+                                                if let url = URL(string: qrCode.text) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Label("Open Deeplink", systemImage: "link.circle.fill")
+                                                    .foregroundStyle(accentColorManager.accentColor)
+                                            }
+                                        }
+                                        Section {
+                                            Button {
+                                                withAnimation {
+                                                    copiedOriginalURL = true
+                                                }
+                                                
+                                                UIPasteboard.general.string = qrCode.originalURL
+                                            } label: {
+                                                Label(copiedOriginalURL ? "Copied Deeplink" : "Copy Deeplink", systemImage: copiedOriginalURL ? "checkmark" : "doc.on.doc")
+                                                    .foregroundStyle(accentColorManager.accentColor)
+                                            }
+                                            .onChange(of: copiedOriginalURL) { _ in
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                    withAnimation {
+                                                        copiedOriginalURL = false
+                                                    }
+                                                }
+                                            }
+                                            
+                                            Text(qrCode.text)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = qrCode.originalURL
+                                                    } label: {
+                                                        Label("Copy Deeplink", systemImage: "doc.on.doc")
+                                                    }
+                                                }
+                                        } header: {
+                                            Text("Deeplink")
+                                        }
+                                    }
+                                    .navigationTitle(URL(string: qrCode.text)!.absoluteString)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingFullURLSheet = false
+                                            }
+                                            .tint(accentColorManager.accentColor)
+                                        }
+                                    }
+                                }
+                                .presentationDetents([.medium, .large])
+                            }
                         } else {
                             HStack {
                                 Text(qrCode.text)
@@ -452,7 +601,7 @@ struct HistoryDetailInfo: View {
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             if monitor.isActive {
                                 Button {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
+                                    withAnimation(.default) {
                                         showingLocation.toggle()
                                     }
                                 } label: {
@@ -508,11 +657,11 @@ struct HistoryDetailInfo: View {
                             if !showingLocation {
                                 Divider()
                                     .padding(.horizontal)
-                                    .padding(.top, 5)
+                                    .padding(.vertical, 5)
                             }
                         }
                         
-                        HStack(spacing: 0) {
+                        HStack {
                             if qrCode.wasEdited {
                                 Text("Last edited: ")
                             } else if qrCode.wasCreated {
@@ -582,26 +731,6 @@ struct HistoryDetailInfo: View {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                 }
-            }
-            
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    if qrCode.text.count > 2953 {
-                        showExceededLimitAlert = true
-                    } else {
-                        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                            if status == .denied {
-                                showPermissionsError = true
-                            } else {
-                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                showSavedAlert = true
-                            }
-                        }
-                    }
-                } label: {
-                    Label("Save to Photos", systemImage: "square.and.arrow.down")
-                }
-                .disabled(qrCode.text.isEmpty)
             }
             
             ToolbarItem(placement: .topBarTrailing) {
