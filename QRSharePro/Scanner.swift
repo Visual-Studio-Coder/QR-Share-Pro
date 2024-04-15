@@ -216,9 +216,25 @@ struct Scanner: View {
                             }
                         }
                         .padding()
-                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    } else {
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                    } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+                        Button {
+                            UIApplication.shared.open(URL(string: string)! as URL)
+                        } label: {
+                            HStack {
+                                Text(string)
+                                    .lineLimit(3)
+                                    .foregroundStyle(.blue)
+                                Image(systemName: "link.circle.fill")
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                    } 
+                    else {
                         Button {
                             showingFullTextSheet = true
                         } label: {
@@ -231,8 +247,8 @@ struct Scanner: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                         .padding()
-                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                         .sheet(isPresented: $showingFullTextSheet) {
                             List {
                                 Section {
