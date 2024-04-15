@@ -175,6 +175,7 @@ struct Home: View {
                 .padding(.trailing)
                 
                 TextField("Create your own QR code...", text: $text)
+                    .focused($isFocused)
                     .padding()
                     .background(.gray.opacity(0.2))
                     .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -200,7 +201,6 @@ struct Home: View {
                             showSavePhotosQuestionAlert = true
                         }
                     }
-                    .focused($isFocused)
                     .padding(.horizontal)
                     .padding(.bottom, 5)
                 
@@ -485,6 +485,16 @@ struct Home: View {
                             } label: {
                                 Text("Done")
                                     .tint(accentColorManager.accentColor)
+                            }
+                        }
+                        
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Button("Clear") {
+                                text = ""
+                            }
+                            Spacer()
+                            Button("Done") {
+                                isFocused = false
                             }
                         }
                     }

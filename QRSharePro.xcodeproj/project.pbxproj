@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		783912EF2BC6DEE700233852 /* CameraPermission in Frameworks */ = {isa = PBXBuildFile; productRef = 783912EE2BC6DEE700233852 /* CameraPermission */; };
-		783912F12BC6DEE700233852 /* PhotoLibraryPermission in Frameworks */ = {isa = PBXBuildFile; productRef = 783912F02BC6DEE700233852 /* PhotoLibraryPermission */; };
 		78B575882BAD11880057A709 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC26B2BACE80C00423449 /* Storage.swift */; };
 		78F2F2412B91677000CDF3EC /* QRShareProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F2F2402B91677000CDF3EC /* QRShareProApp.swift */; };
 		78F2F2452B91677300CDF3EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2442B91677300CDF3EC /* Assets.xcassets */; };
@@ -31,7 +29,6 @@
 		8B0C944F2BBDFFE2009EC3E3 /* String+isValidURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C944E2BBDFFE2009EC3E3 /* String+isValidURL.swift */; };
 		8B0C94522BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
 		8B0C94532BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
-		8B255E762BC33BEC008BE876 /* String+removeTrackers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */; };
 		8B255E792BC39C79008BE876 /* URL+prettify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E782BC39C79008BE876 /* URL+prettify.swift */; };
 		8B255E8B2BC84B33008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E8A2BC84B33008BE876 /* ColorfulX */; };
 		8B255E8D2BC84B39008BE876 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8B255E8C2BC84B39008BE876 /* ColorfulX */; };
@@ -108,7 +105,6 @@
 		8B0C944B2BBDE0C0009EC3E3 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		8B0C944E2BBDFFE2009EC3E3 /* String+isValidURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+isValidURL.swift"; sourceTree = "<group>"; };
 		8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+removeTrackers.swift"; sourceTree = "<group>"; };
 		8B255E782BC39C79008BE876 /* URL+prettify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+prettify.swift"; sourceTree = "<group>"; };
 		8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8B2EE4B52B981066001C7997 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
@@ -130,9 +126,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				783912EF2BC6DEE700233852 /* CameraPermission in Frameworks */,
 				8B255E8B2BC84B33008BE876 /* ColorfulX in Frameworks */,
-				783912F12BC6DEE700233852 /* PhotoLibraryPermission in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,18 +230,9 @@
 			path = ObservableObject;
 			sourceTree = "<group>";
 		};
-		8B255E772BC396F6008BE876 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				8B255E752BC33BEC008BE876 /* String+removeTrackers.swift */,
-			);
-			path = Extensions;
-			sourceTree = "<group>";
-		};
 		8BB6E1642B99575C0094D652 /* Share */ = {
 			isa = PBXGroup;
 			children = (
-				8B255E772BC396F6008BE876 /* Extensions */,
 				78B575872BAD106B0057A709 /* Share.entitlements */,
 				8BB6E1652B99575C0094D652 /* ShareViewController.swift */,
 				8BB6E1672B99575C0094D652 /* MainInterface.storyboard */,
@@ -276,8 +261,6 @@
 			);
 			name = QRSharePro;
 			packageProductDependencies = (
-				783912EE2BC6DEE700233852 /* CameraPermission */,
-				783912F02BC6DEE700233852 /* PhotoLibraryPermission */,
 				8B255E8A2BC84B33008BE876 /* ColorfulX */,
 			);
 			productName = QRSharePro;
@@ -332,7 +315,6 @@
 			);
 			mainGroup = 78F2F2342B91676F00CDF3EC;
 			packageReferences = (
-				783912ED2BC6DEE700233852 /* XCRemoteSwiftPackageReference "PermissionsKit" */,
 				8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */,
 			);
 			productRefGroup = 78F2F23E2B91677000CDF3EC /* Products */;
@@ -407,7 +389,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */,
-				8B255E762BC33BEC008BE876 /* String+removeTrackers.swift in Sources */,
 				78B575882BAD11880057A709 /* Storage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -732,14 +713,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		783912ED2BC6DEE700233852 /* XCRemoteSwiftPackageReference "PermissionsKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparrowcode/PermissionsKit";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.1;
-			};
-		};
 		8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Lakr233/ColorfulX.git";
@@ -751,16 +724,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		783912EE2BC6DEE700233852 /* CameraPermission */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 783912ED2BC6DEE700233852 /* XCRemoteSwiftPackageReference "PermissionsKit" */;
-			productName = CameraPermission;
-		};
-		783912F02BC6DEE700233852 /* PhotoLibraryPermission */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 783912ED2BC6DEE700233852 /* XCRemoteSwiftPackageReference "PermissionsKit" */;
-			productName = PhotoLibraryPermission;
-		};
 		8B255E8A2BC84B33008BE876 /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8B255E892BC84B33008BE876 /* XCRemoteSwiftPackageReference "ColorfulX" */;
