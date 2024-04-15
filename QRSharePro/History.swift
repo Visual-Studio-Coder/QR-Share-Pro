@@ -32,7 +32,7 @@ struct History: View {
     
     private let monitor = NetworkMonitor()
 
-    private var allSearchTags = ["All", "URL", "Text"]
+    private var allSearchTags = ["All", "URL", "Text", "Deeplink"]
 
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
@@ -45,7 +45,13 @@ struct History: View {
     }
 
     private func getTypeOf(type: String) -> String {
-        return type.isValidURL() ? "URL" : "Text"
+        if type.isValidURL() {
+            return "URL"
+        } else if UIApplication.shared.canOpenURL(URL(string: type)!) {
+            return "Deeplink"
+        } else {
+            return "Text"
+        }
     }
 
     var body: some View {
@@ -214,6 +220,12 @@ struct History: View {
                                                             .controlSize(.large)
                                                             .frame(width: 50, height: 50)
                                                     }
+                                                } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                                    Image(systemName: "link.circle.fill")
+                                                        .resizable()
+                                                        .aspectRatio(1, contentMode: .fit)
+                                                        .frame(width: 50, height: 50)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
                                                 } else {
                                                     i.qrCode?.toImage()?
                                                         .resizable()
@@ -362,6 +374,12 @@ struct History: View {
                                                         .controlSize(.large)
                                                         .frame(width: 50, height: 50)
                                                 }
+                                            } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                                Image(systemName: "link.circle.fill")
+                                                    .resizable()
+                                                    .aspectRatio(1, contentMode: .fit)
+                                                    .frame(width: 50, height: 50)
+                                                    .clipShape(RoundedRectangle(cornerRadius: 16))
                                             } else {
                                                 i.qrCode?.toImage()?
                                                     .resizable()
