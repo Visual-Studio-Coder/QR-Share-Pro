@@ -22,6 +22,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         self.qrCodeStore = qrCodeStore
         self.qrCode = QRCode(text: "", originalURL: "")
         scannerController.delegate = self
+        scannerController.requestCameraPermission()
     }
     
     func startScanning() {
@@ -103,6 +104,41 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     self.unshortenedURL = finalURL.prettify()
                 }
             }.resume()
+        } else if UIApplication.shared.canOpenURL(URL(string: string)!){
+            guard string != lastDetectedString else { return }
+            
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            
+            generateQRCode(from: string)
+            
+            if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
+                var userLocation: [Double] = [] // re-write user's location in memory
+                
+                if let location = locationManager.location {
+                    userLocation = [location.latitude, location.longitude]
+                } else {
+                    print("Could not get user location.")
+                }
+                
+                let newCode = QRCode(text: string, originalURL: "", qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                
+                qrCodeStore.history.append(newCode)
+                
+                Task {
+                    do {
+                        try save()
+                        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+            
+            lastDetectedString = string
+            
+            DispatchQueue.main.async {
+                self.detectedString = string
+            }
         } else {
             guard string != lastDetectedString else { return }
             
