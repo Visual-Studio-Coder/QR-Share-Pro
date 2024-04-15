@@ -31,27 +31,20 @@ class ShareViewController: UIViewController {
 @MainActor
 struct ShareView: View {
     var qrCodeStore = QRCodeStore()
+    var extensionContext: NSExtensionContext?
     
     @State private var qrCodeImage: UIImage?
-    var extensionContext: NSExtensionContext?
     @State private var isBackgroundVisible = false
     @State private var receivedText: String = ""
     @State private var showAlert = false
     @State private var showPermissionsError = false
     @State private var colors: [Color] = [.gray, .orange, .yellow, .green, .blue, .white, .purple, .pink, .gray, .white]
     
-    var shareLabel: String {
-        if URL(string: receivedText) != nil {
-            return "Share URL"
-        } else {
-            return "Share Plaintext"
-        }
-    }
-    
     var body: some View {
         ZStack {
             ColorfulView(color: $colors)
                 .ignoresSafeArea()
+            
             if let qrCodeImage = qrCodeImage {
                 VStack {
                     Image(uiImage: qrCodeImage)
@@ -60,6 +53,7 @@ struct ShareView: View {
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(16)
+                    
                     Button(action: {
                         dismiss()
                         let generator = UIImpactFeedbackGenerator(style: .light)
@@ -189,7 +183,7 @@ struct ShareView: View {
             
             loadSharedText { sharedText in
                 let originalURL = sharedText
-                receivedText = sharedText.removeTrackers()
+                receivedText = sharedText
                 
                 if let qrImage = generateQRCode(from: receivedText) {
                     qrCodeImage = qrImage
