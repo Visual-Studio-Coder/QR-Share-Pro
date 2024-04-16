@@ -7,4 +7,7 @@ extension Data {
         }
         return Image(uiImage: uiImage)
     }
+    func convertToUIImage() -> UIImage? {
+            return UIImage(data: self)
+    }
 }
