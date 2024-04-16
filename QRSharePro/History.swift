@@ -211,6 +211,7 @@ struct History: View {
                                                 if i.text.isValidURL() {
                                                     AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
                                                         i
+                                                            .interpolation(.none)
                                                             .resizable()
                                                             .aspectRatio(1, contentMode: .fit)
                                                             .frame(width: 50, height: 50)
@@ -392,6 +393,7 @@ struct History: View {
                                             if i.text.isValidURL() {
                                                 AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
                                                     i
+                                                        .interpolation(.none)
                                                         .resizable()
                                                         .aspectRatio(1, contentMode: .fit)
                                                         .frame(width: 50, height: 50)
