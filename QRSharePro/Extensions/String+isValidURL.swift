@@ -1,15 +1,7 @@
-//
-//  String+isValidURL.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 4/3/24.
-//
-
 import Foundation
 
 extension String {
     func isValidURL() -> Bool {
-        // fixes HistoryDetailInfo .navigationTitle app crash when editing on line 564 by making sure that the url is bigger than a smallest possible (random test) url:
         guard self.count >= 10 else { return false } // http://a.a
         
         if let url = URLComponents(string: self) {
@@ -18,10 +10,10 @@ extension String {
                 return scheme == "http" || scheme == "https"
             }
         }
-
+        
         return false
     }
-
+    
     func removeTrackers() -> String {
         var components = URLComponents(url: URL(string: self)!, resolvingAgainstBaseURL: true)!
         

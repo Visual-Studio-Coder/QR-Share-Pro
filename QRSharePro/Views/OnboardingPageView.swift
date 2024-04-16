@@ -1,17 +1,10 @@
-//
-//  OnboardingPageView.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 4/3/24.
-//
-
 import SwiftUI
 
 struct OnboardingPageView: View {
     var image: Image
     var title: String
     var description: String
-
+    
     var body: some View {
         VStack {
             image

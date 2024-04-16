@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 3/25/24.
-//
-
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {

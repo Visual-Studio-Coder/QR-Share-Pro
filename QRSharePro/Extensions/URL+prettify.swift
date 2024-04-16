@@ -1,10 +1,3 @@
-//
-//  URL+prettify.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 4/7/24.
-//
-
 import Foundation
 
 extension URL {

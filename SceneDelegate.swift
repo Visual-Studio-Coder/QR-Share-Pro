@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 3/25/24.
-//
-
 import UIKit
 
 class SceneDelegate: NSObject, UIWindowSceneDelegate {

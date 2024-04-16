@@ -1,15 +1,8 @@
-//
-//  AccentColorManager.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 4/3/24.
-//
-
 import SwiftUI
 
 class AccentColorManager: ObservableObject {
     static let shared = AccentColorManager()
-
+    
     var accentColor: Color {
         get {
             let colorData = UserDefaults.standard.data(forKey: "accentColor")

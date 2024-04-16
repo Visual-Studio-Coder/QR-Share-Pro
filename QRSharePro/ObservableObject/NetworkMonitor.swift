@@ -1,10 +1,3 @@
-//
-//  NetworkMonitor.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 4/3/24.
-//
-
 import SwiftUI
 import Network
 
