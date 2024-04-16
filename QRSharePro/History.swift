@@ -1,10 +1,3 @@
-//
-//  History.swift
-//  QRSharePro
-//
-
-//
-
 import SwiftUI
 
 func showShareSheet(url: URL) {

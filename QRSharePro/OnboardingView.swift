@@ -48,53 +48,54 @@ struct OnboardingView: View {
     var body: some View {
         VStack {
             if isOnboardingDone {
-                VStack {
-                    if selection == .Scanner {
-                        Scanner()
-                    } else if selection == .NewQRCode {
-                        Home()
-                    } else {
-                        History()
-                    }
-                }
-                .onChange(of: selection) { tab in
-                    let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
-                    hapticGenerator.impactOccurred()
-                }
-                .onAppear {
-                    Task {
-                        qrCodeStore.load()
-                    }
-                    
-                    //#if targetEnvironment(simulator)
-                    //                    UserDefaults.standard.set(false, forKey: "isOnboardingDone")
-                    //#endif
-                }
-                
-                if showingTabView {
-                    HStack(spacing: 0) {
-                        ForEach(Tab.allCases, id: \.self) { tab in
-                            Button {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
-                                    selection = tab
-                                }
-                            } label: {
-                                Image(systemName: getImage(tab: tab))
-                                    .renderingMode(.template)
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(maxWidth: .infinity)
-                                    .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
-                                    .foregroundStyle(selection == tab ? Color.accentColor : .gray)
-                                    .scaleEffect(selection == tab ? 2 : 1)
-                                    .bold(selection == tab)
+                ZStack {
+                    VStack {
+                        VStack {
+                            if selection == .Scanner {
+                                Scanner()
+                            } else if selection == .NewQRCode {
+                                Home()
+                            } else {
+                                History()
                             }
                         }
+                        .onChange(of: selection) { tab in
+                            let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+                            hapticGenerator.impactOccurred()
+                        }
+                        .onAppear {
+                            Task {
+                                qrCodeStore.load()
+                            }
+                        }
+                        
+                        if showingTabView {
+                            HStack(spacing: 0) {
+                                ForEach(Tab.allCases, id: \.self) { tab in
+                                    Button {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
+                                            selection = tab
+                                        }
+                                    } label: {
+                                        Image(systemName: getImage(tab: tab))
+                                            .renderingMode(.template)
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(maxWidth: .infinity)
+                                            .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
+                                            .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+                                            .scaleEffect(selection == tab ? 2 : 1)
+                                            .bold(selection == tab)
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 15)
+                            .padding(.bottom, 10)
+                            .padding([.horizontal, .top])
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 15)
-                    .padding(.bottom, 10)
-                    .padding([.horizontal, .top])
                 }
+                .ignoresSafeArea(.keyboard, edges: .bottom)
             } else {
                 ZStack {
                     ColorfulView(color: $colors)
