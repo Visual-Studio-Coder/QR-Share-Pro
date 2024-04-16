@@ -66,7 +66,7 @@ struct HistoryDetailInfo: View {
                             .contextMenu {
                                 if !qrCode.text.isEmpty {
                                     Button {
-                                        if qrCode.text.count > 2953 {
+                                        if qrCode.text.count > 3000 {
                                             showExceededLimitAlert = true
                                         } else {
                                             PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -87,8 +87,8 @@ struct HistoryDetailInfo: View {
                         HStack {
                             Spacer()
                             
-                            Text("\(qrCode.text.count)/2953 characters")
-                                .foregroundStyle(qrCode.text.count > 2953 ? .red : .secondary)
+                            Text("\(qrCode.text.count)/3000 characters")
+                                .foregroundStyle(qrCode.text.count > 3000 ? .red : .secondary)
                                 .bold()
                         }
                         .padding(.top, 3)
@@ -103,7 +103,7 @@ struct HistoryDetailInfo: View {
                             .autocorrectionDisabled()
                             .padding(.horizontal)
                             .onSubmit {
-                                if qrCode.text.count > 2953 {
+                                if qrCode.text.count > 3000 {
                                     showExceededLimitAlert = true
                                 } else if !qrCode.text.isEmpty {
                                     if qrCode.text != originalText, let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
@@ -123,7 +123,7 @@ struct HistoryDetailInfo: View {
                                     isEditing.toggle()
                                 }
                             }
-                            .alert("You'll need to remove \(qrCode.text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
+                            .alert("You'll need to remove \(qrCode.text.count - 3000) characters first!", isPresented: $showExceededLimitAlert) {
                             }
                     }
                 }
@@ -271,6 +271,7 @@ struct HistoryDetailInfo: View {
                                             Section {
                                                 Button {
                                                     withAnimation {
+                                                        copiedOriginalURL = false
                                                         copiedCleanURL = true
                                                     }
                                                     
@@ -287,14 +288,24 @@ struct HistoryDetailInfo: View {
                                                     }
                                                 }
                                                 
-                                                Text(qrCode.text)
-                                                    .contextMenu {
-                                                        Button {
-                                                            UIPasteboard.general.string = qrCode.text
-                                                        } label: {
-                                                            Label("Copy URL", systemImage: "doc.on.doc")
-                                                        }
+                                                Menu {
+                                                    Button {
+                                                        UIPasteboard.general.string = qrCode.text
+                                                    } label: {
+                                                        Label("Copy URL", systemImage: "doc.on.doc")
                                                     }
+                                                } label: {
+                                                    Text(qrCode.text)
+                                                        .foregroundStyle(.primary)
+                                                }
+                                                .buttonStyle(PlainButtonStyle())
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = qrCode.text
+                                                    } label: {
+                                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                                    }
+                                                }
                                             } header: {
                                                 Text("Sanitized URL")
                                             } footer: {
@@ -305,6 +316,7 @@ struct HistoryDetailInfo: View {
                                         Section {
                                             Button {
                                                 withAnimation {
+                                                    copiedCleanURL = false
                                                     copiedOriginalURL = true
                                                 }
                                                 
@@ -321,14 +333,23 @@ struct HistoryDetailInfo: View {
                                                 }
                                             }
                                             
-                                            Text(qrCode.originalURL)
-                                                .contextMenu {
-                                                    Button {
-                                                        UIPasteboard.general.string = qrCode.originalURL
-                                                    } label: {
-                                                        Label("Copy URL", systemImage: "doc.on.doc")
-                                                    }
+                                            Menu {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.originalURL
+                                                } label: {
+                                                    Label("Copy URL", systemImage: "doc.on.doc")
                                                 }
+                                            } label: {
+                                                Text(qrCode.originalURL)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                            .contextMenu {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.originalURL
+                                                } label: {
+                                                    Label("Copy URL", systemImage: "doc.on.doc")
+                                                }
+                                            }
                                         } header: {
                                             if qrCode.text != qrCode.originalURL {
                                                 Text("Original URL")
@@ -724,6 +745,26 @@ struct HistoryDetailInfo: View {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                 }
+            }
+            
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    if qrCode.text.count > 3000 {
+                        showExceededLimitAlert = true
+                    } else {
+                        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                            if status == .denied {
+                                showPermissionsError = true
+                            } else {
+                                UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                showSavedAlert = true
+                            }
+                        }
+                    }
+                } label: {
+                    Label("Save to Photos", systemImage: "square.and.arrow.down")
+                }
+                .disabled(qrCode.text.isEmpty)
             }
             
             ToolbarItem(placement: .topBarTrailing) {
