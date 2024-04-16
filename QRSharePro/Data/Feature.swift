@@ -1,10 +1,3 @@
-//
-//  Feature.swift
-//  QRSharePro
-//
-
-//
-
 import Foundation
 
 struct Feature: Decodable, Identifiable {

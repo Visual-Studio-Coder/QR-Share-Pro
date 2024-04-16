@@ -1,10 +1,3 @@
-//
-//  AppIcon.swift
-//  QRSharePro
-//
-
-//
-
 import Foundation
 
 struct AppIcon: Identifiable {

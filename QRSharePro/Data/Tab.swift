@@ -1,10 +1,3 @@
-//
-//  Tab.swift
-//  QRSharePro
-//
-
-//
-
 import Foundation
 
 enum Tab: String, CaseIterable {

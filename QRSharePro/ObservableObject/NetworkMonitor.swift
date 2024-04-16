@@ -1,10 +1,3 @@
-//
-//  NetworkMonitor.swift
-//  QRSharePro
-//
-
-//
-
 import SwiftUI
 import Network
 

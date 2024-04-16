@@ -1,10 +1,3 @@
-//
-//  ScanLocation.swift
-//  QRSharePro
-//
-
-//
-
 import Foundation
 import CoreLocation
 

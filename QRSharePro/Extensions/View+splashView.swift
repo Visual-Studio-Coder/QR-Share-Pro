@@ -1,10 +1,3 @@
-//
-//  View+splashView.swift
-//  QRSharePro
-//
-
-//
-
 import SwiftUI
 
 extension View {

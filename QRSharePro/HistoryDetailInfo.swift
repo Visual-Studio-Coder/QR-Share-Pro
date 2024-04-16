@@ -358,26 +358,26 @@ struct HistoryDetailInfo: View {
                         } else if UIApplication.shared.canOpenURL(URL(string: qrCode.text)!){
                             HStack {
                                 Image(systemName: "link.circle.fill")
-                                        .resizable()
-                                        .aspectRatio(1, contentMode: .fit)
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                .onTapGesture {
-                                    showingFullURLSheet = true
-                                }
-                                .contextMenu {
-                                    Button {
-                                        UIPasteboard.general.string = qrCode.text
-                                    } label: {
-                                        Label("Copy URL", systemImage: "doc.on.doc")
-                                    }
-                                    
-                                    Button {
+                                    .resizable()
+                                    .aspectRatio(1, contentMode: .fit)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .onTapGesture {
                                         showingFullURLSheet = true
-                                    } label: {
-                                        Label("Show Full URL", systemImage: "arrow.up.right")
                                     }
-                                }
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = qrCode.text
+                                        } label: {
+                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Button {
+                                            showingFullURLSheet = true
+                                        } label: {
+                                            Label("Show Full URL", systemImage: "arrow.up.right")
+                                        }
+                                    }
                                 
                                 Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
                                     .font(.largeTitle)

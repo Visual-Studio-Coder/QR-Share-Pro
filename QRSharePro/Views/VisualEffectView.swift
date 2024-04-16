@@ -1,10 +1,3 @@
-//
-//  VisualEffectView.swift
-//  QRSharePro
-//
-
-//
-
 import SwiftUI
 
 struct VisualEffectView: UIViewRepresentable {

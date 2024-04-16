@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  QRSharePro
-//
-
-//
-
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {

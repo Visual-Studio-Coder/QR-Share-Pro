@@ -1,10 +1,3 @@
-//
-//  Data+toImage.swift
-//  QRSharePro
-//
-
-//
-
 import SwiftUI
 
 extension Data {
