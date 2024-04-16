@@ -1,7 +1,13 @@
 import SwiftUI
+import UIKit
+import LinkPresentation
 
 func showShareSheet(url: URL) {
     let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    UIApplication.shared.currentUIWindow()?.rootViewController?.present(activityVC, animated: true, completion: nil)
+}
+func showImageShareSheet(image: UIImage) {
+    let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
     UIApplication.shared.currentUIWindow()?.rootViewController?.present(activityVC, animated: true, completion: nil)
 }
 
@@ -312,6 +318,12 @@ struct History: View {
                                                 }
                                             }
                                             
+                                            Button {
+                                                showImageShareSheet(image: i.qrCode!.convertToUIImage()!)
+                                            } label: {
+                                                Label("Share QR Code Image", systemImage: "square.and.arrow.up")
+                                            }
+                                            
                                             Button(role: .destructive) {
                                                 currentQRCode = i
                                                 showingDeleteConfirmation = true
@@ -487,6 +499,11 @@ struct History: View {
                                                 Label("Share Deeplink", systemImage: "square.and.arrow.up")
                                             }
                                         }
+                                        Button {
+                                            showImageShareSheet(image: i.qrCode!.convertToUIImage()!)
+                                        } label: {
+                                            Label("Share QR Code Image", systemImage: "square.and.arrow.up")
+                                        }
                                         
                                         Button(role: .destructive) {
                                             currentQRCode = i
@@ -602,7 +619,6 @@ struct History: View {
         }
     }
 }
-
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
