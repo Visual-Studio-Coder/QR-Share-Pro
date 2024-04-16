@@ -14,36 +14,36 @@ func showShareSheet(url: URL) {
 
 struct History: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
-
+    
     @State private var editMode = false
-
+    
     @State private var searchText = ""
     @State private var searchTag = "All"
     @State private var showingEditButtonDeleteConfirmation = false
     @State private var showingAllPins = true
     @State private var showingDeleteConfirmation = false
     @State private var currentQRCode = QRCode(text: "", originalURL: "")
-
+    
     @State private var showOfflineText = true
-
+    
     @State private var showingClearFaviconsConfirmation = false
     @State private var showingClearAllPinsConfirmation = false
     @State private var showingClearHistoryConfirmation = false
     
     private let monitor = NetworkMonitor()
-
+    
     private var allSearchTags = ["All", "URL", "Text", "Deeplink"]
-
+    
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
-
+    
     var searchResults: [QRCode] {
         guard !searchText.isEmpty else { return qrCodeStore.history }
-
+        
         return qrCodeStore.history.filter { $0.text.lowercased().contains(searchText.lowercased()) }
     }
-
+    
     private func getTypeOf(type: String) -> String {
         if type.isValidURL() {
             return "URL"
@@ -53,38 +53,38 @@ struct History: View {
             return "Text"
         }
     }
-
+    
     var body: some View {
         NavigationStack {
             VStack {
                 if qrCodeStore.history.isEmpty {
                     VStack {
                         Spacer()
-
+                        
                         Image(systemName: "clock.arrow.circlepath")
                             .resizable()
                             .scaledToFit()
                             .frame(height: 80)
                             .padding(.bottom, 10)
-
+                        
                         Text("No History Yet")
                             .font(.title)
                             .bold()
                             .padding(.bottom, 10)
-
+                        
                         Text("Scan, create, or share a QR code.")
                             .font(.subheadline)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 50)
                             .padding(.bottom, 30)
-
+                        
                         Spacer()
                     }
                 } else {
                     let pinned = searchResults.sorted(by: { $0.date > $1.date }).filter({ $0.pinned }).filter({ searchTag == "All" ? (searchTag == "All" ? true : $0.pinned) : getTypeOf(type: $0.text) == searchTag })
-
+                    
                     let x = searchResults.sorted(by: { $0.date > $1.date }).filter({ !$0.pinned }).filter({ searchTag == "All" ? (searchTag == "All" ? true : $0.pinned) : getTypeOf(type: $0.text) == searchTag })
-
+                    
                     if x.isEmpty && pinned.isEmpty {
                         VStack {
                             Image(systemName: "magnifyingglass")
@@ -93,18 +93,18 @@ struct History: View {
                                 .frame(height: 80)
                                 .padding(.bottom, 10)
                                 .foregroundStyle(.secondary)
-
+                            
                             Text("No Results")
                                 .font(.title)
                                 .bold()
-
+                            
                             Text(searchTag != "All" ? "Check the spelling or remove the filter." : "Check the spelling or try a new search.")
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.top, 50)
                     }
-
+                    
                     List {
                         if !x.isEmpty && !monitor.isActive && showOfflineText {
                             Section("Network Unavailable") {
@@ -123,7 +123,7 @@ struct History: View {
                                 }
                             }
                         }
-
+                        
                         if editMode {
                             Section {
                                 Button {
@@ -135,12 +135,12 @@ struct History: View {
                                     Button("Clear Website Favicons Cache", role: .destructive) {
                                         withAnimation {
                                             URLCache.shared.removeAllCachedResponses()
-
+                                            
                                             showingClearFaviconsConfirmation = false
                                         }
                                     }
                                 }
-
+                                
                                 if !pinned.isEmpty {
                                     Button {
                                         showingClearAllPinsConfirmation = true
@@ -148,7 +148,7 @@ struct History: View {
                                         Label("Clear Pins", systemImage: "pin.slash.fill")
                                     }
                                 }
-
+                                
                                 Button {
                                     showingClearHistoryConfirmation = true
                                 } label: {
@@ -158,7 +158,7 @@ struct History: View {
                                     Button("Clear History", role: .destructive) {
                                         withAnimation {
                                             qrCodeStore.history = []
-
+                                            
                                             Task {
                                                 do {
                                                     try await save()
@@ -166,7 +166,7 @@ struct History: View {
                                                     print(error.localizedDescription)
                                                 }
                                             }
-
+                                            
                                             showingClearHistoryConfirmation = false
                                         }
                                     }
@@ -182,7 +182,7 @@ struct History: View {
                                         for i in searchResults {
                                             if i.pinned, let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                 qrCodeStore.history[idx].pinned.toggle()
-
+                                                
                                                 Task {
                                                     do {
                                                         try await save()
@@ -192,13 +192,13 @@ struct History: View {
                                                 }
                                             }
                                         }
-
+                                        
                                         showingClearAllPinsConfirmation = false
                                     }
                                 }
                             }
                         }
-
+                        
                         if !pinned.isEmpty {
                             Section {
                                 if showingAllPins {
@@ -231,11 +231,11 @@ struct History: View {
                                                         .resizable()
                                                         .frame(width: 50, height: 50)
                                                 }
-
+                                                
                                                 VStack(alignment: .leading) {
                                                     if i.text.isValidURL() {
                                                         let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
-
+                                                        
                                                         Text(fixedURL)
                                                             .bold()
                                                             .lineLimit(2)
@@ -244,7 +244,7 @@ struct History: View {
                                                             .bold()
                                                             .lineLimit(2)
                                                     }
-
+                                                    
                                                     Text(i.date, format: .dateTime)
                                                         .foregroundStyle(.secondary)
                                                 }
@@ -268,7 +268,7 @@ struct History: View {
                                                     Label("Open Deeplink", systemImage: "link")
                                                 }
                                             }
-
+                                            
                                             Button {
                                                 UIPasteboard.general.string = i.text
                                             } label: {
@@ -282,14 +282,14 @@ struct History: View {
                                                 }
                                                 
                                             }
-
+                                            
                                             Divider()
-
+                                            
                                             Button {
                                                 if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                     withAnimation {
                                                         qrCodeStore.history[idx].pinned.toggle()
-
+                                                        
                                                         Task {
                                                             do {
                                                                 try await save()
@@ -302,9 +302,9 @@ struct History: View {
                                             } label: {
                                                 Label("Unpin", systemImage: "pin.slash.fill")
                                             }
-
+                                            
                                             Divider()
-
+                                            
                                             if i.text.isValidURL() {
                                                 Button {
                                                     showShareSheet(url: URL(string: i.text)!)
@@ -331,7 +331,7 @@ struct History: View {
                                                 if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                     withAnimation {
                                                         qrCodeStore.history[idx].pinned.toggle()
-
+                                                        
                                                         Task {
                                                             do {
                                                                 try await save()
@@ -375,7 +375,7 @@ struct History: View {
                                 .buttonStyle(PlainButtonStyle())
                             }
                         }
-
+                        
                         if !x.isEmpty {
                             Section {
                                 ForEach(x) { i in
@@ -407,11 +407,11 @@ struct History: View {
                                                     .resizable()
                                                     .frame(width: 50, height: 50)
                                             }
-
+                                            
                                             VStack(alignment: .leading) {
                                                 if i.text.isValidURL() {
                                                     let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
-
+                                                    
                                                     Text(fixedURL)
                                                         .bold()
                                                         .lineLimit(2)
@@ -420,7 +420,7 @@ struct History: View {
                                                         .bold()
                                                         .lineLimit(2)
                                                 }
-
+                                                
                                                 Text(i.date, format: .dateTime)
                                                     .foregroundStyle(.secondary)
                                             }
@@ -444,7 +444,7 @@ struct History: View {
                                                 Label("Open Deeplink", systemImage: "link")
                                             }
                                         }
-
+                                        
                                         Button {
                                             UIPasteboard.general.string = i.text
                                         } label: {
@@ -458,14 +458,14 @@ struct History: View {
                                             }
                                             
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         Button {
                                             if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                 withAnimation {
                                                     qrCodeStore.history[idx].pinned.toggle()
-
+                                                    
                                                     Task {
                                                         do {
                                                             try await save()
@@ -478,9 +478,9 @@ struct History: View {
                                         } label: {
                                             Label("Pin", systemImage: "pin")
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         if i.text.isValidURL() {
                                             Button {
                                                 showShareSheet(url: URL(string: i.text)!)
@@ -507,7 +507,7 @@ struct History: View {
                                             if let idx = qrCodeStore.indexOfQRCode(withID: i.id) {
                                                 withAnimation {
                                                     qrCodeStore.history[idx].pinned.toggle()
-
+                                                    
                                                     Task {
                                                         do {
                                                             try await save()
@@ -539,7 +539,7 @@ struct History: View {
                                         if let idx = qrCodeStore.indexOfQRCode(withID: currentQRCode.id) {
                                             withAnimation {
                                                 qrCodeStore.history.remove(at: idx)
-
+                                                
                                                 Task {
                                                     do {
                                                         try await save()
@@ -547,7 +547,7 @@ struct History: View {
                                                         print(error.localizedDescription)
                                                     }
                                                 }
-
+                                                
                                                 showingDeleteConfirmation = false
                                             }
                                         }
@@ -590,7 +590,7 @@ struct History: View {
                         }
                     }
                 }
-
+                
                 if !qrCodeStore.history.isEmpty {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -613,7 +613,7 @@ struct History: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-
+        
         History()
             .environmentObject(qrCodeStore)
     }
