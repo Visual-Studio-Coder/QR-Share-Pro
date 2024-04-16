@@ -185,7 +185,9 @@ struct Scanner: View {
                                     HStack {
                                         if let host = url.host {
                                             AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                                image.resizable()
+                                                image
+                                                    .interpolation(.none)
+                                                    .resizable()
                                             } placeholder: {
                                                 ProgressView()
                                             }
