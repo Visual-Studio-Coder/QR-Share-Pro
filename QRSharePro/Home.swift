@@ -327,23 +327,19 @@ struct Home: View {
                                 .tint(.primary)
                             }
                             
-                            NavigationLink {
-                                NavigationStack {
-                                    List {
-                                        Section("Last updated: April 9, 2024") {
-                                            Label("We don't collect anything.", systemImage: "1.circle")
-                                            Label("QR Share Pro stores all data on-device.", systemImage: "2.circle")
-                                            Label("Website favicons are queried through DuckDuckGo.", systemImage: "3.circle")
-                                            Label("Scanned QR code locations are stored on-device. Apple Maps displays the saved coordinates onto a map.", systemImage: "4.circle")
-                                        }
-                                    }
-                                    .navigationTitle("We ❤️ Privacy")
-                                    .navigationBarTitleDisplayMode(.inline)
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
+                                    UIApplication.shared.open(url)
                                 }
-                                .accentColor(accentColorManager.accentColor)
                             } label: {
-                                Label("Privacy", systemImage: "checkmark.shield")
+                                HStack {
+                                    Label("Privacy", systemImage: "checkmark.shield")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
                             }
+                            .tint(.primary)
                             
                             Button {
                                 requestReview()

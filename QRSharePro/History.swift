@@ -6,6 +6,7 @@ func showShareSheet(url: URL) {
     let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
     UIApplication.shared.currentUIWindow()?.rootViewController?.present(activityVC, animated: true, completion: nil)
 }
+
 func showImageShareSheet(image: UIImage) {
     let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
     UIApplication.shared.currentUIWindow()?.rootViewController?.present(activityVC, animated: true, completion: nil)
@@ -31,7 +32,7 @@ struct History: View {
     
     private let monitor = NetworkMonitor()
     
-    private var allSearchTags = ["All", "URL", "Text", "Deeplink"]
+    private var allSearchTags = ["All", "URL", "Text", "Deep Link"]
     
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
@@ -47,7 +48,7 @@ struct History: View {
         if type.isValidURL() {
             return "URL"
         } else if UIApplication.shared.canOpenURL(URL(string: type)!) {
-            return "Deeplink"
+            return "Deep Link"
         } else {
             return "Text"
         }
@@ -264,18 +265,17 @@ struct History: View {
                                                         UIApplication.shared.open(url)
                                                     }
                                                 } label: {
-                                                    Label("Open Deeplink", systemImage: "link")
+                                                    Label("Open Deep Link", systemImage: "link")
                                                 }
                                             }
                                             
                                             Button {
                                                 UIPasteboard.general.string = i.text
                                             } label: {
-                                                //Label(i.text.isValidURL() ? "Copy URL" : "Copy Text", systemImage: "doc.on.doc")
                                                 if i.text.isValidURL() {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
                                                 } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
-                                                    Label("Copy Deeplink", systemImage: "doc.on.doc")
+                                                    Label("Copy Deep Link", systemImage: "doc.on.doc")
                                                 } else {
                                                     Label("Copy Text", systemImage: "doc.on.doc")
                                                 }
@@ -314,14 +314,14 @@ struct History: View {
                                                 Button {
                                                     showShareSheet(url: URL(string: i.text)!)
                                                 } label: {
-                                                    Label("Share Deeplink", systemImage: "square.and.arrow.up")
+                                                    Label("Share Deep Link", systemImage: "square.and.arrow.up")
                                                 }
                                             }
                                             
                                             Button {
                                                 showImageShareSheet(image: i.qrCode!.convertToUIImage()!)
                                             } label: {
-                                                Label("Share QR Code Image", systemImage: "square.and.arrow.up")
+                                                Label("Share QR Code", systemImage: "square.and.arrow.up")
                                             }
                                             
                                             Button(role: .destructive) {
@@ -446,18 +446,17 @@ struct History: View {
                                                     UIApplication.shared.open(url)
                                                 }
                                             } label: {
-                                                Label("Open Deeplink", systemImage: "link")
+                                                Label("Open Deep Link", systemImage: "link")
                                             }
                                         }
                                         
                                         Button {
                                             UIPasteboard.general.string = i.text
                                         } label: {
-                                            //Label(i.text.isValidURL() ? "Copy URL" : "Copy Text", systemImage: "doc.on.doc")
                                             if i.text.isValidURL() {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
                                             } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
-                                                Label("Copy Deeplink", systemImage: "doc.on.doc")
+                                                Label("Copy Deep Link", systemImage: "doc.on.doc")
                                             } else {
                                                 Label("Copy Text", systemImage: "doc.on.doc")
                                             }
@@ -496,13 +495,13 @@ struct History: View {
                                             Button {
                                                 showShareSheet(url: URL(string: i.text)!)
                                             } label: {
-                                                Label("Share Deeplink", systemImage: "square.and.arrow.up")
+                                                Label("Share Deep Link", systemImage: "square.and.arrow.up")
                                             }
                                         }
                                         Button {
                                             showImageShareSheet(image: i.qrCode!.convertToUIImage()!)
                                         } label: {
-                                            Label("Share QR Code Image", systemImage: "square.and.arrow.up")
+                                            Label("Share QR Code", systemImage: "square.and.arrow.up")
                                         }
                                         
                                         Button(role: .destructive) {

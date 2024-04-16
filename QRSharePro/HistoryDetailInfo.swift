@@ -470,7 +470,7 @@ struct HistoryDetailInfo: View {
                                                     UIApplication.shared.open(url)
                                                 }
                                             } label: {
-                                                Label("Open Deeplink", systemImage: "link.circle.fill")
+                                                Label("Open Deep Link", systemImage: "link.circle.fill")
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
                                         }
@@ -482,7 +482,7 @@ struct HistoryDetailInfo: View {
                                                 
                                                 UIPasteboard.general.string = qrCode.originalURL
                                             } label: {
-                                                Label(copiedOriginalURL ? "Copied Deeplink" : "Copy Deeplink", systemImage: copiedOriginalURL ? "checkmark" : "doc.on.doc")
+                                                Label(copiedOriginalURL ? "Copied Deep Link" : "Copy Deep Link", systemImage: copiedOriginalURL ? "checkmark" : "doc.on.doc")
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
                                             .onChange(of: copiedOriginalURL) { _ in
@@ -498,11 +498,11 @@ struct HistoryDetailInfo: View {
                                                     Button {
                                                         UIPasteboard.general.string = qrCode.originalURL
                                                     } label: {
-                                                        Label("Copy Deeplink", systemImage: "doc.on.doc")
+                                                        Label("Copy Deep Link", systemImage: "doc.on.doc")
                                                     }
                                                 }
                                         } header: {
-                                            Text("Deeplink")
+                                            Text("Deep Link")
                                         }
                                     }
                                     .navigationTitle(URL(string: qrCode.text)!.absoluteString)
@@ -675,15 +675,15 @@ struct HistoryDetailInfo: View {
                             }
                         }
                         
-                        HStack {
+                        HStack(spacing: 0) {
                             if qrCode.wasEdited {
-                                Text("Last edited:")
+                                Text("Last edited: ")
                             } else if qrCode.wasCreated {
-                                Text("Created on:")
+                                Text("Created on: ")
                             } else if qrCode.wasScanned {
-                                Text("Scanned on:")
+                                Text("Scanned on: ")
                             } else {
-                                Text("Generated on:")
+                                Text("Generated on: ")
                             }
                             
                             Text(qrCode.date, format: .dateTime)
