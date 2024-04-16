@@ -11,7 +11,6 @@ struct Home: View {
     @State private var showingAboutAppSheet = false
     @State private var text = ""
     @State private var textIsEmptyWithAnimation = true
-    @State private var showSavePhotosQuestionAlert = false
     @State private var showSavedAlert = false
     @State private var showExceededLimitAlert = false
     @State private var showHistorySavedAlert = false
@@ -87,7 +86,7 @@ struct Home: View {
                     .contextMenu {
                         if !text.isEmpty {
                             Button {
-                                if text.count > 2953 {
+                                if text.count > 3000 {
                                     showExceededLimitAlert = true
                                 } else {
                                     PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -117,7 +116,7 @@ struct Home: View {
                             }
                             
                             Button {
-                                if text.count > 2953 {
+                                if text.count > 3000 {
                                     showExceededLimitAlert = true
                                 } else {
                                     let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
@@ -163,8 +162,8 @@ struct Home: View {
                 HStack {
                     Spacer()
                     
-                    Text("\(text.count)/2953 characters")
-                        .foregroundStyle(text.count > 2953 ? .red : .secondary)
+                    Text("\(text.count)/3000 characters")
+                        .foregroundStyle(text.count > 3000 ? .red : .secondary)
                         .bold()
                 }
                 .padding(.top, 3)
@@ -188,23 +187,64 @@ struct Home: View {
                     .onTapGesture {
                         isFocused = true
                     }
-                    //.onSubmit {
-                    //    isFocused = false
-                    //
-                    //    if text.count > 2953 {
-                    //        showExceededLimitAlert = true
-                    //    } else if !text.isEmpty {
-                    //        showSavePhotosQuestionAlert = true
-                    //    }
-                    //}
+                    .onSubmit {
+                        isFocused = false
+                        
+                        if text.count > 3000 {
+                            showExceededLimitAlert = true
+                        }
+                    }
                     .padding(.horizontal)
                     .padding(.bottom, 5)
                 
-                Button {
-                    if text.count > 2953 {
-                        showExceededLimitAlert = true
-                    } else {
-                        showSavePhotosQuestionAlert = true
+                Menu {
+                    Button {
+                        if text.count > 3000 {
+                            showExceededLimitAlert = true
+                        } else {
+                            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                if status == .denied {
+                                    showPermissionsError = true
+                                } else {
+                                    UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                    showSavedAlert = true
+                                    
+                                    let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
+                                    qrCodeStore.history.append(newCode)
+                                    
+                                    Task {
+                                        do {
+                                            try await save()
+                                        } catch {
+                                            print(error.localizedDescription)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        Label("Save to Photos", systemImage: "square.and.arrow.down")
+                    }
+                    
+                    Button {
+                        if text.count > 3000 {
+                            showExceededLimitAlert = true
+                        } else {
+                            let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
+                            qrCodeStore.history.append(newCode)
+                            
+                            Task {
+                                do {
+                                    try await save()
+                                } catch {
+                                    print(error.localizedDescription)
+                                }
+                            }
+                            
+                            showHistorySavedAlert = true
+                        }
+                    } label: {
+                        Label("Save to History", systemImage: "clock.arrow.circlepath")
                     }
                 } label: {
                     Label("Save", systemImage: "square.and.arrow.down")
@@ -231,46 +271,7 @@ struct Home: View {
                     }
                 }
             }
-            .alert("Save to Photos?", isPresented: $showSavePhotosQuestionAlert) {
-                Button("Yes") {
-                    PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                        if status == .denied {
-                            showPermissionsError = true
-                        } else {
-                            UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                            showSavedAlert = true
-                            
-                            let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
-                            qrCodeStore.history.append(newCode)
-                            
-                            Task {
-                                do {
-                                    try await save()
-                                } catch {
-                                    print(error.localizedDescription)
-                                }
-                            }
-                            
-                            showHistorySavedAlert = true
-                        }
-                    }
-                }
-                
-                Button("No") {
-                    let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
-                    qrCodeStore.history.append(newCode)
-                    
-                    Task {
-                        do {
-                            try await save()
-                        } catch {
-                            print(error.localizedDescription)
-                        }
-                    }
-                    showHistorySavedAlert = true
-                }
-            }
-            .alert("You'll need to remove \(text.count - 2953) characters first!", isPresented: $showExceededLimitAlert) {
+            .alert("You'll need to remove \(text.count - 3000) characters first!", isPresented: $showExceededLimitAlert) {
                 Button("OK", role: .cancel) {}
             }
             .alert("Saved to Photos!", isPresented: $showSavedAlert) {
