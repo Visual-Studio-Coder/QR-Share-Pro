@@ -101,16 +101,16 @@ struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     private let monitor = NetworkMonitor()
     @State private var showingFullTextSheet = false
-    let showingCameraError = !Permission.camera.authorized
+    @State private var showingCameraError = !Permission.camera.authorized
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            if showingCameraError && monitor.isActive {
+            if !monitor.isActive {
                 Label("Offline", systemImage: "network.slash")
                     .tint(.primary)
                     .padding(.bottom, 25)
             }
-            QRScanner(viewModel: viewModel)
+
             if showingCameraError {
                 VStack {
                     Spacer()
@@ -175,6 +175,7 @@ struct Scanner: View {
                     .onDisappear {
                         viewModel.stopScanning()
                     }
+                
                 VStack {
                     if let string = viewModel.detectedString {
                         if string.isValidURL(), let url = URL(string: string) {
@@ -292,6 +293,9 @@ struct Scanner: View {
                 }
                 .padding()
             }
+        }
+        .onChange(of: Permission.camera.authorized) { change in
+            showingCameraError = !change
         }
     }
 }
