@@ -159,6 +159,7 @@ struct HistoryDetailInfo: View {
                             HStack {
                                 AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
                                     i
+                                        .interpolation(.none)
                                         .resizable()
                                         .aspectRatio(1, contentMode: .fit)
                                         .frame(width: 50, height: 50)
