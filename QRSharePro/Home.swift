@@ -1,10 +1,3 @@
-//
-//  Home.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 3/6/24.
-//
-
 import SwiftUI
 import CoreImage.CIFilterBuiltins
 import StoreKit
@@ -143,6 +136,9 @@ struct Home: View {
                             } label: {
                                 Label("Save to History", systemImage: "clock.arrow.circlepath")
                             }
+                            ShareLink(item: Image(uiImage: qrCodeImage), preview: SharePreview(text, image: Image(uiImage: qrCodeImage))) {
+                                Label("Share QR Code", systemImage: "square.and.arrow.up")
+                            }
                         }
                     }
                     .overlay {
@@ -179,7 +175,7 @@ struct Home: View {
                     .padding()
                     .background(.gray.opacity(0.2))
                     .clipShape(RoundedRectangle(cornerRadius: 15))
-                    .keyboardType(.webSearch)
+                    .keyboardType(.default)
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .onChange(of: text) { newValue in
@@ -192,15 +188,15 @@ struct Home: View {
                     .onTapGesture {
                         isFocused = true
                     }
-                    .onSubmit {
-                        isFocused = false
-                        
-                        if text.count > 2953 {
-                            showExceededLimitAlert = true
-                        } else if !text.isEmpty {
-                            showSavePhotosQuestionAlert = true
-                        }
-                    }
+                    //.onSubmit {
+                    //    isFocused = false
+                    //
+                    //    if text.count > 2953 {
+                    //        showExceededLimitAlert = true
+                    //    } else if !text.isEmpty {
+                    //        showSavePhotosQuestionAlert = true
+                    //    }
+                    //}
                     .padding(.horizontal)
                     .padding(.bottom, 5)
                 
@@ -225,7 +221,7 @@ struct Home: View {
             .navigationTitle("New QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
-                generateQRCode(from: "https://aaronhma.com")
+                generateQRCode(from: "QR Share Pro")
             }
             .alert("We need permission to save this QR code to your photo library.", isPresented: $showPermissionsError) {
                 Button("Open Settings", role: .cancel) {

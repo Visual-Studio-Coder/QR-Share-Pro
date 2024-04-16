@@ -1,10 +1,3 @@
-//
-//  HistoryDetailInfo.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 3/25/24.
-//
-
 import SwiftUI
 import MapKit
 import Photos
@@ -663,13 +656,13 @@ struct HistoryDetailInfo: View {
                         
                         HStack {
                             if qrCode.wasEdited {
-                                Text("Last edited: ")
+                                Text("Last edited:")
                             } else if qrCode.wasCreated {
-                                Text("Created on: ")
+                                Text("Created on:")
                             } else if qrCode.wasScanned {
-                                Text("Scanned on: ")
+                                Text("Scanned on:")
                             } else {
-                                Text("Generated on: ")
+                                Text("Generated on:")
                             }
                             
                             Text(qrCode.date, format: .dateTime)

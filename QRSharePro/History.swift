@@ -1,10 +1,3 @@
-//
-//  History.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 3/25/24.
-//
-
 import SwiftUI
 
 func showShareSheet(url: URL) {
