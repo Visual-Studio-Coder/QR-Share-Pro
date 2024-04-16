@@ -85,6 +85,14 @@ struct Home: View {
                     .opacity(textIsEmptyWithAnimation ? 0.2 : 1)
                     .contextMenu {
                         if !text.isEmpty {
+                            if text.count <= 3000 {
+                                ShareLink(item: Image(uiImage: qrCodeImage), preview: SharePreview(text, image: Image(uiImage: qrCodeImage))) {
+                                    Label("Share QR Code", systemImage: "square.and.arrow.up")
+                                }
+                                
+                                Divider()
+                            }
+                            
                             Button {
                                 if text.count > 3000 {
                                     showExceededLimitAlert = true
@@ -134,9 +142,6 @@ struct Home: View {
                                 }
                             } label: {
                                 Label("Save to History", systemImage: "clock.arrow.circlepath")
-                            }
-                            ShareLink(item: Image(uiImage: qrCodeImage), preview: SharePreview(text, image: Image(uiImage: qrCodeImage))) {
-                                Label("Share QR Code", systemImage: "square.and.arrow.up")
                             }
                         }
                     }
