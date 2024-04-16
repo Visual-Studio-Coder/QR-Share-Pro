@@ -60,10 +60,10 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @MainActor func didDetectQRCode(string: String) {
         if string.isValidURL(), let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
             guard url != URL(string: lastDetectedString!) else { return }
-            
+            lastDetectedString = string
+            self.detectedString = string
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             
-            lastDetectedString = url.absoluteString
             let sanitizedURL = url.absoluteString.removeTrackers()
             
             URLSession.shared.dataTask(with: URL(string: sanitizedURL)!.prettify()) { (data, response, error) in
