@@ -15,6 +15,8 @@ func showImageShareSheet(image: UIImage) {
 struct History: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
+    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
+    
     @State private var editMode = false
     
     @State private var searchText = ""
@@ -209,17 +211,19 @@ struct History: View {
                                         } label: {
                                             HStack {
                                                 if i.text.isValidURL() {
-                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
-                                                        i
-                                                            .interpolation(.none)
-                                                            .resizable()
-                                                            .aspectRatio(1, contentMode: .fit)
-                                                            .frame(width: 50, height: 50)
-                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                    } placeholder: {
-                                                        ProgressView()
-                                                            .controlSize(.large)
-                                                            .frame(width: 50, height: 50)
+                                                    if showWebsiteFavicons {
+                                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                            i
+                                                                .interpolation(.none)
+                                                                .resizable()
+                                                                .aspectRatio(1, contentMode: .fit)
+                                                                .frame(width: 50, height: 50)
+                                                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                        } placeholder: {
+                                                            ProgressView()
+                                                                .controlSize(.large)
+                                                                .frame(width: 50, height: 50)
+                                                        }
                                                     }
                                                 } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                                     Image(systemName: "link.circle.fill")
@@ -391,17 +395,19 @@ struct History: View {
                                     } label: {
                                         HStack {
                                             if i.text.isValidURL() {
-                                                AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
-                                                    i
-                                                        .interpolation(.none)
-                                                        .resizable()
-                                                        .aspectRatio(1, contentMode: .fit)
-                                                        .frame(width: 50, height: 50)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                                } placeholder: {
-                                                    ProgressView()
-                                                        .controlSize(.large)
-                                                        .frame(width: 50, height: 50)
+                                                if showWebsiteFavicons {
+                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                        i
+                                                            .interpolation(.none)
+                                                            .resizable()
+                                                            .aspectRatio(1, contentMode: .fit)
+                                                            .frame(width: 50, height: 50)
+                                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                    } placeholder: {
+                                                        ProgressView()
+                                                            .controlSize(.large)
+                                                            .frame(width: 50, height: 50)
+                                                    }
                                                 }
                                             } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                                 Image(systemName: "link.circle.fill")

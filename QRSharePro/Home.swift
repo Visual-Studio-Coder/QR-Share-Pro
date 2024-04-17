@@ -7,6 +7,8 @@ struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
+    
+    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
 
     @State private var showingAboutAppSheet = false
     @State private var text = ""
@@ -317,17 +319,17 @@ struct Home: View {
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                         .shadow(color: .accentColor, radius: 5)
-
+                                    
                                     VStack(alignment: .leading) {
                                         Text("QR Share Pro")
                                             .bold()
-
+                                        
                                         Text("Version \(appVersion)")
                                             .foregroundStyle(.secondary)
                                     }
-
+                                    
                                     Spacer()
-
+                                    
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.title)
                                         .bold()
@@ -335,7 +337,7 @@ struct Home: View {
                                 }
                                 .tint(.primary)
                             }
-
+                            
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
                                     UIApplication.shared.open(url)
@@ -349,7 +351,7 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-
+                            
                             Button {
                                 requestReview()
                             } label: {
@@ -362,7 +364,7 @@ struct Home: View {
                             }
                             .tint(.primary)
                         }
-
+                        
                         Section("App Icon & Theme") {
                             ForEach(allIcons) { i in
                                 Button {
@@ -373,64 +375,28 @@ struct Home: View {
                                         Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
                                             .font(.title2)
                                             .tint(.accentColor)
-
+                                        
                                         Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                                             .resizable()
                                             .frame(width: 50, height: 50)
                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                             .shadow(radius: 50)
-
+                                        
                                         Text(i.iconName)
                                             .tint(.primary)
                                     }
                                 }
                             }
                         }
-
-                        Section("Credits") {
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                VStack {
-                                    HStack {
-                                        Label("Vaibhav Satishkumar", systemImage: "person")
-                                        Spacer()
-                                        Image(systemName: "arrow.up.right")
-                                            .tint(.secondary)
-                                    }
-                                }
+                        
+                        Section {
+                            Toggle(isOn: $showWebsiteFavicons) {
+                                Label("Show Website Favicons", systemImage: "info.square")
                             }
-                            .tint(.primary)
-
-                            Button {
-                                if let url = URL(string: "https://aaronhma.com") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Aaron Ma", systemImage: "person")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/graphs/contributors") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("See All Contributors", systemImage: "person.3")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
+                        } header: {
+                            Text("Website Favicons")
+                        } footer: {
+                            Text("Website favicons are privately queried through DuckDuckGo.")
                         }
 
                         Section("Product Improvement") {
@@ -469,6 +435,52 @@ struct Home: View {
                             } label: {
                                 HStack {
                                     Label("Report a Bug", systemImage: "ladybug")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+                        }
+                        
+                        Section("Credits") {
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                VStack {
+                                    HStack {
+                                        Label("Vaibhav Satishkumar", systemImage: "person")
+                                        Spacer()
+                                        Image(systemName: "arrow.up.right")
+                                            .tint(.secondary)
+                                    }
+                                }
+                            }
+                            .tint(.primary)
+
+                            Button {
+                                if let url = URL(string: "https://aaronhma.com") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("Aaron Ma", systemImage: "person")
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .tint(.secondary)
+                                }
+                            }
+                            .tint(.primary)
+
+                            Button {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/graphs/contributors") {
+                                    UIApplication.shared.open(url)
+                                }
+                            } label: {
+                                HStack {
+                                    Label("See All Contributors", systemImage: "person.3")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)

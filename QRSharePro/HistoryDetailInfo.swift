@@ -6,6 +6,8 @@ struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
     @Environment(\.colorScheme) var colorScheme
     
+    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
+    
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
     @State private var originalText = ""
@@ -157,32 +159,34 @@ struct HistoryDetailInfo: View {
                     VStack(alignment: .leading) {
                         if qrCode.text.isValidURL() {
                             HStack {
-                                AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
-                                    i
-                                        .interpolation(.none)
-                                        .resizable()
-                                        .aspectRatio(1, contentMode: .fit)
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                } placeholder: {
-                                    ProgressView()
-                                        .controlSize(.large)
-                                        .frame(width: 50, height: 50)
-                                }
-                                .onTapGesture {
-                                    showingFullURLSheet = true
-                                }
-                                .contextMenu {
-                                    Button {
-                                        UIPasteboard.general.string = qrCode.text
-                                    } label: {
-                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                if showWebsiteFavicons {
+                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
+                                        i
+                                            .interpolation(.none)
+                                            .resizable()
+                                            .aspectRatio(1, contentMode: .fit)
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    } placeholder: {
+                                        ProgressView()
+                                            .controlSize(.large)
+                                            .frame(width: 50, height: 50)
                                     }
-                                    
-                                    Button {
+                                    .onTapGesture {
                                         showingFullURLSheet = true
-                                    } label: {
-                                        Label("Show Full URL", systemImage: "arrow.up.right")
+                                    }
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = qrCode.text
+                                        } label: {
+                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Button {
+                                            showingFullURLSheet = true
+                                        } label: {
+                                            Label("Show Full URL", systemImage: "arrow.up.right")
+                                        }
                                     }
                                 }
                                 
