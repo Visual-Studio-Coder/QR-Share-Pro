@@ -179,9 +179,9 @@ struct Home: View {
                     .padding()
                     .background(.gray.opacity(0.2))
                     .clipShape(RoundedRectangle(cornerRadius: 15))
-                    .keyboardType(.default)
+                    .keyboardType(.alphabet)
+                    .autocorrectionDisabled(true)
                     .autocapitalization(.none)
-                    .autocorrectionDisabled()
                     .onChange(of: text) { newValue in
                         generateQRCode(from: newValue)
 
@@ -268,6 +268,10 @@ struct Home: View {
             .onAppear {
                 generateQRCode(from: "QR Share Pro")
             }
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
+            .scrollDismissesKeyboard(.interactively)
             .alert("We need permission to save this QR code to your photo library.", isPresented: $showPermissionsError) {
                 Button("Open Settings", role: .cancel) {
                     if let settingsURL = URL(string: UIApplication.openSettingsURLString),

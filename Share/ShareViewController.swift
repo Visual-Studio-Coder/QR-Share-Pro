@@ -190,7 +190,7 @@ struct ShareView: View {
                 receivedText = sharedText
                 if let qrImage = generateQRCode(from: sharedText) {
                     qrCodeImage = qrImage
-                    let newCode = QRCode(text: receivedText, originalURL: "", qrCode: qrCodeImage?.pngData())
+                    let newCode = QRCode(text: receivedText, originalURL: receivedText, qrCode: qrCodeImage?.pngData())
                     
                     if let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare") {
                         let decoder = JSONDecoder()
