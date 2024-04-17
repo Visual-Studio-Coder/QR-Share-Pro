@@ -7,7 +7,7 @@ struct HistoryDetailInfo: View {
     @Environment(\.colorScheme) var colorScheme
     
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
-
+    
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
     @State private var originalText = ""
@@ -733,6 +733,10 @@ struct HistoryDetailInfo: View {
                     Button("Cancel") {
                         if qrCode.text != originalText {
                             showingResetConfirmation = true
+                        } else {
+                            withAnimation {
+                                isEditing = false
+                            }
                         }
                     }
                 }
