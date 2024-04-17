@@ -99,7 +99,11 @@ struct QRScanner: UIViewControllerRepresentable {
 
 struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
+    
+    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
+    
     private let monitor = NetworkMonitor()
+    
     @State private var showingFullTextSheet = false
     @State private var showingCameraError = !Permission.camera.authorized
     
@@ -185,14 +189,16 @@ struct Scanner: View {
                                 } label: {
                                     HStack {
                                         if let host = url.host {
-                                            AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                                image
-                                                    .interpolation(.none)
-                                                    .resizable()
-                                            } placeholder: {
-                                                ProgressView()
+                                            if showWebsiteFavicons {
+                                                AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                    image
+                                                        .interpolation(.none)
+                                                        .resizable()
+                                                } placeholder: {
+                                                    ProgressView()
+                                                }
+                                                .frame(width: 16, height: 16)
                                             }
-                                            .frame(width: 16, height: 16)
                                         }
                                         
                                         Text(url.absoluteString)
