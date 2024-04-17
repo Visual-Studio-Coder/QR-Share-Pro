@@ -10,6 +10,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var qrCodeImage: UIImage?
     @Published var qrCode: QRCode
     
+    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
+    
     var qrCodeStore: QRCodeStore
     
     func save() throws {
@@ -62,7 +64,10 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
             self.detectedString = string
-            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            
+            if playHaptics {
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            }
             
             let sanitizedURL = url.absoluteString.removeTrackers()
             
@@ -107,7 +112,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         } else if UIApplication.shared.canOpenURL(URL(string: string)!){
             guard string != lastDetectedString else { return }
             
-            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            if playHaptics {
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            }
             
             generateQRCode(from: string)
             
@@ -142,7 +149,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         } else {
             guard string != lastDetectedString else { return }
             
-            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            if playHaptics {
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            }
             
             generateQRCode(from: string)
             

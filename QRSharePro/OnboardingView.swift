@@ -8,6 +8,7 @@ struct OnboardingView: View {
     @Environment(\.scenePhase) var scenePhase
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
+    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
     
     @State private var showingPrivacySheet = false
     @State private var showingTabView = true
@@ -60,8 +61,10 @@ struct OnboardingView: View {
                             }
                         }
                         .onChange(of: selection) { tab in
-                            let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
-                            hapticGenerator.impactOccurred()
+                            if playHaptics {
+                                let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+                                hapticGenerator.impactOccurred()
+                            }
                         }
                         .onAppear {
                             Task {
