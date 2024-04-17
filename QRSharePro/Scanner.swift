@@ -149,24 +149,22 @@ struct Scanner: View {
                     Label("Location", systemImage: "location")
                         .bold()
                     
-                    Text("You'll be able to see where you scanned QR codes. This is done 100% offline, with Apple Maps used to show your location on a map.")
+                    Text("You'll be able to see where you scanned QR codes. Apple Maps displays the saved coordinates onto a map.")
                         .padding(.horizontal, 50)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 50)
                         .foregroundStyle(.secondary)
                     
-                    Label("We don't track you.", systemImage: "checkmark.shield")
-                    
                     Button {
                         UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
                     } label: {
                         Text("Open Settings")
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                            .background(Color.accentColor)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .bold()
                     }
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .bold()
                     .padding(.horizontal)
                     
                     Spacer()

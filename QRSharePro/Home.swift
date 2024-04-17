@@ -19,6 +19,7 @@ struct Home: View {
     @State private var showHistorySavedAlert = false
     @State private var showPermissionsError = false
     @State private var qrCodeImage: UIImage = UIImage()
+    @State private var showingClearFaviconsConfirmation = false
     @State private var animatedText = ""
 
     let fullText = "Start typing to\ngenerate a QR code..."
@@ -409,10 +410,24 @@ struct Home: View {
                             Toggle(isOn: $showWebsiteFavicons) {
                                 Label("Show Website Favicons", systemImage: "info.square")
                             }
+                            .onChange(of: showWebsiteFavicons) { state in
+                                if !state {
+                                    showingClearFaviconsConfirmation = true
+                                }
+                            }
                         } header: {
                             Text("Website Favicons")
                         } footer: {
                             Text("Website favicons are privately queried through DuckDuckGo.")
+                        }
+                        .alert("Are you sure you'd like to stop seeing website favicons? This will delete all currently cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
+                            Button("Hide Website Favicons", role: .destructive) {
+                                    URLCache.shared.removeAllCachedResponses()
+                            }
+                            
+                            Button("Cancel", role: .cancel) {
+                                showWebsiteFavicons = true
+                            }
                         }
 
                         Section("Product Improvement") {
