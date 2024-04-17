@@ -5,7 +5,6 @@ import CoreImage.CIFilterBuiltins
 import MobileCoreServices
 import UniformTypeIdentifiers
 import ColorfulX
-import Photos
 
 class ShareViewController: UIViewController {
     var hostingView: UIHostingController<ShareView>!
@@ -31,20 +30,26 @@ class ShareViewController: UIViewController {
 @MainActor
 struct ShareView: View {
     var qrCodeStore = QRCodeStore()
-    var extensionContext: NSExtensionContext?
     
     @State private var qrCodeImage: UIImage?
+    var extensionContext: NSExtensionContext?
     @State private var isBackgroundVisible = false
     @State private var receivedText: String = ""
     @State private var showAlert = false
-    @State private var showPermissionsError = false
     @State private var colors: [Color] = [.gray, .orange, .yellow, .green, .blue, .white, .purple, .pink, .gray, .white]
+    
+    var shareLabel: String {
+        if URL(string: receivedText) != nil {
+            return "Share URL"
+        } else {
+            return "Share Plaintext"
+        }
+    }
     
     var body: some View {
         ZStack {
             ColorfulView(color: $colors)
                 .ignoresSafeArea()
-            
             if let qrCodeImage = qrCodeImage {
                 VStack {
                     Image(uiImage: qrCodeImage)
@@ -53,7 +58,6 @@ struct ShareView: View {
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(16)
-                    
                     Button(action: {
                         dismiss()
                         let generator = UIImpactFeedbackGenerator(style: .light)
@@ -83,22 +87,15 @@ struct ShareView: View {
                             let ciImage = CIImage(cgImage: qrCodeImage.cgImage!)
                             let context = CIContext()
                             if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
-                                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                    if status == .denied {
-                                        showPermissionsError = true
-                                    } else {
-                                        let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .up)
-                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                        showAlert = true
-                                    }
-                                }
+                                let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .up)
+                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                showAlert = true
                             }
                         }) {
                             HStack {
                                 Spacer()
                                 Image(systemName: "square.and.arrow.down")
                                     .font(.system(size: 20))
-                                Text("Save")
                                 Spacer()
                             }
                             .frame(height: 60)
@@ -109,8 +106,6 @@ struct ShareView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .alert(isPresented: $showAlert) {
                             Alert(title: Text("Saved!"), message: Text("The QR code has been saved to your photos."), dismissButton: .default(Text("OK")))
-                        }
-                        .alert("We need permission to save this QR code to your photo library. Open Settings > QR Share, then enable \"Add Photos Only\".", isPresented: $showPermissionsError) {
                         }
                         Button(action: {
                             let ciImage = CIImage(cgImage: qrCodeImage.cgImage!)
@@ -131,7 +126,19 @@ struct ShareView: View {
                                 Spacer()
                                 Image(systemName: "printer")
                                     .font(.system(size: 20))
-                                Text("Print")
+                                Spacer()
+                            }
+                            .frame(height: 60)
+                            .padding(.horizontal)
+                            .background(.ultraThinMaterial)
+                            .foregroundStyle(.white)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        ShareLink(item: Image(uiImage: qrCodeImage), preview: SharePreview(receivedText, image: Image(uiImage: qrCodeImage))) {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 20))
                                 Spacer()
                             }
                             .frame(height: 60)
@@ -141,8 +148,7 @@ struct ShareView: View {
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .padding(.horizontal, 16)
-                    .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                    .padding(.horizontal, 16)      .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
                         if inProgress {
                             let generator = UIImpactFeedbackGenerator(style: .soft)
                             generator.impactOccurred()
@@ -180,14 +186,11 @@ struct ShareView: View {
             withAnimation(.easeIn(duration: 2.0)) {
                 isBackgroundVisible = true
             }
-            
             loadSharedText { sharedText in
-                let originalURL = sharedText
                 receivedText = sharedText
-                
-                if let qrImage = generateQRCode(from: receivedText) {
+                if let qrImage = generateQRCode(from: sharedText) {
                     qrCodeImage = qrImage
-                    let newCode = QRCode(text: receivedText, originalURL: originalURL, qrCode: qrCodeImage?.pngData())
+                    let newCode = QRCode(text: receivedText, originalURL: "", qrCode: qrCodeImage?.pngData())
                     
                     if let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare") {
                         let decoder = JSONDecoder()
