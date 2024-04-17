@@ -183,6 +183,16 @@ struct HistoryDetailInfo: View {
                                         }
                                         
                                         Button {
+                                            if let url = URL(string: qrCode.text) {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Label("Open URL", systemImage: "safari")
+                                        }
+                                        
+                                        Divider()
+                                        
+                                        Button {
                                             showingFullURLSheet = true
                                         } label: {
                                             Label("Show Full URL", systemImage: "arrow.up.right")
@@ -200,6 +210,16 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy URL", systemImage: "doc.on.doc")
                                         }
+                                        
+                                        Button {
+                                            if let url = URL(string: qrCode.text) {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Label("Open URL", systemImage: "safari")
+                                        }
+                                        
+                                        Divider()
                                         
                                         Button {
                                             showingFullURLSheet = true
@@ -251,6 +271,16 @@ struct HistoryDetailInfo: View {
                                     }
                                     
                                     Button {
+                                        if let url = URL(string: qrCode.text) {
+                                            UIApplication.shared.open(url)
+                                        }
+                                    } label: {
+                                        Label("Open URL", systemImage: "safari")
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button {
                                         showingFullURLSheet = true
                                     } label: {
                                         Label("Show Full URL", systemImage: "arrow.up.right")
@@ -299,6 +329,14 @@ struct HistoryDetailInfo: View {
                                                     } label: {
                                                         Label("Copy URL", systemImage: "doc.on.doc")
                                                     }
+                                                    
+                                                    Button {
+                                                        if let url = URL(string: qrCode.text) {
+                                                            UIApplication.shared.open(url)
+                                                        }
+                                                    } label: {
+                                                        Label("Open URL", systemImage: "safari")
+                                                    }
                                                 } label: {
                                                     Text(qrCode.text)
                                                         .foregroundStyle(.primary)
@@ -309,6 +347,14 @@ struct HistoryDetailInfo: View {
                                                         UIPasteboard.general.string = qrCode.text
                                                     } label: {
                                                         Label("Copy URL", systemImage: "doc.on.doc")
+                                                    }
+                                                    
+                                                    Button {
+                                                        if let url = URL(string: qrCode.text) {
+                                                            UIApplication.shared.open(url)
+                                                        }
+                                                    } label: {
+                                                        Label("Open URL", systemImage: "safari")
                                                     }
                                                 }
                                             } header: {
@@ -344,6 +390,14 @@ struct HistoryDetailInfo: View {
                                                 } label: {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
                                                 }
+                                                
+                                                Button {
+                                                    if let url = URL(string: qrCode.originalURL) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                } label: {
+                                                    Label("Open URL", systemImage: "safari")
+                                                }
                                             } label: {
                                                 Text(qrCode.originalURL)
                                             }
@@ -353,6 +407,14 @@ struct HistoryDetailInfo: View {
                                                     UIPasteboard.general.string = qrCode.originalURL
                                                 } label: {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
+                                                }
+                                                
+                                                Button {
+                                                    if let url = URL(string: qrCode.originalURL) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                } label: {
+                                                    Label("Open URL", systemImage: "safari")
                                                 }
                                             }
                                         } header: {
@@ -388,15 +450,24 @@ struct HistoryDetailInfo: View {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text
                                         } label: {
-                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                            Label("Copy Deep Link", systemImage: "doc.on.doc")
                                         }
+                                        
+                                        Button {
+                                            if let url = URL(string: qrCode.text) {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Label("Open Deep Link", systemImage: "safari")
+                                        }
+                                        
+                                        Divider()
                                         
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
                                             Label("Show Full URL", systemImage: "arrow.up.right")
-                                        }
-                                    }
+                                        }                                    }
                                 
                                 Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
                                     .font(.largeTitle)
@@ -406,8 +477,18 @@ struct HistoryDetailInfo: View {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text
                                         } label: {
-                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                            Label("Copy Deep Link", systemImage: "doc.on.doc")
                                         }
+                                        
+                                        Button {
+                                            if let url = URL(string: qrCode.text) {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Label("Open Deep Link", systemImage: "safari")
+                                        }
+                                        
+                                        Divider()
                                         
                                         Button {
                                             showingFullURLSheet = true
@@ -426,7 +507,7 @@ struct HistoryDetailInfo: View {
                                         UIApplication.shared.open(url)
                                     }
                                 } label: {
-                                    Label("Open", systemImage: "link.circle.fill")
+                                    Label("Open", systemImage: "link")
                                         .padding(8)
                                         .foregroundStyle(.white)
                                         .background(Color.accentColor)
@@ -455,8 +536,18 @@ struct HistoryDetailInfo: View {
                                     Button {
                                         UIPasteboard.general.string = qrCode.text
                                     } label: {
-                                        Label("Copy URL", systemImage: "doc.on.doc")
+                                        Label("Copy Deep Link", systemImage: "doc.on.doc")
                                     }
+                                    
+                                    Button {
+                                        if let url = URL(string: qrCode.text) {
+                                            UIApplication.shared.open(url)
+                                        }
+                                    } label: {
+                                        Label("Open Deep Link", systemImage: "safari")
+                                    }
+                                    
+                                    Divider()
                                     
                                     Button {
                                         showingFullURLSheet = true
@@ -475,7 +566,7 @@ struct HistoryDetailInfo: View {
                                                     UIApplication.shared.open(url)
                                                 }
                                             } label: {
-                                                Label("Open Deep Link", systemImage: "link.circle.fill")
+                                                Label("Open Deep Link", systemImage: "link")
                                                     .foregroundStyle(accentColorManager.accentColor)
                                             }
                                         }
@@ -498,14 +589,40 @@ struct HistoryDetailInfo: View {
                                                 }
                                             }
                                             
-                                            Text(qrCode.text)
-                                                .contextMenu {
-                                                    Button {
-                                                        UIPasteboard.general.string = qrCode.originalURL
-                                                    } label: {
-                                                        Label("Copy Deep Link", systemImage: "doc.on.doc")
-                                                    }
+                                            Menu {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.text
+                                                } label: {
+                                                    Label("Copy Deep Link", systemImage: "doc.on.doc")
                                                 }
+                                                
+                                                Button {
+                                                    if let url = URL(string: qrCode.text) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                } label: {
+                                                    Label("Open Deep Link", systemImage: "link")
+                                                }
+                                            } label: {
+                                                Text(qrCode.text)
+                                                    .foregroundStyle(.primary)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                            .contextMenu {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.text
+                                                } label: {
+                                                    Label("Copy Deep Link", systemImage: "doc.on.doc")
+                                                }
+                                                
+                                                Button {
+                                                    if let url = URL(string: qrCode.text) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                } label: {
+                                                    Label("Open Deep Link", systemImage: "link")
+                                                }
+                                            }
                                         } header: {
                                             Text("Deep Link")
                                         }
@@ -538,6 +655,8 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy Text", systemImage: "doc.on.doc")
                                         }
+                                        
+                                        Divider()
                                         
                                         Button {
                                             showingAllTextSheet = true
@@ -586,14 +705,24 @@ struct HistoryDetailInfo: View {
                                                 }
                                             }
                                             
-                                            Text(qrCode.text)
-                                                .contextMenu {
-                                                    Button {
-                                                        UIPasteboard.general.string = qrCode.text
-                                                    } label: {
-                                                        Label("Copy Text", systemImage: "doc.on.doc")
-                                                    }
+                                            Menu {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.text
+                                                } label: {
+                                                    Label("Copy Text", systemImage: "doc.on.doc")
                                                 }
+                                            } label: {
+                                                Text(qrCode.text)
+                                                    .foregroundStyle(.primary)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                            .contextMenu {
+                                                Button {
+                                                    UIPasteboard.general.string = qrCode.text
+                                                } label: {
+                                                    Label("Copy Text", systemImage: "doc.on.doc")
+                                                }
+                                            }
                                         } footer: {
                                             Text(qrCode.text.count == 1 ? "1 character" : "\(qrCode.text.count) characters")
                                         }
