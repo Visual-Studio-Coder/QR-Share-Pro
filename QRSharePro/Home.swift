@@ -9,8 +9,9 @@ struct Home: View {
     @Environment(\.requestReview) var requestReview
     
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
+    @AppStorage("useScannerHaptics") private var useScannerHaptics = UseScannerHaptics.useScannerHaptics
 
-    @State private var showingAboutAppSheet = false
+    @State private var showingSettingsSheet = false
     @State private var text = ""
     @State private var textIsEmptyWithAnimation = true
     @State private var showSavedAlert = false
@@ -289,7 +290,6 @@ struct Home: View {
             }
             .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
             }
-
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     let qrCodeImage = Image(uiImage: qrCodeImage)
@@ -302,16 +302,16 @@ struct Home: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showingAboutAppSheet = true
+                        showingSettingsSheet = true
                     } label: {
-                        Label("About QR Share Pro", systemImage: "info.circle")
+                        Label("Settings", systemImage: "gearshape")
                     }
                 }
             }
-            .sheet(isPresented: $showingAboutAppSheet) {
+            .sheet(isPresented: $showingSettingsSheet) {
                 NavigationStack {
                     List {
-                        Section {
+                        Section("About QR Share Pro") {
                             ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
                                 HStack {
                                     Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
@@ -387,6 +387,16 @@ struct Home: View {
                                     }
                                 }
                             }
+                        }
+                        
+                        Section {
+                            Toggle(isOn: $useScannerHaptics) {
+                                Label("Enable Scanner Haptics", systemImage: "wave.3.right")
+                            }
+                        } header: {
+                            Text("Scanner Settings")
+                        } footer: {
+                            Text("Location & scanned QR codes are stored on-device. Apple Maps displays the saved coordinates onto a map.")
                         }
                         
                         Section {
@@ -490,12 +500,12 @@ struct Home: View {
                         }
                     }
                     .accentColor(accentColorManager.accentColor)
-                    .navigationBarTitle("About QR Share Pro")
+                    .navigationBarTitle("Settings")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
-                                showingAboutAppSheet = false
+                                showingSettingsSheet = false
                             } label: {
                                 Text("Done")
                                     .tint(accentColorManager.accentColor)
