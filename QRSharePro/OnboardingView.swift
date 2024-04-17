@@ -187,7 +187,7 @@ struct OnboardingView: View {
                                 .sheet(isPresented: $showingPrivacySheet) {
                                     NavigationStack {
                                         List {
-                                            Section("Last updated: April 9, 2024") {
+                                            Section("Last updated: April 17, 2024") {
                                                 Label("We don't collect anything.", systemImage: "1.circle")
                                                 Label("QR Share Pro stores all data on-device.", systemImage: "2.circle")
                                                 Label("Website favicons are queried through DuckDuckGo.", systemImage: "3.circle")

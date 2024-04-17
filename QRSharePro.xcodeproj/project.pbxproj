@@ -44,6 +44,7 @@
 		8BDF6FF02BCF614600AEF579 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BDF6FEF2BCF614600AEF579 /* ColorfulX */; };
 		8BDF6FF22BCF614D00AEF579 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BDF6FF12BCF614D00AEF579 /* ColorfulX */; };
 		8BDF6FF42BD051D500AEF579 /* ShowWebsiteFavicons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BDF6FF32BD051D500AEF579 /* ShowWebsiteFavicons.swift */; };
+		8BDF6FFA2BD0865100AEF579 /* UseScannerHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BDF6FF92BD0865100AEF579 /* UseScannerHaptics.swift */; };
 		8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */; };
 		8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC26B2BACE80C00423449 /* Storage.swift */; };
 /* End PBXBuildFile section */
@@ -120,6 +121,7 @@
 		8BB6E1682B99575C0094D652 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		8BB6E16A2B99575C0094D652 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8BDF6FF32BD051D500AEF579 /* ShowWebsiteFavicons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowWebsiteFavicons.swift; sourceTree = "<group>"; };
+		8BDF6FF92BD0865100AEF579 /* UseScannerHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseScannerHaptics.swift; sourceTree = "<group>"; };
 		8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		8BFDC26B2BACE80C00423449 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -220,6 +222,7 @@
 				8B0C94402BBDDF23009EC3E3 /* AppIcon.swift */,
 				8B0C94452BBDDF9C009EC3E3 /* ScanLocation.swift */,
 				8BDF6FF32BD051D500AEF579 /* ShowWebsiteFavicons.swift */,
+				8BDF6FF92BD0865100AEF579 /* UseScannerHaptics.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -380,6 +383,7 @@
 				8B0C94332BBDDCDC009EC3E3 /* UIColor+encode.swift in Sources */,
 				8B0C94412BBDDF23009EC3E3 /* AppIcon.swift in Sources */,
 				8BA2748E2BB26FA100EF9631 /* HistoryDetailInfo.swift in Sources */,
+				8BDF6FFA2BD0865100AEF579 /* UseScannerHaptics.swift in Sources */,
 				8B0C94312BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift in Sources */,
 				8B0C942F2BBDDC73009EC3E3 /* View+splashView.swift in Sources */,
 				78F2F2412B91677000CDF3EC /* QRShareProApp.swift in Sources */,
