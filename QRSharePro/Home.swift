@@ -366,7 +366,7 @@ struct Home: View {
                                     UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
                                 } label: {
                                     HStack {
-                                        Image(systemName: i.iconURL == UserDefaults.standard.string(forKey: "appIcon") ? "checkmark.circle.fill" : "circle")
+                                        Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
                                             .font(.title2)
                                             .tint(.accentColor)
                                         
