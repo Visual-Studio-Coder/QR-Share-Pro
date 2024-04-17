@@ -221,7 +221,7 @@ struct History: View {
                                                             .controlSize(.large)
                                                             .frame(width: 50, height: 50)
                                                     }
-                                                } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                                } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                                     Image(systemName: "link.circle.fill")
                                                         .resizable()
                                                         .aspectRatio(1, contentMode: .fit)
@@ -260,7 +260,7 @@ struct History: View {
                                                 } label: {
                                                     Label("Open URL", systemImage: "safari")
                                                 }
-                                            } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                                 Button {
                                                     if let url = URL(string: i.text) {
                                                         UIApplication.shared.open(url)
@@ -275,8 +275,8 @@ struct History: View {
                                             } label: {
                                                 if i.text.isValidURL() {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
-                                                } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
-                                                    Label("Copy Deep Link", systemImage: "doc.on.doc")
+                                                } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                                    Label("Copy Deeplink", systemImage: "doc.on.doc")
                                                 } else {
                                                     Label("Copy Text", systemImage: "doc.on.doc")
                                                 }
@@ -311,7 +311,7 @@ struct History: View {
                                                 } label: {
                                                     Label("Share URL", systemImage: "square.and.arrow.up")
                                                 }
-                                            } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                                 Button {
                                                     showShareSheet(url: URL(string: i.text)!)
                                                 } label: {
@@ -403,7 +403,7 @@ struct History: View {
                                                         .controlSize(.large)
                                                         .frame(width: 50, height: 50)
                                                 }
-                                            } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                                 Image(systemName: "link.circle.fill")
                                                     .resizable()
                                                     .aspectRatio(1, contentMode: .fit)
@@ -442,7 +442,7 @@ struct History: View {
                                             } label: {
                                                 Label("Open URL", systemImage: "safari")
                                             }
-                                        } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                        } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                             Button {
                                                 if let url = URL(string: i.text) {
                                                     UIApplication.shared.open(url)
@@ -457,8 +457,8 @@ struct History: View {
                                         } label: {
                                             if i.text.isValidURL() {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
-                                            } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
-                                                Label("Copy Deep Link", systemImage: "doc.on.doc")
+                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                                Label("Copy Deeplink", systemImage: "doc.on.doc")
                                             } else {
                                                 Label("Copy Text", systemImage: "doc.on.doc")
                                             }
@@ -493,7 +493,7 @@ struct History: View {
                                             } label: {
                                                 Label("Share URL", systemImage: "square.and.arrow.up")
                                             }
-                                        } else if UIApplication.shared.canOpenURL(URL(string: i.text)!) {
+                                        } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
                                             Button {
                                                 showShareSheet(url: URL(string: i.text)!)
                                             } label: {
