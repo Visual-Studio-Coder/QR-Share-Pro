@@ -370,7 +370,7 @@ struct HistoryDetailInfo: View {
                                 }
                                 .presentationDetents([.medium, .large])
                             }
-                        } else if UIApplication.shared.canOpenURL(URL(string: qrCode.text)!){
+                        } else if let url = URL(string: qrCode.text), UIApplication.shared.canOpenURL(url) {
                             HStack {
                                 Image(systemName: "link.circle.fill")
                                     .resizable()
