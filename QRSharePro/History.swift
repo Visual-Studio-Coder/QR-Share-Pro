@@ -575,13 +575,15 @@ struct History: View {
                                     Text(x.count == 1 ? "1 URL" : "\(x.count) URLs")
                                 } else if searchTag == "Text" {
                                     Text(x.count == 1 ? "1 QR Code Found" : "\(x.count) QR Codes Found")
+                                } else if searchTag == "Deep Link" {
+                                    Text(x.count == 1 ? "1 Deep Link Found" : "\(x.count) Deep Links Found")
                                 } else {
                                     Text(x.count == 1 ? "1 QR Code" : "\(x.count) QR Codes")
                                 }
                             }
                         }
                     }
-                    .searchable(text: $searchText, prompt: "Search History")
+                    .searchable(text: $searchText, prompt: searchTag == "All" ? "Search History" : (searchTag == "Text" ? "Search QR Codes" : (searchTag == "URL" ? "Search URLs" : "Search Deep Links")))
                 }
             }
             .environment(\.editMode, Binding(get: { editMode ? .active : .inactive }, set: { editMode = ($0 == .active) }))
