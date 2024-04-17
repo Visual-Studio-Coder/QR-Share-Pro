@@ -9,7 +9,7 @@ struct Home: View {
     @Environment(\.requestReview) var requestReview
     
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
-    @AppStorage("useScannerHaptics") private var useScannerHaptics = UseScannerHaptics.useScannerHaptics
+    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
 
     @State private var showingSettingsSheet = false
     @State private var text = ""
@@ -159,7 +159,9 @@ struct Home: View {
 
                                     if animatedText.count < fullText.count {
                                         animatedText.append(fullText[fullText.index(fullText.startIndex, offsetBy: animatedText.count)])
-                                        hapticGenerator.impactOccurred()
+                                        if playHaptics {
+                                            hapticGenerator.impactOccurred()
+                                        }
                                     } else {
                                         timer.upstream.connect().cancel()
                                     }
@@ -390,13 +392,17 @@ struct Home: View {
                         }
                         
                         Section {
-                            Toggle(isOn: $useScannerHaptics) {
-                                Label("Enable Scanner Haptics", systemImage: "wave.3.right")
+                            Toggle(isOn: $playHaptics.animation()) {
+                                Label("Play Haptics", systemImage: "wave.3.right")
                             }
                         } header: {
-                            Text("Scanner Settings")
+                            Text("Haptics")
                         } footer: {
-                            Text("Location & scanned QR codes are stored on-device. Apple Maps displays the saved coordinates onto a map.")
+                            if !playHaptics {
+                                Text("Some system haptics will still be played. To disable all haptics, open **Settings > Sounds & Haptics**.")
+                            } else {
+                                Text("Haptics will play when available.")
+                            }
                         }
                         
                         Section {
