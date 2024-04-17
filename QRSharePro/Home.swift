@@ -7,7 +7,7 @@ struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
-    
+
     @State private var showingAboutAppSheet = false
     @State private var text = ""
     @State private var textIsEmptyWithAnimation = true
@@ -17,16 +17,16 @@ struct Home: View {
     @State private var showPermissionsError = false
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var animatedText = ""
-    
+
     let fullText = "Start typing to\ngenerate a QR code..."
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
-    
+
     @FocusState private var isFocused
-    
+
     @ObservedObject var accentColorManager = AccentColorManager.shared
-    
+
     private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue (Default)"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal Green"), AppIcon(iconURL: "AppIcon3", iconName: "Holographic Pink")]
-    
+
     private func changeColor(to iconName: String) {
         switch iconName {
         case "AppIcon2":
@@ -37,44 +37,44 @@ struct Home: View {
             AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
         }
     }
-    
+
     private func changeAppIcon(to iconURL: String) {
         let iconName = iconURL == "AppIcon" ? nil : iconURL
-        
+
         UIApplication.shared.setAlternateIconName(iconName) { error in
             if let error = error {
                 print(error.localizedDescription)
             }
         }
-        
+
         changeColor(to: iconName ?? "AppIcon")
     }
-    
+
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
-    
+
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
-    
+
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
-        
+
         if let qrCode = filter.outputImage {
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledQrCode = qrCode.transformed(by: transform)
-            
+
             if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
     }
-    
+
     var appVersion: String {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
     }
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -89,10 +89,10 @@ struct Home: View {
                                 ShareLink(item: Image(uiImage: qrCodeImage), preview: SharePreview(text, image: Image(uiImage: qrCodeImage))) {
                                     Label("Share QR Code", systemImage: "square.and.arrow.up")
                                 }
-                                
+
                                 Divider()
                             }
-                            
+
                             Button {
                                 if text.count > 3000 {
                                     showExceededLimitAlert = true
@@ -103,10 +103,10 @@ struct Home: View {
                                         } else {
                                             UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                                             showSavedAlert = true
-                                            
+
                                             let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                                             qrCodeStore.history.append(newCode)
-                                            
+
                                             Task {
                                                 do {
                                                     try await save()
@@ -114,7 +114,7 @@ struct Home: View {
                                                     print(error.localizedDescription)
                                                 }
                                             }
-                                            
+
                                             showHistorySavedAlert = true
                                         }
                                     }
@@ -122,14 +122,14 @@ struct Home: View {
                             } label: {
                                 Label("Save to Photos", systemImage: "square.and.arrow.down")
                             }
-                            
+
                             Button {
                                 if text.count > 3000 {
                                     showExceededLimitAlert = true
                                 } else {
                                     let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                                     qrCodeStore.history.append(newCode)
-                                    
+
                                     Task {
                                         do {
                                             try await save()
@@ -137,7 +137,7 @@ struct Home: View {
                                             print(error.localizedDescription)
                                         }
                                     }
-                                    
+
                                     showHistorySavedAlert = true
                                 }
                             } label: {
@@ -153,7 +153,7 @@ struct Home: View {
                                 .bold()
                                 .onReceive(timer) { _ in
                                     let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
-                                    
+
                                     if animatedText.count < fullText.count {
                                         animatedText.append(fullText[fullText.index(fullText.startIndex, offsetBy: animatedText.count)])
                                         hapticGenerator.impactOccurred()
@@ -163,17 +163,17 @@ struct Home: View {
                                 }
                         }
                     }
-                
+
                 HStack {
                     Spacer()
-                    
+
                     Text("\(text.count)/3000 characters")
                         .foregroundStyle(text.count > 3000 ? .red : .secondary)
                         .bold()
                 }
                 .padding(.top, 3)
                 .padding(.trailing)
-                
+
                 TextField("Create your own QR code...", text: $text)
                     .focused($isFocused)
                     .padding()
@@ -184,7 +184,7 @@ struct Home: View {
                     .autocorrectionDisabled()
                     .onChange(of: text) { newValue in
                         generateQRCode(from: newValue)
-                        
+
                         withAnimation {
                             textIsEmptyWithAnimation = newValue.isEmpty
                         }
@@ -194,14 +194,14 @@ struct Home: View {
                     }
                     .onSubmit {
                         isFocused = false
-                        
+
                         if text.count > 3000 {
                             showExceededLimitAlert = true
                         }
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 5)
-                
+
                 Menu {
                     Button {
                         if text.count > 3000 {
@@ -213,10 +213,10 @@ struct Home: View {
                                 } else {
                                     UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
                                     showSavedAlert = true
-                                    
+
                                     let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                                     qrCodeStore.history.append(newCode)
-                                    
+
                                     Task {
                                         do {
                                             try await save()
@@ -230,14 +230,14 @@ struct Home: View {
                     } label: {
                         Label("Save to Photos", systemImage: "square.and.arrow.down")
                     }
-                    
+
                     Button {
                         if text.count > 3000 {
                             showExceededLimitAlert = true
                         } else {
                             let newCode = QRCode(text: text, originalURL: text, qrCode: qrCodeImage.pngData())
                             qrCodeStore.history.append(newCode)
-                            
+
                             Task {
                                 do {
                                     try await save()
@@ -245,7 +245,7 @@ struct Home: View {
                                     print(error.localizedDescription)
                                 }
                             }
-                            
+
                             showHistorySavedAlert = true
                         }
                     } label: {
@@ -283,17 +283,17 @@ struct Home: View {
             }
             .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
             }
-            
+
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     let qrCodeImage = Image(uiImage: qrCodeImage)
-                    
+
                     ShareLink(item: qrCodeImage, preview: SharePreview(text, image: qrCodeImage)) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                     .disabled(text.isEmpty)
                 }
-                
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAboutAppSheet = true
@@ -313,17 +313,17 @@ struct Home: View {
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                         .shadow(color: .accentColor, radius: 5)
-                                    
+
                                     VStack(alignment: .leading) {
                                         Text("QR Share Pro")
                                             .bold()
-                                        
+
                                         Text("Version \(appVersion)")
                                             .foregroundStyle(.secondary)
                                     }
-                                    
+
                                     Spacer()
-                                    
+
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.title)
                                         .bold()
@@ -331,7 +331,7 @@ struct Home: View {
                                 }
                                 .tint(.primary)
                             }
-                            
+
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
                                     UIApplication.shared.open(url)
@@ -345,7 +345,7 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
+
                             Button {
                                 requestReview()
                             } label: {
@@ -358,7 +358,7 @@ struct Home: View {
                             }
                             .tint(.primary)
                         }
-                        
+
                         Section("App Icon & Theme") {
                             ForEach(allIcons) { i in
                                 Button {
@@ -369,20 +369,20 @@ struct Home: View {
                                         Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
                                             .font(.title2)
                                             .tint(.accentColor)
-                                        
+
                                         Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                                             .resizable()
                                             .frame(width: 50, height: 50)
                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                             .shadow(radius: 50)
-                                        
+
                                         Text(i.iconName)
                                             .tint(.primary)
                                     }
                                 }
                             }
                         }
-                        
+
                         Section("Credits") {
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
@@ -399,7 +399,7 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
+
                             Button {
                                 if let url = URL(string: "https://aaronhma.com") {
                                     UIApplication.shared.open(url)
@@ -413,7 +413,7 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
+
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/graphs/contributors") {
                                     UIApplication.shared.open(url)
@@ -428,7 +428,7 @@ struct Home: View {
                             }
                             .tint(.primary)
                         }
-                        
+
                         Section("Product Improvement") {
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=") {
@@ -443,9 +443,9 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
+
                             Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro") {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/pulls") {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
@@ -457,7 +457,7 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
+
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=") {
                                     UIApplication.shared.open(url)
@@ -485,7 +485,7 @@ struct Home: View {
                                     .tint(accentColorManager.accentColor)
                             }
                         }
-                        
+
                         ToolbarItemGroup(placement: .keyboard) {
                             Button("Clear") {
                                 text = ""
@@ -512,7 +512,7 @@ struct Home: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-        
+
         Home()
             .environmentObject(qrCodeStore)
     }
