@@ -885,58 +885,38 @@ struct HistoryDetailInfo: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .destructive) {
-                        showingDeleteConfirmation = true
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
+                Button(role: .destructive) {
+                    showingDeleteConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        if qrCode.text.count > 3000 {
-                            showExceededLimitAlert = true
-                        } else {
-                            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                                if status == .denied {
-                                    showPermissionsError = true
-                                } else {
-                                    UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
-                                    showSavedAlert = true
-                                }
-                            }
-                        }
-                    } label: {
-                        Label("Save to Photos", systemImage: "square.and.arrow.down")
-                    }
-                    .disabled(qrCode.text.isEmpty)
-                    
-                    Button {
-                        if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
-                            withAnimation {
-                                qrCodeStore.history[idx].pinned.toggle()
-                                qrCode.pinned.toggle()
-                                
-                                Task {
-                                    do {
-                                        try await save()
-                                    } catch {
-                                        print(error.localizedDescription)
+                if !isEditing {
+                    Menu {
+                        Button {
+                            if qrCode.text.count > 3000 {
+                                showExceededLimitAlert = true
+                            } else {
+                                PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                                    if status == .denied {
+                                        showPermissionsError = true
+                                    } else {
+                                        UIImageWriteToSavedPhotosAlbum(qrCodeImage, nil, nil, nil)
+                                        showSavedAlert = true
                                     }
                                 }
                             }
+                        } label: {
+                            Label("Save to Photos", systemImage: "square.and.arrow.down")
                         }
-                    } label: {
-                        Label(qrCode.pinned ? "Unpin" : "Pin", systemImage: qrCode.pinned ? "pin.slash.fill" : "pin")
-                    }
-                    
-                    Button {
-                        withAnimation {
-                            if isEditing {
-                                if qrCode.text != originalText, let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
-                                    qrCode.date = Date.now
-                                    qrCode.wasEdited = true
-                                    qrCodeStore.history[idx] = qrCode
+                        .disabled(qrCode.text.isEmpty)
+                        
+                        Button {
+                            if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                                withAnimation {
+                                    qrCodeStore.history[idx].pinned.toggle()
+                                    qrCode.pinned.toggle()
                                     
                                     Task {
                                         do {
@@ -947,15 +927,43 @@ struct HistoryDetailInfo: View {
                                     }
                                 }
                             }
-                            
-                            isEditing.toggle()
+                        } label: {
+                            Label(qrCode.pinned ? "Unpin" : "Pin", systemImage: qrCode.pinned ? "pin.slash.fill" : "pin")
                         }
+                        
+                        Button {
+                            withAnimation {
+                                if isEditing {
+                                    if qrCode.text != originalText, let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
+                                        qrCode.date = Date.now
+                                        qrCode.wasEdited = true
+                                        qrCodeStore.history[idx] = qrCode
+                                        
+                                        Task {
+                                            do {
+                                                try await save()
+                                            } catch {
+                                                print(error.localizedDescription)
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                isEditing.toggle()
+                            }
+                        } label: {
+                            Label(isEditing ? "Done": "Edit", systemImage: isEditing ? "checkmark" : "pencil")
+                        }
+                        .disabled(qrCode.text.isEmpty)
                     } label: {
-                        Text(isEditing ? "Done" : "Edit")
+                        Label("More", systemImage: "ellipsis.circle")
                     }
-                    .disabled(qrCode.text.isEmpty)
-                } label: {
-                    Label("More", systemImage: "ellipsis.circle")
+                } else {
+                    Button {
+                        isEditing.toggle()
+                    } label: {
+                        Text("Done")
+                    }
                 }
             }
         }
