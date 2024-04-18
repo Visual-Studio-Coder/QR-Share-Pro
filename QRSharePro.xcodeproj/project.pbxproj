@@ -41,6 +41,7 @@
 		8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E1652B99575C0094D652 /* ShareViewController.swift */; };
 		8BB6E1692B99575C0094D652 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1682B99575C0094D652 /* Base */; };
 		8BB6E16D2B99575C0094D652 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BB6E1632B99575C0094D652 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8BC402F32BD0B578006A026F /* LaunchTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC402F22BD0B578006A026F /* LaunchTab.swift */; };
 		8BDF6FF02BCF614600AEF579 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BDF6FEF2BCF614600AEF579 /* ColorfulX */; };
 		8BDF6FF22BCF614D00AEF579 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BDF6FF12BCF614D00AEF579 /* ColorfulX */; };
 		8BDF6FF42BD051D500AEF579 /* ShowWebsiteFavicons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BDF6FF32BD051D500AEF579 /* ShowWebsiteFavicons.swift */; };
@@ -120,6 +121,7 @@
 		8BB6E1652B99575C0094D652 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		8BB6E1682B99575C0094D652 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		8BB6E16A2B99575C0094D652 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8BC402F22BD0B578006A026F /* LaunchTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchTab.swift; sourceTree = "<group>"; };
 		8BDF6FF32BD051D500AEF579 /* ShowWebsiteFavicons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowWebsiteFavicons.swift; sourceTree = "<group>"; };
 		8BDF6FFB2BD0900900AEF579 /* PlayHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayHaptics.swift; sourceTree = "<group>"; };
 		8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				8B0C94452BBDDF9C009EC3E3 /* ScanLocation.swift */,
 				8BDF6FF32BD051D500AEF579 /* ShowWebsiteFavicons.swift */,
 				8BDF6FFB2BD0900900AEF579 /* PlayHaptics.swift */,
+				8BC402F22BD0B578006A026F /* LaunchTab.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -378,6 +381,7 @@
 				8B0C944C2BBDE0C0009EC3E3 /* VisualEffectView.swift in Sources */,
 				8B0C944F2BBDFFE2009EC3E3 /* String+isValidURL.swift in Sources */,
 				8B2EE4B62B981066001C7997 /* Home.swift in Sources */,
+				8BC402F32BD0B578006A026F /* LaunchTab.swift in Sources */,
 				8BB42EF82B9EB9FC00CE3DC6 /* Scanner.swift in Sources */,
 				8B255E792BC39C79008BE876 /* URL+prettify.swift in Sources */,
 				8B0C94332BBDDCDC009EC3E3 /* UIColor+encode.swift in Sources */,
@@ -557,7 +561,7 @@
 				CODE_SIGN_ENTITLEMENTS = QRSharePro/QRSharePro.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 11;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QRSharePro/Info.plist;
@@ -576,7 +580,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -599,7 +603,7 @@
 				CODE_SIGN_ENTITLEMENTS = QRSharePro/QRSharePro.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 11;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = QRSharePro/Info.plist;
@@ -618,7 +622,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -636,7 +640,7 @@
 				CODE_SIGN_ENTITLEMENTS = Share/Share.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Share/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
@@ -648,7 +652,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare.Share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare.Share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -667,7 +671,7 @@
 				CODE_SIGN_ENTITLEMENTS = Share/Share.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SU5789R8HD;
+				DEVELOPMENT_TEAM = L3P446LNNP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Share/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QR Share";
@@ -679,7 +683,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.click.QRShare.Share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aaronhma.QRShare.Share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
