@@ -100,7 +100,7 @@ struct HistoryDetailInfo: View {
                             .padding()
                             .background(.gray.opacity(0.2))
                             .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .keyboardType(.default)
+                            .keyboardType(.alphabet)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                             .padding(.horizontal)
