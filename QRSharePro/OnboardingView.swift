@@ -9,10 +9,12 @@ struct OnboardingView: View {
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
+    @AppStorage("launchTab") private var launchTab = LaunchTab.launchTab
     
     @State private var showingPrivacySheet = false
     @State private var showingTabView = true
     @State private var completedStep1 = false
+    @State private var isQuickAction = false
     @State private var selection: Tab = .NewQRCode
     @State private var colors: [Color] = [.purple, .indigo, .pink, .orange, .red]
     @State private var currentPage = 0
@@ -37,6 +39,8 @@ struct OnboardingView: View {
     }
     
     func openURL(_ url: URL) {
+        isQuickAction = true
+        
         if url.absoluteString.contains("new") {
             selection = .NewQRCode
         } else if url.absoluteString.contains("scan") {
@@ -68,6 +72,10 @@ struct OnboardingView: View {
                         }
                         .onAppear {
                             Task {
+                                if !isQuickAction {
+                                    selection = launchTab
+                                }
+                                
                                 qrCodeStore.load()
                             }
                         }
