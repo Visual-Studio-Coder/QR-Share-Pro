@@ -10,6 +10,7 @@ struct Home: View {
 
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
+    @AppStorage("launchTab") private var launchTab = LaunchTab.launchTab
 
     @State private var showingSettingsSheet = false
     @State private var text = ""
@@ -21,6 +22,9 @@ struct Home: View {
     @State private var qrCodeImage: UIImage = UIImage()
     @State private var showingClearFaviconsConfirmation = false
     @State private var animatedText = ""
+    @State private var selectedTab = "New QR Code"
+    
+    private var allTabs = ["Scan QR Code", "New QR Code", "History"]
 
     let fullText = "Start typing to\ngenerate a QR code..."
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
@@ -273,6 +277,12 @@ struct Home: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 generateQRCode(from: "QR Share Pro")
+                
+                if launchTab == .History {
+                    selectedTab = "History"
+                } else if launchTab == .Scanner {
+                    selectedTab = "Scan QR Code"
+                }
             }
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -390,6 +400,28 @@ struct Home: View {
                                     }
                                 }
                             }
+                        }
+                        
+                        Section {
+                            Picker("Default Tab", selection: $selectedTab) {
+                                ForEach(allTabs, id: \.self) {
+                                    Text($0)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .onChange(of: selectedTab) { selected in
+                                if selected == "Scan QR Code" {
+                                    launchTab = .Scanner
+                                } else if selected == "History" {
+                                    launchTab = .History
+                                } else {
+                                    launchTab = .NewQRCode
+                                }
+                            }
+                        } header: {
+                            Text("Default Tab")
+                        } footer: {
+                            Text("This will be the tab that opens when not using a quick action.")
                         }
 
                         Section {
