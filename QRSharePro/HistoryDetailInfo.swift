@@ -838,9 +838,6 @@ struct HistoryDetailInfo: View {
         }
         .onAppear {
             Task {
-                originalText = qrCode.text
-                generateQRCode(from: qrCode.text)
-                
                 if qrCode.text.isValidURL() {
                     qrCode.text = URL(string: qrCode.text.removeTrackers())!.prettify().absoluteString
                     
@@ -850,6 +847,9 @@ struct HistoryDetailInfo: View {
                         print(error.localizedDescription)
                     }
                 }
+                
+                generateQRCode(from: qrCode.text)
+                originalText = qrCode.text
             }
         }
         .accentColor(accentColorManager.accentColor)
@@ -891,8 +891,9 @@ struct HistoryDetailInfo: View {
                     Label("Delete", systemImage: "trash")
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                if !isEditing {
+            
+            if !isEditing {
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button {
                             if qrCode.text.count > 3000 {
@@ -958,9 +959,15 @@ struct HistoryDetailInfo: View {
                     } label: {
                         Label("More", systemImage: "ellipsis.circle")
                     }
-                } else {
+                }
+            }
+            
+            if isEditing {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        isEditing.toggle()
+                        withAnimation {
+                            isEditing = false
+                        }
                     } label: {
                         Text("Done")
                     }
