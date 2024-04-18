@@ -47,15 +47,16 @@ struct History: View {
     }
     
     private func getTypeOf(type: String) -> String {
-        if type.isValidURL() {
-            return "URL"
-        } else if UIApplication.shared.canOpenURL(URL(string: type)!) {
-            return "Deep Link"
-        } else {
-            return "Text"
+        if let url = URL(string: type) {
+            if url.absoluteString.isValidURL(), type.isValidURL() {
+                return "URL"
+            } else if UIApplication.shared.canOpenURL(url) {
+                return "Deep Link"
+            }
         }
+        return "Text"
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack {
