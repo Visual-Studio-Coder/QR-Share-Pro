@@ -421,7 +421,7 @@ struct Home: View {
                         } header: {
                             Text("Default Tab")
                         } footer: {
-                            Text("This will be the tab that opens when not using a quick action.")
+                            Text("Choose the tab that appears when launching the app.")
                         }
 
                         Section {
