@@ -201,7 +201,7 @@ struct HistoryDetailInfo: View {
                                     }
                                 }
                                 
-                                Text(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
+                                Text(URL(string: qrCode.text)!.prettify().host!.replacingOccurrences(of: "www.", with: ""))
                                     .font(.largeTitle)
                                     .bold()
                                     .lineLimit(1)
@@ -424,7 +424,7 @@ struct HistoryDetailInfo: View {
                                             }
                                         }
                                     }
-                                    .navigationTitle(URL(string: qrCode.text)!.host!.replacingOccurrences(of: "www.", with: ""))
+                                    .navigationTitle(URL(string: qrCode.text)!.prettify().host!.replacingOccurrences(of: "www.", with: ""))
                                     .navigationBarTitleDisplayMode(.inline)
                                     .toolbar {
                                         ToolbarItem(placement: .topBarTrailing) {
