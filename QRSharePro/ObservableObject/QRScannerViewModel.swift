@@ -10,8 +10,6 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @Published var qrCodeImage: UIImage?
     @Published var qrCode: QRCode
     
-    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
-    
     var qrCodeStore: QRCodeStore
     
     func save() throws {
@@ -64,14 +62,14 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
             self.detectedString = string
-            
-            if playHaptics {
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            }
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             
             let sanitizedURL = url.absoluteString.removeTrackers()
             
-            URLSession.shared.dataTask(with: URL(string: sanitizedURL)!.prettify()) { (data, response, error) in
+            let configuration = URLSessionConfiguration.ephemeral
+            let session = URLSession(configuration: configuration)
+            
+            session.dataTask(with: URL(string: sanitizedURL)!) { (data, response, error) in
                 // prevent maliciously crafted qr codes + actually check we visited the page
                 guard error == nil else { return }
                 guard let response = response else { return }
@@ -90,11 +88,11 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                         print("Could not get user location.")
                     }
                     
-                    let newCode = QRCode(text: finalURL.prettify().absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                    let newCode = QRCode(text: finalURL.absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                     
                     self.qrCodeStore.history.append(newCode)
                     
-                    self.detectedString = finalURL.prettify().absoluteString
+                    self.detectedString = finalURL.absoluteString
                     
                     Task {
                         do {
@@ -106,15 +104,13 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     }
                     
                     userLocation = [] // re-write user's location in memory
-                    self.unshortenedURL = finalURL.prettify()
+                    self.unshortenedURL = finalURL
                 }
             }.resume()
         } else if UIApplication.shared.canOpenURL(URL(string: string)!){
             guard string != lastDetectedString else { return }
             
-            if playHaptics {
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            }
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             
             generateQRCode(from: string)
             
@@ -149,9 +145,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         } else {
             guard string != lastDetectedString else { return }
             
-            if playHaptics {
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            }
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             
             generateQRCode(from: string)
             
