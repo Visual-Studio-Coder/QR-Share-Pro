@@ -100,7 +100,7 @@ struct HistoryDetailInfo: View {
                             .padding()
                             .background(.gray.opacity(0.2))
                             .clipShape(RoundedRectangle(cornerRadius: 15))
-                            .keyboardType(.webSearch)
+                            .keyboardType(.default)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
                             .padding(.horizontal)
@@ -128,6 +128,7 @@ struct HistoryDetailInfo: View {
                             .alert("You'll need to remove \(qrCode.text.count - 3000) characters first!", isPresented: $showExceededLimitAlert) {
                             }
                     }
+                    .scrollDismissesKeyboard(.interactively)
                 }
                 .onTapGesture {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
