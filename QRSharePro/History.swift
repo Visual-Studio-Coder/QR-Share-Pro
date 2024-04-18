@@ -54,6 +54,7 @@ struct History: View {
                 return "Deep Link"
             }
         }
+        
         return "Text"
     }
 
