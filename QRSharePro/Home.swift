@@ -7,7 +7,7 @@ struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
-    
+
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
 
@@ -322,17 +322,17 @@ struct Home: View {
                                         .frame(width: 50, height: 50)
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                         .shadow(color: .accentColor, radius: 5)
-                                    
+
                                     VStack(alignment: .leading) {
                                         Text("QR Share Pro")
                                             .bold()
-                                        
+
                                         Text("Version \(appVersion)")
                                             .foregroundStyle(.secondary)
                                     }
-                                    
+
                                     Spacer()
-                                    
+
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.title)
                                         .bold()
@@ -340,7 +340,7 @@ struct Home: View {
                                 }
                                 .tint(.primary)
                             }
-                            
+
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
                                     UIApplication.shared.open(url)
@@ -354,7 +354,7 @@ struct Home: View {
                                 }
                             }
                             .tint(.primary)
-                            
+
                             Button {
                                 requestReview()
                             } label: {
@@ -367,7 +367,7 @@ struct Home: View {
                             }
                             .tint(.primary)
                         }
-                        
+
                         Section("App Icon & Theme") {
                             ForEach(allIcons) { i in
                                 Button {
@@ -378,20 +378,20 @@ struct Home: View {
                                         Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
                                             .font(.title2)
                                             .tint(.accentColor)
-                                        
+
                                         Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                                             .resizable()
                                             .frame(width: 50, height: 50)
                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                             .shadow(radius: 50)
-                                        
+
                                         Text(i.iconName)
                                             .tint(.primary)
                                     }
                                 }
                             }
                         }
-                        
+
                         Section {
                             Toggle(isOn: $playHaptics.animation()) {
                                 Label("Play Haptics", systemImage: "wave.3.right")
@@ -405,7 +405,7 @@ struct Home: View {
                                 Text("Haptics will play when available.")
                             }
                         }
-                        
+
                         Section {
                             Toggle(isOn: $showWebsiteFavicons) {
                                 Label("Show Website Favicons", systemImage: "info.square")
@@ -424,7 +424,7 @@ struct Home: View {
                             Button("Hide Website Favicons", role: .destructive) {
                                     URLCache.shared.removeAllCachedResponses()
                             }
-                            
+
                             Button("Cancel", role: .cancel) {
                                 showWebsiteFavicons = true
                             }
@@ -446,7 +446,7 @@ struct Home: View {
                             .tint(.primary)
 
                             Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/pulls") {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/CONTRIBUTING.md") {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
@@ -473,7 +473,7 @@ struct Home: View {
                             }
                             .tint(.primary)
                         }
-                        
+
                         Section("Credits") {
                             Button {
                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
