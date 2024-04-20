@@ -13,7 +13,7 @@ class RedirectHandler: NSObject, URLSessionTaskDelegate {
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
-    
+    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
     @Published var unshortenedURL: URL?
     @Published var detectedString: String?
     
@@ -94,7 +94,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
             self.detectedString = string
-            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            if playHaptics {
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            }
             
             let sanitizedURL = url.absoluteString.removeTrackers()
             
