@@ -292,7 +292,6 @@ struct Scanner: View {
                             } label: {
                                 HStack {
                                     Text("**No QR Code Detected**\nPlease upload a different image.")
-                                        .foregroundStyle(Color.black)
                                     Image(systemName: "rectangle.portrait.on.rectangle.portrait.slash")
                                 }
                             }
