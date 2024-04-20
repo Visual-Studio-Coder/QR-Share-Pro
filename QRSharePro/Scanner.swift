@@ -2,6 +2,7 @@ import SwiftUI
 import AVFoundation
 import PermissionsKit
 import CameraPermission
+import UIKit
 
 class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var captureSession = AVCaptureSession()
@@ -75,6 +76,39 @@ protocol QRScannerControllerDelegate: AnyObject {
     func didDetectQRCode(string: String)
 }
 
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImage: UIImage?
+    @Environment(\.presentationMode) private var presentationMode
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        var parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.selectedImage = image
+            }
+            
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
 struct QRScanner: UIViewControllerRepresentable {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
     
@@ -107,143 +141,159 @@ struct Scanner: View {
     @State private var showingFullTextSheet = false
     @State private var isFlashlightOn = false
     @State private var showingCameraError = !Permission.camera.authorized
+    @State private var isImagePickerPresented = false
+    @State private var selectedImage: UIImage?
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            if !monitor.isActive {
-                Label("Offline", systemImage: "network.slash")
-                    .tint(.primary)
-                    .padding(.bottom, 25)
-            }
-
-            if showingCameraError {
-                VStack {
-                    Spacer()
-                    
-                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
-                        .resizable()
-                        .frame(width: 150, height: 150)
-                        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-                        .accessibilityHidden(true)
-                        .shadow(color: .accentColor, radius: 15)
-                        .padding(.top, 20)
-                    
-                    Text("QR Share Pro")
-                        .font(.largeTitle)
-                        .foregroundStyle(Color.accentColor)
-                        .bold()
-                    
-                    Text("is requesting:")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .padding(.bottom, 20)
-                    
-                    Label("Camera", systemImage: "camera")
-                        .bold()
-                    
-                    Text("Your camera is used to scan QR codes. This is done 100% offline.")
-                        .padding(.horizontal, 50)
-                        .multilineTextAlignment(.center)
-                        .padding(.bottom, 50)
-                        .foregroundStyle(.secondary)
-                    
-                    Label("Location", systemImage: "location")
-                        .bold()
-                    
-                    Text("You'll be able to see where you scanned QR codes. Apple Maps displays the saved coordinates onto a map.")
-                        .padding(.horizontal, 50)
-                        .multilineTextAlignment(.center)
-                        .padding(.bottom, 50)
-                        .foregroundStyle(.secondary)
-                    
-                    Button {
-                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
-                    } label: {
-                        Text("Open Settings")
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .background(Color.accentColor)
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .bold()
-                    }
-                    .padding(.horizontal)
-                    
-                    Spacer()
-                }
-            } else {
-                QRScanner(viewModel: viewModel)
+            if let image  = selectedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .overlay(
+                        Button {
+                            selectedImage = nil
+                            viewModel.clear()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.white)
+                        }
+                            .frame(width: 60, height: 60)
+                            .background(VisualEffectView(effect: UIBlurEffect(style: .prominent)).overlay(Color.accentColor.opacity(0.1)))
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .padding(), alignment: .topTrailing
+                    )
                     .onAppear {
-                        viewModel.startScanning()
+                        viewModel.scanImage(image)
                     }
-                    .onDisappear {
-                        viewModel.stopScanning()
-                    }
-                
                 VStack {
-                    if let string = viewModel.detectedString {
-                        if string.isValidURL(), let url = URL(string: string) {
-                            HStack {
+                        if let string = viewModel.detectedString {
+                            if string.isValidURL(), let url = URL(string: string) {
+                                HStack {
+                                    Button {
+                                        UIApplication.shared.open(url)
+                                    } label: {
+                                        HStack {
+                                            if viewModel.isLoading {
+                                                ProgressView()
+                                                    .frame(width: 16, height: 16)
+                                            } else {
+                                                if let host = url.host {
+                                                    if showWebsiteFavicons {
+                                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                            image
+                                                                .interpolation(.none)
+                                                                .resizable()
+                                                        } placeholder: {
+                                                            ProgressView()
+                                                        }
+                                                        .frame(width: 16, height: 16)
+                                                    }
+                                                }
+                                            }
+                                            
+                                            Text(url.absoluteString)
+                                                .lineLimit(2)
+                                        }
+                                    }
+                                    .foregroundStyle(.blue)
+                                    
+                                    if viewModel.lastDetectedString != url.absoluteString {
+                                        Menu {
+                                            Section {
+                                                if let originalURL = viewModel.lastDetectedString {
+                                                    Button {
+                                                        UIApplication.shared.open(URL(string: originalURL)!)
+                                                    } label: {
+                                                        Text("\(originalURL)")
+                                                            .foregroundStyle(.blue)
+                                                            .lineLimit(5)
+                                                    }
+                                                }
+                                            } header: {
+                                                Text("Original URL")
+                                            }
+                                        } label: {
+                                            Image(systemName: "checkmark.shield.fill")
+                                                .foregroundStyle(.green)
+                                        }
+                                    }
+                                }
+                                .padding()
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                            } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
                                 Button {
-                                    UIApplication.shared.open(url)
+                                    UIApplication.shared.open(URL(string: string)! as URL)
                                 } label: {
                                     HStack {
-                                        if viewModel.isLoading {
-                                            ProgressView()
-                                                .frame(width: 16, height: 16)
-                                        } else {
-                                            if let host = url.host {
-                                                if showWebsiteFavicons {
-                                                    AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                                        image
-                                                            .interpolation(.none)
-                                                            .resizable()
-                                                    } placeholder: {
-                                                        ProgressView()
-                                                    }
-                                                    .frame(width: 16, height: 16)
-                                                }
-                                            }
-                                        }
-                                        
-                                        Text(url.absoluteString)
-                                            .lineLimit(2)
+                                        Image(systemName: "link.circle.fill")
+                                        Text(string)
+                                            .lineLimit(3)
+                                            .foregroundStyle(.blue)
                                     }
                                 }
-                                .foregroundStyle(.blue)
-                                
-                                if viewModel.lastDetectedString != url.absoluteString {
-                                    Menu {
+                                .buttonStyle(PlainButtonStyle())
+                                .padding()
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                            }
+                            else {
+                                Button {
+                                    showingFullTextSheet = true
+                                } label: {
+                                    HStack {
+                                        Text(string)
+                                            .lineLimit(3)
+                                            .foregroundStyle(Color.accentColor)
+                                        Image(systemName: "arrow.up.right")
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding()
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .sheet(isPresented: $showingFullTextSheet) {
+                                    List {
                                         Section {
-                                            if let originalURL = viewModel.lastDetectedString {
-                                                Button {
-                                                    UIApplication.shared.open(URL(string: originalURL)!)
-                                                } label: {
-                                                    Text("\(originalURL)")
-                                                        .foregroundStyle(.blue)
-                                                        .lineLimit(5)
-                                                }
+                                            Button {
+                                                UIPasteboard.general.string = string
+                                            } label: {
+                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                                    .tint(Color.accentColor)
                                             }
-                                        } header: {
-                                            Text("Original URL")
+                                            
+                                            Text(string)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = string
+                                                    } label: {
+                                                        Label("Copy Text", systemImage: "doc.on.doc")
+                                                    }
+                                                }
+                                        } footer: {
+                                            Text(string.count == 1 ? "1 character" : "\(string.count) characters")
                                         }
-                                    } label: {
-                                        Image(systemName: "checkmark.shield.fill")
-                                            .foregroundStyle(.green)
+                                    }
+                                    .navigationTitle(string)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingFullTextSheet = false
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            .padding()
-                            .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                        } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+                        } else {
                             Button {
-                                UIApplication.shared.open(URL(string: string)! as URL)
+                                //do nothing ig
                             } label: {
                                 HStack {
-                                    Image(systemName: "link.circle.fill")
-                                    Text(string)
-                                        .lineLimit(3)
-                                        .foregroundStyle(.blue)
+                                    Text("No QR Code Detected in this Image:\nPlease upload a different image.")
+                                        .foregroundStyle(Color.accentColor)
+                                    Image(systemName: "rectangle.portrait.on.rectangle.portrait.slash")
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -251,57 +301,207 @@ struct Scanner: View {
                             .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                         }
-                        else {
-                            Button {
-                                showingFullTextSheet = true
-                            } label: {
+                    }
+                    .padding()
+            } else {
+                if !monitor.isActive {
+                    Label("Offline", systemImage: "network.slash")
+                        .tint(.primary)
+                        .padding(.bottom, 25)
+                }
+                
+                if showingCameraError {
+                    VStack {
+                        Spacer()
+                        
+                        Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
+                            .resizable()
+                            .frame(width: 150, height: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                            .accessibilityHidden(true)
+                            .shadow(color: .accentColor, radius: 15)
+                            .padding(.top, 20)
+                        
+                        Text("QR Share Pro")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color.accentColor)
+                            .bold()
+                        
+                        Text("is requesting:")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .padding(.bottom, 20)
+                        
+                        Label("Camera", systemImage: "camera")
+                            .bold()
+                        
+                        Text("Your camera is used to scan QR codes. This is done 100% offline.")
+                            .padding(.horizontal, 50)
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom, 50)
+                            .foregroundStyle(.secondary)
+                        
+                        Label("Location", systemImage: "location")
+                            .bold()
+                        
+                        Text("You'll be able to see where you scanned QR codes. Apple Maps displays the saved coordinates onto a map.")
+                            .padding(.horizontal, 50)
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom, 50)
+                            .foregroundStyle(.secondary)
+                        
+                        Button {
+                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
+                        } label: {
+                            Text("Open Settings")
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(Color.accentColor)
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .bold()
+                        }
+                        .padding(.horizontal)
+                        
+                        Spacer()
+                    }
+                } else {
+                    QRScanner(viewModel: viewModel)
+                        .onAppear {
+                            viewModel.startScanning()
+                        }
+                        .onDisappear {
+                            viewModel.stopScanning()
+                        }
+                    
+                    VStack {
+                        if let string = viewModel.detectedString {
+                            if string.isValidURL(), let url = URL(string: string) {
                                 HStack {
-                                    Text(string)
-                                        .lineLimit(3)
-                                        .foregroundStyle(Color.accentColor)
-                                    Image(systemName: "arrow.up.right")
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .padding()
-                            .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .sheet(isPresented: $showingFullTextSheet) {
-                                List {
-                                    Section {
-                                        Button {
-                                            UIPasteboard.general.string = string
-                                        } label: {
-                                            Label("Copy Text", systemImage: "doc.on.doc")
-                                                .tint(Color.accentColor)
-                                        }
-                                        
-                                        Text(string)
-                                            .contextMenu {
-                                                Button {
-                                                    UIPasteboard.general.string = string
-                                                } label: {
-                                                    Label("Copy Text", systemImage: "doc.on.doc")
+                                    Button {
+                                        UIApplication.shared.open(url)
+                                    } label: {
+                                        HStack {
+                                            if viewModel.isLoading {
+                                                ProgressView()
+                                                    .frame(width: 16, height: 16)
+                                            } else {
+                                                if let host = url.host {
+                                                    if showWebsiteFavicons {
+                                                        AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                            image
+                                                                .interpolation(.none)
+                                                                .resizable()
+                                                        } placeholder: {
+                                                            ProgressView()
+                                                        }
+                                                        .frame(width: 16, height: 16)
+                                                    }
                                                 }
                                             }
-                                    } footer: {
-                                        Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                            
+                                            Text(url.absoluteString)
+                                                .lineLimit(2)
+                                        }
+                                    }
+                                    .foregroundStyle(.blue)
+                                    
+                                    if viewModel.lastDetectedString != url.absoluteString {
+                                        Menu {
+                                            Section {
+                                                if let originalURL = viewModel.lastDetectedString {
+                                                    Button {
+                                                        UIApplication.shared.open(URL(string: originalURL)!)
+                                                    } label: {
+                                                        Text("\(originalURL)")
+                                                            .foregroundStyle(.blue)
+                                                            .lineLimit(5)
+                                                    }
+                                                }
+                                            } header: {
+                                                Text("Original URL")
+                                            }
+                                        } label: {
+                                            Image(systemName: "checkmark.shield.fill")
+                                                .foregroundStyle(.green)
+                                        }
                                     }
                                 }
-                                .navigationTitle(string)
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    ToolbarItem(placement: .topBarTrailing) {
-                                        Button("Done") {
-                                            showingFullTextSheet = false
+                                .padding()
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                            } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+                                Button {
+                                    UIApplication.shared.open(URL(string: string)! as URL)
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "link.circle.fill")
+                                        Text(string)
+                                            .lineLimit(3)
+                                            .foregroundStyle(.blue)
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding()
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                            }
+                            else {
+                                Button {
+                                    showingFullTextSheet = true
+                                } label: {
+                                    HStack {
+                                        Text(string)
+                                            .lineLimit(3)
+                                            .foregroundStyle(Color.accentColor)
+                                        Image(systemName: "arrow.up.right")
+                                    }
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding()
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .sheet(isPresented: $showingFullTextSheet) {
+                                    List {
+                                        Section {
+                                            Button {
+                                                UIPasteboard.general.string = string
+                                            } label: {
+                                                Label("Copy Text", systemImage: "doc.on.doc")
+                                                    .tint(Color.accentColor)
+                                            }
+                                            
+                                            Text(string)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = string
+                                                    } label: {
+                                                        Label("Copy Text", systemImage: "doc.on.doc")
+                                                    }
+                                                }
+                                        } footer: {
+                                            Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                        }
+                                    }
+                                    .navigationTitle(string)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingFullTextSheet = false
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    .padding()
                 }
-                .padding()
+            }
+        }
+        .onChange(of: selectedImage) { newImage in
+            if let newImage = newImage {
+                viewModel.scanImage(newImage)
             }
         }
         .onChange(of: Permission.camera.authorized) { change in
@@ -311,21 +511,27 @@ struct Scanner: View {
             if !showingCameraError {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
-                        toggleFlashlight()
+                        if selectedImage == nil {
+                            toggleFlashlight()
+                        }
                     }) {
                         Image(systemName: isFlashlightOn ? "flashlight.on.fill" : "flashlight.off.fill")
                     }
+                    .disabled(selectedImage != nil)
                     .foregroundStyle(isFlashlightOn ? Color.accentColor : Color.secondary)
                 }
             }
             
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: {
-                    // Implement image uploading functionality here
+                    isImagePickerPresented = true
                 }) {
                     Image(systemName: "photo.on.rectangle.angled")
                 }
             }
+        }
+        .sheet(isPresented: $isImagePickerPresented) {
+            ImagePicker(selectedImage: $selectedImage)
         }
         .navigationTitle(Text("Scan QR Code"))
         .navigationBarTitleDisplayMode(.inline)
