@@ -57,7 +57,9 @@ struct OnboardingView: View {
                     VStack {
                         VStack {
                             if selection == .Scanner {
-                                Scanner()
+                                NavigationView {
+                                    Scanner()
+                                }
                             } else if selection == .NewQRCode {
                                 Home()
                             } else {
