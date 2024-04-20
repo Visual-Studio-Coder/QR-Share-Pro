@@ -1,14 +1,24 @@
 import SwiftUI
 import AVFoundation
 
+class RedirectHandler: NSObject, URLSessionTaskDelegate {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        var request = request
+        if let url = request.url?.absoluteString.removeTrackers(), let sanitizedURL = URL(string: url) {
+            request.url = sanitizedURL
+        }
+        completionHandler(request)
+    }
+}
+
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
-    
-    @Published var unshortenedURL: URL?
+
     @Published var detectedString: String?
     
     @Published var qrCodeImage: UIImage?
     @Published var qrCode: QRCode
+    @Published var isLoading = false
     
     var qrCodeStore: QRCodeStore
     
@@ -59,6 +69,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     
     @MainActor func didDetectQRCode(string: String) {
         if string.isValidURL(), let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
+            self.isLoading = true
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
             self.detectedString = string
@@ -104,7 +115,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     }
                     
                     userLocation = [] // re-write user's location in memory
-                    self.unshortenedURL = finalURL
+                    self.isLoading = false
                 }
             }.resume()
         } else if UIApplication.shared.canOpenURL(URL(string: string)!){
