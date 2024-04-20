@@ -15,7 +15,7 @@ func showImageShareSheet(image: UIImage) {
 struct History: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     
-    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
+    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     
     @State private var editMode = false
     
@@ -57,7 +57,7 @@ struct History: View {
         
         return "Text"
     }
-
+    
     var body: some View {
         NavigationStack {
             VStack {
