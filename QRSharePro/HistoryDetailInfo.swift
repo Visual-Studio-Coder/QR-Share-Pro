@@ -361,7 +361,7 @@ struct HistoryDetailInfo: View {
                                             } header: {
                                                 Text("Sanitized URL")
                                             } footer: {
-                                                Text("QR Share Pro removes tracking parameters from links so you can browse privately.")
+                                                Text("QR Share Pro removes tracking parameters from links and finds the final redirect of every URL, so you can feel safe clicking on links.")
                                             }
                                         }
                                         
