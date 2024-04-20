@@ -13,7 +13,8 @@ class RedirectHandler: NSObject, URLSessionTaskDelegate {
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
-
+    
+    @Published var unshortenedURL: URL?
     @Published var detectedString: String?
     
     @Published var qrCodeImage: UIImage?
@@ -115,6 +116,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     }
                     
                     userLocation = [] // re-write user's location in memory
+                    self.unshortenedURL = finalURL
                     self.isLoading = false
                 }
             }.resume()
