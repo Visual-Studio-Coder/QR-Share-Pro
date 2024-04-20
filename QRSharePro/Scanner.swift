@@ -156,11 +156,11 @@ struct Scanner: View {
                             viewModel.clear()
                         } label: {
                             Image(systemName: "xmark")
-                                .foregroundColor(.white)
+                                .foregroundColor(.blue)
                         }
                             .frame(width: 60, height: 60)
                             .background(VisualEffectView(effect: UIBlurEffect(style: .prominent)).overlay(Color.accentColor.opacity(0.1)))
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
                             .padding(), alignment: .topTrailing
                     )
                     .onAppear {
@@ -220,7 +220,7 @@ struct Scanner: View {
                                     }
                                 }
                                 .padding()
-                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                             } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
                                 Button {
@@ -235,7 +235,7 @@ struct Scanner: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding()
-                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                             }
                             else {
@@ -251,7 +251,7 @@ struct Scanner: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding()
-                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .sheet(isPresented: $showingFullTextSheet) {
                                     List {
@@ -291,14 +291,14 @@ struct Scanner: View {
                                 //do nothing ig
                             } label: {
                                 HStack {
-                                    Text("No QR Code Detected in this Image:\nPlease upload a different image.")
+                                    Text("**No QR Code Detected**\nPlease upload a different image.")
                                         .foregroundStyle(Color.accentColor)
                                     Image(systemName: "rectangle.portrait.on.rectangle.portrait.slash")
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
                             .padding()
-                            .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                            .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                         }
                     }
@@ -427,7 +427,7 @@ struct Scanner: View {
                                     }
                                 }
                                 .padding()
-                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                             } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
                                 Button {
@@ -442,7 +442,7 @@ struct Scanner: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding()
-                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                             }
                             else {
@@ -458,7 +458,7 @@ struct Scanner: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding()
-                                .background(VisualEffectView(effect: UIBlurEffect(style: .dark)).overlay(Color.accentColor.opacity(0.1)))
+                                .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .sheet(isPresented: $showingFullTextSheet) {
                                     List {
@@ -501,11 +501,9 @@ struct Scanner: View {
         }
         .onChange(of: selectedImage) { newImage in
             if let newImage = newImage {
+                viewModel.clear()
                 viewModel.scanImage(newImage)
             }
-        }
-        .onChange(of: Permission.camera.authorized) { change in
-            showingCameraError = !change
         }
         .toolbar {
             if !showingCameraError {
