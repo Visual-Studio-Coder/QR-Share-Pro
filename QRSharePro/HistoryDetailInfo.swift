@@ -6,7 +6,7 @@ struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
     @Environment(\.colorScheme) var colorScheme
     
-    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = ShowWebsiteFavicons.showWebsiteFavicons
+    @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     
     @EnvironmentObject var qrCodeStore: QRCodeStore
     

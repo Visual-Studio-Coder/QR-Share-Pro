@@ -8,8 +8,8 @@ struct OnboardingView: View {
     @Environment(\.scenePhase) var scenePhase
     
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
-    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
-    @AppStorage("launchTab") private var launchTab = LaunchTab.launchTab
+    @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
+    @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
     
     @State private var showingPrivacySheet = false
     @State private var showingTabView = true
