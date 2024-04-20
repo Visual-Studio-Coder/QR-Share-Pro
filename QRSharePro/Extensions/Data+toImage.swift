@@ -5,6 +5,7 @@ extension Data {
         guard let uiImage = UIImage(data: self) else {
             return nil
         }
+        
         return Image(uiImage: uiImage)
     }
     

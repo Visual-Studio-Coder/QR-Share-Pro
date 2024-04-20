@@ -13,7 +13,7 @@ class RedirectHandler: NSObject, URLSessionTaskDelegate {
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
-    @AppStorage("playHaptics") private var playHaptics = PlayHaptics.playHaptics
+    @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @Published var unshortenedURL: URL?
     @Published var detectedString: String?
     
