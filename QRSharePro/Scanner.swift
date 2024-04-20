@@ -105,6 +105,7 @@ struct Scanner: View {
     private let monitor = NetworkMonitor()
     
     @State private var showingFullTextSheet = false
+    @State private var isFlashlightOn = false
     @State private var showingCameraError = !Permission.camera.authorized
     
     var body: some View {
@@ -186,16 +187,21 @@ struct Scanner: View {
                                     UIApplication.shared.open(url)
                                 } label: {
                                     HStack {
-                                        if let host = url.host {
-                                            if showWebsiteFavicons {
-                                                AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
-                                                    image
-                                                        .interpolation(.none)
-                                                        .resizable()
-                                                } placeholder: {
-                                                    ProgressView()
-                                                }
+                                        if viewModel.isLoading {
+                                            ProgressView()
                                                 .frame(width: 16, height: 16)
+                                        } else {
+                                            if let host = url.host {
+                                                if showWebsiteFavicons {
+                                                    AsyncImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico")) { image in
+                                                        image
+                                                            .interpolation(.none)
+                                                            .resizable()
+                                                    } placeholder: {
+                                                        ProgressView()
+                                                    }
+                                                    .frame(width: 16, height: 16)
+                                                }
                                             }
                                         }
                                         
@@ -300,6 +306,47 @@ struct Scanner: View {
         }
         .onChange(of: Permission.camera.authorized) { change in
             showingCameraError = !change
+        }
+        .toolbar {
+            if !showingCameraError {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        toggleFlashlight()
+                    }) {
+                        Image(systemName: isFlashlightOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                    }
+                    .foregroundStyle(isFlashlightOn ? Color.accentColor : Color.secondary)
+                }
+            }
+            
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    // Implement image uploading functionality here
+                }) {
+                    Image(systemName: "photo.on.rectangle.angled")
+                }
+            }
+        }
+        .navigationTitle(Text("Scan QR Code"))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    func toggleFlashlight() {
+        guard let device = AVCaptureDevice.default(for: .video) else { return }
+        if device.hasTorch {
+            do {
+                try device.lockForConfiguration()
+                if isFlashlightOn {
+                    device.torchMode = .off
+                } else {
+                    try device.setTorchModeOn(level: AVCaptureDevice.maxAvailableTorchLevel)
+                }
+                device.unlockForConfiguration()
+                isFlashlightOn.toggle()
+            } catch {
+                print("Flashlight could not be used")
+            }
+        } else {
+            print("Flashlight is not available")
         }
     }
 }
