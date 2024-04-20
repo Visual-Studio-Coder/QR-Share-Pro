@@ -4,7 +4,7 @@ import AVFoundation
 class RedirectHandler: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         var request = request
-        if let url = request.url?.absoluteString.removeTrackers(), let sanitizedURL = URL(string: url) {
+        if let url = request.url?.absoluteString.removeTrackers(), let sanitizedURL = URL(string: url.removeTrackers()) {
             request.url = sanitizedURL
         }
         completionHandler(request)
@@ -27,6 +27,10 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
         qrCodeStore.save(history: qrCodeStore.history)
     }
     
+    @MainActor func clear() {
+        detectedString = nil
+    }
+    
     let scannerController = QRScannerController()
     
     init(qrCodeStore: QRCodeStore) {
@@ -45,6 +49,22 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     func stopScanning() {
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.stopScanning()
+        }
+    }
+    
+    @MainActor func scanImage(_ image: UIImage) {
+        guard let ciImage = CIImage(image: image) else { return }
+        
+        let context = CIContext()
+        let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        let qrDetector = CIDetector(ofType: CIDetectorTypeQRCode, context: context, options: options)
+        
+        if let features = qrDetector?.features(in: ciImage) as? [CIQRCodeFeature] {
+            for feature in features {
+                if let decodedString = feature.messageString {
+                    didDetectQRCode(string: decodedString)
+                }
+            }
         }
     }
     
@@ -104,7 +124,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     
                     self.qrCodeStore.history.append(newCode)
                     
-                    self.detectedString = finalURL.absoluteString
+                    self.detectedString = finalURL.absoluteString.removeTrackers()
                     
                     Task {
                         do {
@@ -117,7 +137,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     
                     userLocation = [] // re-write user's location in memory
                     self.unshortenedURL = finalURL
-                    self.isLoading = false
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                    }
                 }
             }.resume()
         } else if UIApplication.shared.canOpenURL(URL(string: string)!){
@@ -154,6 +176,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             
             DispatchQueue.main.async {
                 self.detectedString = string
+                self.isLoading = false
             }
         } else {
             guard string != lastDetectedString else { return }
@@ -189,6 +212,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             
             DispatchQueue.main.async {
                 self.detectedString = string
+                self.isLoading = false
             }
         }
     }
