@@ -403,25 +403,29 @@ struct Home: View {
                         }
                         
                         Section {
-                            Picker("Default Tab", selection: $selectedTab) {
-                                ForEach(allTabs, id: \.self) {
-                                    Text($0)
+                            HStack {
+                                Label("Default Tab", systemImage: "star")
+                                
+                                Picker("", selection: $selectedTab) {
+                                    ForEach(allTabs, id: \.self) {
+                                        Text($0)
+                                    }
                                 }
-                            }
-                            .pickerStyle(.menu)
-                            .onChange(of: selectedTab) { selected in
-                                if selected == "Scan QR Code" {
-                                    launchTab = .Scanner
-                                } else if selected == "History" {
-                                    launchTab = .History
-                                } else {
-                                    launchTab = .NewQRCode
+                                .pickerStyle(.menu)
+                                .onChange(of: selectedTab) { selected in
+                                    if selected == "Scan QR Code" {
+                                        launchTab = .Scanner
+                                    } else if selected == "History" {
+                                        launchTab = .History
+                                    } else {
+                                        launchTab = .NewQRCode
+                                    }
                                 }
                             }
                         } header: {
                             Text("Default Tab")
                         } footer: {
-                            Text("Choose the tab that appears when launching the app.")
+                            Text("Choose the default tab that appears upon app launch.")
                         }
 
                         Section {
@@ -450,7 +454,7 @@ struct Home: View {
                         } header: {
                             Text("Website Favicons")
                         } footer: {
-                            Text("Website favicons are privately queried through DuckDuckGo.")
+                            Text("Favicons are privately queried through DuckDuckGo.")
                         }
                         .alert("Are you sure you'd like to stop seeing website favicons? This will delete all currently cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
                             Button("Hide Website Favicons", role: .destructive) {
