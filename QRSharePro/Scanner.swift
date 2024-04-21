@@ -11,8 +11,8 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
     weak var delegate: QRScannerControllerDelegate?
     
     func requestCameraPermission() {
-        AVCaptureDevice.requestAccess(for: .video, completionHandler: {accessGranted in
-            guard accessGranted == true else { return }
+        AVCaptureDevice.requestAccess(for: .video, completionHandler: { accessGranted in
+            guard accessGranted else { return }
         })
     }
     
