@@ -407,8 +407,14 @@ struct Home: View {
                                 Label("Default Tab", systemImage: "star")
                                 
                                 Picker("", selection: $selectedTab) {
-                                    ForEach(allTabs, id: \.self) {
-                                        Text($0)
+                                    ForEach(allTabs, id: \.self) { tab in
+                                        if tab == "Scan QR Code" {
+                                            Label(" \(tab)", systemImage: "camera")
+                                        } else if tab == "History" {
+                                            Label(" \(tab)", systemImage: "clock.arrow.circlepath")
+                                        } else {
+                                            Label(" \(tab)", systemImage: "plus")
+                                        }
                                     }
                                 }
                                 .pickerStyle(.menu)
@@ -456,7 +462,7 @@ struct Home: View {
                         } footer: {
                             Text("Favicons are privately queried through DuckDuckGo.")
                         }
-                        .alert("Are you sure you'd like to stop seeing website favicons? This will delete all currently cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
+                        .alert("Are you sure you'd like to hide website favicons? This will delete all currently cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
                             Button("Hide Website Favicons", role: .destructive) {
                                 URLCache.shared.removeAllCachedResponses()
                             }
