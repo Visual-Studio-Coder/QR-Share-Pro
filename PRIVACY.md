@@ -2,7 +2,7 @@
 
 ## Last updated: April 17, 2024
 
-> **TL;DR:** We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone.
+> **TL;DR:** We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone. Everything is saved and processed on device.
 
 1. We don't collect anything.
 2. QR Share Pro stores all data on-device.
