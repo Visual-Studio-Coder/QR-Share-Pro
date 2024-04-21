@@ -1,6 +1,6 @@
 # QR Share Pro - QR codes done *right*
 
-## Created by [Aaron Ma](https://aaronhma.com/), [Vaibhav Satishkumar](https://github.com/Visual-Studio-Coder)
+## Developed by [Aaron Ma](https://aaronhma.com/), [Vaibhav Satishkumar](https://github.com/Visual-Studio-Coder)
 
 [![Download on the App Store](.github/download-app-store.svg)](https://apps.apple.com/us/app/qr-share-pro/id6479589995)
 
