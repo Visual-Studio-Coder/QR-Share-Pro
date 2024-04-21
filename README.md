@@ -1,5 +1,5 @@
 # QR Share Pro - QR codes done *right*
-https://img.shields.io/badge/Supported_OS-iOS_16-blue https://img.shields.io/badge/Cost-Free-green
+[!](https://img.shields.io/badge/Supported_OS-iOS_16-blue) [!](https://img.shields.io/badge/Cost-Free-green)
 ## Developed by [Aaron Ma](https://aaronhma.com/), [Vaibhav Satishkumar](https://github.com/Visual-Studio-Coder)
 
 [![Download on the App Store](.github/download-app-store.svg)](https://apps.apple.com/us/app/qr-share-pro/id6479589995)
