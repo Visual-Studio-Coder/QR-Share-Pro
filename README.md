@@ -4,7 +4,7 @@
 
 [![Download on the App Store](.github/download-app-store.svg)](https://apps.apple.com/us/app/qr-share-pro/id6479589995)
 
-***iPhone 8** or later running **iOS 16** or later required*
+***iPhone 8** or later running **iOS 16** or later required to download QR Share Pro*
 
 ## We 💖 Open Source
 
