@@ -1,10 +1,3 @@
-//
-//  AppSettings.swift
-//  QRSharePro
-//
-//  Created by   on 4/20/24.
-//
-
 import Foundation
 
 enum AppSettings {
