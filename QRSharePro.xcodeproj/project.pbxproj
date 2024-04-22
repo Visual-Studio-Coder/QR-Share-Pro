@@ -12,6 +12,7 @@
 		78F2F2412B91677000CDF3EC /* QRShareProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F2F2402B91677000CDF3EC /* QRShareProApp.swift */; };
 		78F2F2452B91677300CDF3EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2442B91677300CDF3EC /* Assets.xcassets */; };
 		78F2F2482B91677300CDF3EC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */; };
+		78F9D53F2BD5EF7E00C56A5B /* SpotlightNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F9D53E2BD5EF7E00C56A5B /* SpotlightNew.swift */; };
 		8B0C942D2BBDDC4A009EC3E3 /* Data+toImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C942C2BBDDC4A009EC3E3 /* Data+toImage.swift */; };
 		8B0C942F2BBDDC73009EC3E3 /* View+splashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C942E2BBDDC73009EC3E3 /* View+splashView.swift */; };
 		8B0C94312BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94302BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift */; };
@@ -90,6 +91,7 @@
 		78F2F2402B91677000CDF3EC /* QRShareProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRShareProApp.swift; sourceTree = "<group>"; };
 		78F2F2442B91677300CDF3EC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		78F9D53E2BD5EF7E00C56A5B /* SpotlightNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightNew.swift; sourceTree = "<group>"; };
 		8B0C942C2BBDDC4A009EC3E3 /* Data+toImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+toImage.swift"; sourceTree = "<group>"; };
 		8B0C942E2BBDDC73009EC3E3 /* View+splashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+splashView.swift"; sourceTree = "<group>"; };
 		8B0C94302BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+currentUIWindow.swift"; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 				8BA274932BB27A9300EF9631 /* AppDelegate.swift */,
 				8BA2748F2BB279BC00EF9631 /* SceneDelegate.swift */,
 				8BFDC26B2BACE80C00423449 /* Storage.swift */,
+				78F9D53E2BD5EF7E00C56A5B /* SpotlightNew.swift */,
 				78F2F23F2B91677000CDF3EC /* QRSharePro */,
 				8BB6E1642B99575C0094D652 /* Share */,
 				78F2F23E2B91677000CDF3EC /* Products */,
@@ -365,6 +368,7 @@
 				8BA2748C2BB26F8D00EF9631 /* History.swift in Sources */,
 				8B0C94362BBDDE1F009EC3E3 /* SplashView.swift in Sources */,
 				8B0C94442BBDDF4E009EC3E3 /* AccentColorManager.swift in Sources */,
+				78F9D53F2BD5EF7E00C56A5B /* SpotlightNew.swift in Sources */,
 				8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */,
 				8B0C942D2BBDDC4A009EC3E3 /* Data+toImage.swift in Sources */,
 				8B0C943A2BBDDE63009EC3E3 /* AsyncCachedImage.swift in Sources */,

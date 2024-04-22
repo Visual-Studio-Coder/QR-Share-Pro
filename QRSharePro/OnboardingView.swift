@@ -38,11 +38,14 @@ struct OnboardingView: View {
         }
     }
     
+    @EnvironmentObject var sharedData: SharedData
+
     func openURL(_ url: URL) {
         isQuickAction = true
         
         if url.absoluteString.contains("new") {
             selection = .NewQRCode
+            sharedData.text = url.queryParameters?["q"] ?? ""
         } else if url.absoluteString.contains("scan") {
             selection = .Scanner
         } else {
@@ -335,8 +338,19 @@ struct OnboardingView: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-        
         OnboardingView()
             .environmentObject(qrCodeStore)
+    }
+}
+
+extension URL {
+    var queryParameters: [String: String]? {
+        guard let components = URLComponents(url: self, resolvingAgainstBaseURL: true), let queryItems = components.queryItems else {
+            return nil
+        }
+        
+        return queryItems.reduce(into: [String: String]()) { (result, item) in
+            result[item.name] = item.value
+        }
     }
 }

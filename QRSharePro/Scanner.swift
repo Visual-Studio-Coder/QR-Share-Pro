@@ -512,7 +512,7 @@ struct Scanner: View {
                             toggleFlashlight()
                         }
                     }) {
-                        Image(systemName: isFlashlightOn ? "flashlight.on.fill" : "flashlight.off.fill")
+                        Image(systemName: isFlashlightOn ? "flashlight.on.fill" : "flashlight.slash")
                     }
                     .disabled(selectedImage != nil)
                     .foregroundStyle(isFlashlightOn ? Color.accentColor : Color.secondary)

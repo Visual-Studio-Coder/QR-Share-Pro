@@ -7,11 +7,13 @@ struct QRCodeApp: App {
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("appIcon") private var appIcon = "AppIcon"
     @StateObject private var qrCodeStore = QRCodeStore()
+    @StateObject var sharedData = SharedData()
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
     var body: some Scene {
         WindowGroup {
             OnboardingView()
+                .environmentObject(sharedData)
                 .accentColor(accentColorManager.accentColor)
                 .environmentObject(qrCodeStore)
                 .splashView {
