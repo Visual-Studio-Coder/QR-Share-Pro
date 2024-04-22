@@ -3,17 +3,22 @@ import CoreImage.CIFilterBuiltins
 import StoreKit
 import Photos
 
+class SharedData: ObservableObject {
+    @Published var text: String = ""
+}
+
 struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.requestReview) var requestReview
+    @EnvironmentObject var sharedData: SharedData
     
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
     
     @State private var showingSettingsSheet = false
-    @State private var text = ""
+    @State var text = ""
     @State private var textIsEmptyWithAnimation = true
     @State private var showSavedAlert = false
     @State private var showExceededLimitAlert = false
@@ -594,6 +599,9 @@ struct Home: View {
                     UIApplication.shared.sendAction(#selector(UIResponder.selectAll(_:)), to: nil, from: nil, for: nil)
                 }
             }
+        }
+        .onReceive(sharedData.$text) { newText in
+            text = newText.removingPercentEncoding ?? ""
         }
     }
 }
