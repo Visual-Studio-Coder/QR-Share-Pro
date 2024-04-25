@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7854077D2BCD913900932AA4 /* CameraPermission in Frameworks */ = {isa = PBXBuildFile; productRef = 7854077C2BCD913900932AA4 /* CameraPermission */; };
+		7861080A2BD9D0AB00C2F080 /* String+isValidURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C944E2BBDFFE2009EC3E3 /* String+isValidURL.swift */; };
 		78B575882BAD11880057A709 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC26B2BACE80C00423449 /* Storage.swift */; };
 		78F2F2412B91677000CDF3EC /* QRShareProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F2F2402B91677000CDF3EC /* QRShareProApp.swift */; };
 		78F2F2452B91677300CDF3EC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2442B91677300CDF3EC /* Assets.xcassets */; };
@@ -402,6 +403,7 @@
 			files = (
 				8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */,
 				78B575882BAD11880057A709 /* Storage.swift in Sources */,
+				7861080A2BD9D0AB00C2F080 /* String+isValidURL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
