@@ -222,7 +222,7 @@ struct Scanner: View {
                             .padding()
                             .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                             .clipShape(RoundedRectangle(cornerRadius: 20))
-                        } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+                        } else if let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
                             Button {
                                 UIApplication.shared.open(URL(string: string)! as URL)
                             } label: {
@@ -428,7 +428,7 @@ struct Scanner: View {
                                 .padding()
                                 .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
-                            } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+                            } else if let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
                                 Button {
                                     UIApplication.shared.open(URL(string: string)! as URL)
                                 } label: {

@@ -154,7 +154,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             }.resume()
             
             userLocation = []
-        } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+        } else if let url = URL(string: string), UIApplication.shared.canOpenURL(URL(string: string)!) {
             guard string != lastDetectedString else { return }
             
             if playHaptics {
