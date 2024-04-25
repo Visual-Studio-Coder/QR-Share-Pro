@@ -48,7 +48,7 @@ struct ShareView: View {
             return "Share Plaintext"
         }
     }
-    
+
     var body: some View {
         ZStack {
             ColorfulView(color: $colors)
@@ -198,9 +198,9 @@ struct ShareView: View {
             }
             loadSharedText { sharedText in
                 receivedText = sharedText
-                if let qrImage = generateQRCode(from: sharedText) {
+                if let qrImage = generateQRCode(from: sharedText.extractFirstURL()) {
                     qrCodeImage = qrImage
-                    let newCode = QRCode(text: receivedText, originalURL: receivedText, qrCode: qrCodeImage?.pngData())
+                    let newCode = QRCode(text: receivedText.extractFirstURL(), originalURL: receivedText, qrCode: qrCodeImage?.pngData())
                     
                     if let userDefaults = UserDefaults(suiteName: "group.com.click.QRShare") {
                         let decoder = JSONDecoder()
