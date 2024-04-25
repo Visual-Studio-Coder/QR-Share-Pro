@@ -47,8 +47,8 @@ struct History: View {
     }
     
     private func getTypeOf(type: String) -> String {
-        if let url = URL(string: type) {
-            if url.absoluteString.isValidURL(), type.isValidURL() {
+        if let url = URL(string: type.extractFirstURL()) {
+            if url.absoluteString.isValidURL(), url.absoluteString.isValidURL() {
                 return "URL"
             } else if UIApplication.shared.canOpenURL(url) {
                 return "Deep Link"
@@ -212,9 +212,9 @@ struct History: View {
                                                 .environmentObject(qrCodeStore)
                                         } label: {
                                             HStack {
-                                                if i.text.isValidURL() {
+                                                if i.text.extractFirstURL().isValidURL() {
                                                     if showWebsiteFavicons {
-                                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                        AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text.extractFirstURL())!.host!).ico")) { i in
                                                             i
                                                                 .interpolation(.none)
                                                                 .resizable()
@@ -227,7 +227,7 @@ struct History: View {
                                                                 .frame(width: 50, height: 50)
                                                         }
                                                     }
-                                                } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                                } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                                     Image(systemName: "link.circle.fill")
                                                         .resizable()
                                                         .aspectRatio(1, contentMode: .fit)
@@ -240,14 +240,14 @@ struct History: View {
                                                 }
                                                 
                                                 VStack(alignment: .leading) {
-                                                    if i.text.isValidURL() {
-                                                        let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                    if i.text.extractFirstURL().isValidURL() {
+                                                        let fixedURL = URL(string: i.text.extractFirstURL())!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text.extractFirstURL())!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
                                                         
                                                         Text(fixedURL)
                                                             .bold()
                                                             .lineLimit(2)
                                                     } else {
-                                                        Text(i.text)
+                                                        Text(i.text.extractFirstURL())
                                                             .bold()
                                                             .lineLimit(2)
                                                     }
@@ -258,17 +258,17 @@ struct History: View {
                                             }
                                         }
                                         .contextMenu {
-                                            if i.text.isValidURL() {
+                                            if i.text.extractFirstURL().isValidURL() {
                                                 Button {
-                                                    if let url = URL(string: i.text) {
+                                                    if let url = URL(string: i.text.extractFirstURL()) {
                                                         UIApplication.shared.open(url)
                                                     }
                                                 } label: {
                                                     Label("Open URL", systemImage: "safari")
                                                 }
-                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                            } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                                 Button {
-                                                    if let url = URL(string: i.text) {
+                                                    if let url = URL(string: i.text.extractFirstURL()) {
                                                         UIApplication.shared.open(url)
                                                     }
                                                 } label: {
@@ -277,11 +277,11 @@ struct History: View {
                                             }
                                             
                                             Button {
-                                                UIPasteboard.general.string = i.text
+                                                UIPasteboard.general.string = i.text.extractFirstURL()
                                             } label: {
-                                                if i.text.isValidURL() {
+                                                if i.text.extractFirstURL().isValidURL() {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
-                                                } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                                } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                                     Label("Copy Deeplink", systemImage: "doc.on.doc")
                                                 } else {
                                                     Label("Copy Text", systemImage: "doc.on.doc")
@@ -311,15 +311,15 @@ struct History: View {
                                             
                                             Divider()
                                             
-                                            if i.text.isValidURL() {
+                                            if i.text.extractFirstURL().isValidURL() {
                                                 Button {
-                                                    showShareSheet(url: URL(string: i.text)!)
+                                                    showShareSheet(url: URL(string: i.text.extractFirstURL())!)
                                                 } label: {
                                                     Label("Share URL", systemImage: "square.and.arrow.up")
                                                 }
-                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                            } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                                 Button {
-                                                    showShareSheet(url: URL(string: i.text)!)
+                                                    showShareSheet(url: URL(string: i.text.extractFirstURL())!)
                                                 } label: {
                                                     Label("Share Deep Link", systemImage: "square.and.arrow.up")
                                                 }
@@ -396,9 +396,9 @@ struct History: View {
                                             .environmentObject(qrCodeStore)
                                     } label: {
                                         HStack {
-                                            if i.text.isValidURL() {
+                                            if i.text.extractFirstURL().isValidURL() {
                                                 if showWebsiteFavicons {
-                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text)!.host!).ico")) { i in
+                                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: i.text.extractFirstURL())!.host!).ico")) { i in
                                                         i
                                                             .interpolation(.none)
                                                             .resizable()
@@ -411,7 +411,7 @@ struct History: View {
                                                             .frame(width: 50, height: 50)
                                                     }
                                                 }
-                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                            } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                                 Image(systemName: "link.circle.fill")
                                                     .resizable()
                                                     .aspectRatio(1, contentMode: .fit)
@@ -424,14 +424,14 @@ struct History: View {
                                             }
                                             
                                             VStack(alignment: .leading) {
-                                                if i.text.isValidURL() {
-                                                    let fixedURL = URL(string: i.text)!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text)!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
+                                                if i.text.extractFirstURL().isValidURL() {
+                                                    let fixedURL = URL(string: i.text.extractFirstURL())!.prettify().absoluteString.replacingOccurrences(of: URL(string: i.text.extractFirstURL())!.scheme!, with: "").replacingOccurrences(of: "://", with: "").replacingOccurrences(of: ":/", with: "").replacingOccurrences(of: "www.", with: "").lowercased()
                                                     
                                                     Text(fixedURL)
                                                         .bold()
                                                         .lineLimit(2)
                                                 } else {
-                                                    Text(i.text)
+                                                    Text(i.text.extractFirstURL())
                                                         .bold()
                                                         .lineLimit(2)
                                                 }
@@ -442,17 +442,17 @@ struct History: View {
                                         }
                                     }
                                     .contextMenu {
-                                        if i.text.isValidURL() {
+                                        if i.text.extractFirstURL().isValidURL() {
                                             Button {
-                                                if let url = URL(string: i.text) {
+                                                if let url = URL(string: i.text.extractFirstURL()) {
                                                     UIApplication.shared.open(url)
                                                 }
                                             } label: {
                                                 Label("Open URL", systemImage: "safari")
                                             }
-                                        } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                        } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                             Button {
-                                                if let url = URL(string: i.text) {
+                                                if let url = URL(string: i.text.extractFirstURL()) {
                                                     UIApplication.shared.open(url)
                                                 }
                                             } label: {
@@ -461,11 +461,11 @@ struct History: View {
                                         }
                                         
                                         Button {
-                                            UIPasteboard.general.string = i.text
+                                            UIPasteboard.general.string = i.text.extractFirstURL()
                                         } label: {
-                                            if i.text.isValidURL() {
+                                            if i.text.extractFirstURL().isValidURL() {
                                                 Label("Copy URL", systemImage: "doc.on.doc")
-                                            } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                            } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                                 Label("Copy Deeplink", systemImage: "doc.on.doc")
                                             } else {
                                                 Label("Copy Text", systemImage: "doc.on.doc")
@@ -495,15 +495,15 @@ struct History: View {
                                         
                                         Divider()
                                         
-                                        if i.text.isValidURL() {
+                                        if i.text.extractFirstURL().isValidURL() {
                                             Button {
-                                                showShareSheet(url: URL(string: i.text)!)
+                                                showShareSheet(url: URL(string: i.text.extractFirstURL())!)
                                             } label: {
                                                 Label("Share URL", systemImage: "square.and.arrow.up")
                                             }
-                                        } else if let url = URL(string: i.text), UIApplication.shared.canOpenURL(url) {
+                                        } else if let url = URL(string: i.text.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
                                             Button {
-                                                showShareSheet(url: URL(string: i.text)!)
+                                                showShareSheet(url: URL(string: i.text.extractFirstURL())!)
                                             } label: {
                                                 Label("Share Deep Link", systemImage: "square.and.arrow.up")
                                             }
