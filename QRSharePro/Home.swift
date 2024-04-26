@@ -52,6 +52,8 @@ struct Home: View {
     }
     
     private func changeAppIcon(to iconURL: String) {
+        guard iconURL != (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") else { return }
+        
         let iconName = iconURL == "AppIcon" ? nil : iconURL
         
         UIApplication.shared.setAlternateIconName(iconName) { error in
@@ -329,81 +331,48 @@ struct Home: View {
             .sheet(isPresented: $showingSettingsSheet) {
                 NavigationStack {
                     List {
-                        Section("About QR Share Pro") {
-                            ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
-                                HStack {
-                                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
-                                        .resizable()
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                                        .shadow(color: .accentColor, radius: 5)
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text("QR Share Pro")
-                                            .bold()
-                                        
-                                        Text("Version \(appVersion)")
-                                            .foregroundStyle(.secondary)
+                        NavigationLink {
+                            NavigationStack {
+                                List {
+                                    Section("App Icon & Theme") {
+                                        ForEach(allIcons) { i in
+                                            Button {
+                                                changeAppIcon(to: i.iconURL)
+                                                UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
+                                            } label: {
+                                                HStack {
+                                                    Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark" : "")
+                                                        .resizable()
+                                                        .frame(width: 20, height: 20)
+                                                        .font(.title2)
+                                                        .tint(.accentColor)
+                                                        .padding(.trailing, 5)
+                                                    
+                                                    Image(uiImage: #imageLiteral(resourceName: i.iconURL))
+                                                        .resizable()
+                                                        .frame(width: 50, height: 50)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                        .shadow(radius: 50)
+                                                    
+                                                    Text(i.iconName)
+                                                        .tint(.primary)
+                                                }
+                                            }
+                                        }
                                     }
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.title)
-                                        .bold()
-                                        .foregroundStyle(.secondary)
-                                }
-                                .tint(.primary)
-                            }
-                            
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Privacy", systemImage: "checkmark.shield")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
+                                    .accentColor(accentColorManager.accentColor)
+                                    .navigationTitle("App Icon & Theme")
                                 }
                             }
-                            .tint(.primary)
-                            
-                            Button {
-                                requestReview()
-                            } label: {
-                                HStack {
-                                    Label("Rate App", systemImage: "star")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                        }
-                        
-                        Section("App Icon & Theme") {
-                            ForEach(allIcons) { i in
-                                Button {
-                                    changeAppIcon(to: i.iconURL)
-                                    UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
-                                } label: {
-                                    HStack {
-                                        Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
-                                            .font(.title2)
-                                            .tint(.accentColor)
-                                        
-                                        Image(uiImage: #imageLiteral(resourceName: i.iconURL))
-                                            .resizable()
-                                            .frame(width: 50, height: 50)
-                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                            .shadow(radius: 50)
-                                        
-                                        Text(i.iconName)
-                                            .tint(.primary)
-                                    }
-                                }
+                        } label: {
+                            Label {
+                                Text("App Icon & Theme")
+                            } icon: {
+                                Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .shadow(color: .accentColor, radius: 5)
                             }
                         }
                         
@@ -433,8 +402,6 @@ struct Home: View {
                                     }
                                 }
                             }
-                        } header: {
-                            Text("Default Tab")
                         } footer: {
                             Text("Choose the default tab that appears upon app launch.")
                         }
@@ -443,11 +410,9 @@ struct Home: View {
                             Toggle(isOn: $playHaptics.animation()) {
                                 Label("Play Haptics", systemImage: "wave.3.right")
                             }
-                        } header: {
-                            Text("Haptics")
                         } footer: {
                             if !playHaptics {
-                                Text("Some system haptics will still be played. To disable all haptics, open **Settings > Sounds & Haptics**.")
+                                Text("System haptics will still be played. To disable all haptics, open **Settings > Sounds & Haptics**.")
                             } else {
                                 Text("Haptics will play when available.")
                             }
@@ -462,12 +427,10 @@ struct Home: View {
                                     showingClearFaviconsConfirmation = true
                                 }
                             }
-                        } header: {
-                            Text("Website Favicons")
                         } footer: {
                             Text("Favicons are privately queried through DuckDuckGo.")
                         }
-                        .alert("Are you sure you'd like to hide website favicons? This will delete all currently cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
+                        .alert("Are you sure you'd like to hide website favicons? This will clear all cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
                             Button("Hide Website Favicons", role: .destructive) {
                                 URLCache.shared.removeAllCachedResponses()
                             }
@@ -477,74 +440,68 @@ struct Home: View {
                             }
                         }
                         
-                        Section("Product Improvement") {
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Feature Request", systemImage: "lightbulb")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/CONTRIBUTING.md") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Contribute", systemImage: "chevron.left.forwardslash.chevron.right")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Report a Bug", systemImage: "ladybug")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                        }
-                        
-                        Section("Credits") {
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                VStack {
-                                    HStack {
-                                        Label("Vaibhav Satishkumar", systemImage: "person")
-                                        Spacer()
-                                        Image(systemName: "arrow.up.right")
-                                            .tint(.secondary)
+                        Section {
+                            NavigationLink {
+                                NavigationStack {
+                                    List {
+                                        Section("Product Improvement") {
+                                            Button {
+                                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Label("Feature Request", systemImage: "lightbulb")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .tint(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                            
+                                            Button {
+                                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/CONTRIBUTING.md") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Label("Contribute", systemImage: "chevron.left.forwardslash.chevron.right")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .tint(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                            
+                                            Button {
+                                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Label("Report a Bug", systemImage: "ladybug")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .tint(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                        }
                                     }
+                                    .accentColor(accentColorManager.accentColor)
+                                    .navigationTitle("Product Improvement")
                                 }
+                            } label: {
+                                Label("Product Improvement", systemImage: "arrowshape.up")
                             }
-                            .tint(.primary)
                             
                             Button {
-                                if let url = URL(string: "https://aaronhma.com") {
+                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
                                     UIApplication.shared.open(url)
                                 }
                             } label: {
                                 HStack {
-                                    Label("Aaron Ma", systemImage: "person")
+                                    Label("Privacy", systemImage: "checkmark.shield")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
                                         .tint(.secondary)
@@ -553,18 +510,89 @@ struct Home: View {
                             .tint(.primary)
                             
                             Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/graphs/contributors") {
-                                    UIApplication.shared.open(url)
-                                }
+                                requestReview()
                             } label: {
                                 HStack {
-                                    Label("See All Contributors", systemImage: "person.3")
+                                    Label("Rate App", systemImage: "star")
                                     Spacer()
                                     Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                             .tint(.primary)
+                            
+                            NavigationLink {
+                                NavigationStack {
+                                    List {
+                                        Section("Credits") {
+                                            Button {
+                                                if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                VStack {
+                                                    HStack {
+                                                        Label("Vaibhav Satishkumar", systemImage: "person")
+                                                        Spacer()
+                                                        Image(systemName: "arrow.up.right")
+                                                            .tint(.secondary)
+                                                    }
+                                                }
+                                            }
+                                            .tint(.primary)
+                                            
+                                            Button {
+                                                if let url = URL(string: "https://aaronhma.com") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Label("Aaron Ma", systemImage: "person")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .tint(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                            
+                                            Button {
+                                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/graphs/contributors") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Label("See All Contributors", systemImage: "person.3")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .tint(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                        }
+                                    }
+                                    .accentColor(accentColorManager.accentColor)
+                                    .navigationTitle("Credits")
+                                }
+                            } label: {
+                                Label("Credits", systemImage: "person.text.rectangle")
+                            }
+                        } footer: {
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Text("QR Share Pro v\(appVersion)")
+                                        .bold()
+                                    Spacer()
+                                }
+                                .padding(.top)
+                                
+                                HStack {
+                                    Spacer()
+                                    Text("© 2024 Vaibhav Satishkumar and Aaron Ma.")
+                                        .bold()
+                                    Spacer()
+                                }
+                            }
                         }
                     }
                     .accentColor(accentColorManager.accentColor)
@@ -591,6 +619,7 @@ struct Home: View {
                         }
                     }
                 }
+                .presentationDetents([.medium, .large])
             }
         }
         .onChange(of: isFocused) { focus in
