@@ -1,10 +1,40 @@
-import SwiftUI
 import CoreImage.CIFilterBuiltins
-import StoreKit
 import Photos
+import StoreKit
+import SwiftUI
 
 class SharedData: ObservableObject {
     @Published var text: String = ""
+}
+
+
+struct NavigationBackButton: ViewModifier {
+    @Environment(\.presentationMode) var presentationMode
+    var color: Color
+    var text: String
+    
+    func body(content: Content) -> some View {
+        return content
+            .navigationBarBackButtonHidden(true)
+            .navigationBarItems(
+                leading: Button(action: {  presentationMode.wrappedValue.dismiss() }, label: {
+                    HStack(spacing: 2) {
+                        Image(systemName: "chevron.backward")
+                            .foregroundStyle(color)
+                            .bold()
+                        
+                        Text(text)
+                            .foregroundStyle(color)
+                    }
+                })
+            )
+    }
+}
+
+extension View {
+    func navigationBackButton(color: Color, text: String) -> some View {
+        modifier(NavigationBackButton(color: color, text: text))
+    }
 }
 
 struct Home: View {
@@ -24,7 +54,7 @@ struct Home: View {
     @State private var showExceededLimitAlert = false
     @State private var showHistorySavedAlert = false
     @State private var showPermissionsError = false
-    @State private var qrCodeImage: UIImage = UIImage()
+    @State private var qrCodeImage: UIImage = .init()
     @State private var showingClearFaviconsConfirmation = false
     @State private var animatedText = ""
     @State private var selectedTab = "New QR Code"
@@ -45,7 +75,7 @@ struct Home: View {
         case "AppIcon2":
             AccentColorManager.shared.accentColor = .green
         case "AppIcon3":
-            AccentColorManager.shared.accentColor = Color(UIColor(red: 252/255, green: 129/255, blue: 158/255, alpha: 1))
+            AccentColorManager.shared.accentColor = Color(UIColor(red: 252 / 255, green: 129 / 255, blue: 158 / 255, alpha: 1))
         default:
             AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
         }
@@ -283,6 +313,7 @@ struct Home: View {
             .navigationTitle("New QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
+                UINavigationBar.appearance().tintColor = .black
                 generateQRCode(from: "QR Share Pro")
                 
                 if launchTab == .History {
@@ -298,7 +329,8 @@ struct Home: View {
             .alert("We need permission to save this QR code to your photo library.", isPresented: $showPermissionsError) {
                 Button("Open Settings", role: .cancel) {
                     if let settingsURL = URL(string: UIApplication.openSettingsURLString),
-                       UIApplication.shared.canOpenURL(settingsURL) {
+                       UIApplication.shared.canOpenURL(settingsURL)
+                    {
                         UIApplication.shared.open(settingsURL)
                     }
                 }
@@ -306,10 +338,8 @@ struct Home: View {
             .alert("You'll need to remove \(text.count - 3000) characters first!", isPresented: $showExceededLimitAlert) {
                 Button("OK", role: .cancel) {}
             }
-            .alert("Saved to Photos!", isPresented: $showSavedAlert) {
-            }
-            .alert("Saved to History!", isPresented: $showHistorySavedAlert) {
-            }
+            .alert("Saved to Photos!", isPresented: $showSavedAlert) {}
+            .alert("Saved to History!", isPresented: $showHistorySavedAlert) {}
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     let qrCodeImage = Image(uiImage: qrCodeImage)
@@ -341,7 +371,7 @@ struct Home: View {
                                                 UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
                                             } label: {
                                                 HStack {
-                                                    Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark" : "")
+                                                    Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
                                                         .resizable()
                                                         .frame(width: 20, height: 20)
                                                         .font(.title2)
@@ -360,9 +390,10 @@ struct Home: View {
                                             }
                                         }
                                     }
-                                    .accentColor(accentColorManager.accentColor)
-                                    .navigationTitle("App Icon & Theme")
                                 }
+                                .accentColor(accentColorManager.accentColor)
+                                .navigationTitle("App Icon & Theme")
+                                .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                             }
                         } label: {
                             Label {
@@ -371,8 +402,7 @@ struct Home: View {
                                 Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
                                     .resizable()
                                     .frame(width: 30, height: 30)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                                    .shadow(color: .accentColor, radius: 5)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                         }
                         
@@ -419,24 +449,53 @@ struct Home: View {
                         }
                         
                         Section {
-                            Toggle(isOn: $showWebsiteFavicons) {
-                                Label("Show Website Favicons", systemImage: "info.square")
-                            }
-                            .onChange(of: showWebsiteFavicons) { state in
-                                if !state {
-                                    showingClearFaviconsConfirmation = true
+                            NavigationLink {
+                                NavigationStack {
+                                    List {
+                                        Section {
+                                            Button {
+                                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Label("Privacy Policy", systemImage: "checkmark.shield")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .tint(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                        }
+                                        
+                                        Section {
+                                            Toggle(isOn: $showWebsiteFavicons) {
+                                                Label("Show Website Favicons", systemImage: "info.square")
+                                            }
+                                            .onChange(of: showWebsiteFavicons) { state in
+                                                if !state {
+                                                    showingClearFaviconsConfirmation = true
+                                                }
+                                            }
+                                        } footer: {
+                                            Text("Favicons are privately queried through DuckDuckGo.")
+                                        }
+                                        .alert("Are you sure you'd like to hide website favicons? This will clear all cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
+                                            Button("Hide Website Favicons", role: .destructive) {
+                                                URLCache.shared.removeAllCachedResponses()
+                                            }
+                                            
+                                            Button("Cancel", role: .cancel) {
+                                                showWebsiteFavicons = true
+                                            }
+                                        }
+                                    }
+                                    .accentColor(accentColorManager.accentColor)
+                                    .navigationTitle("Privacy")
+                                    .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                                 }
-                            }
-                        } footer: {
-                            Text("Favicons are privately queried through DuckDuckGo.")
-                        }
-                        .alert("Are you sure you'd like to hide website favicons? This will clear all cached favicons.", isPresented: $showingClearFaviconsConfirmation) {
-                            Button("Hide Website Favicons", role: .destructive) {
-                                URLCache.shared.removeAllCachedResponses()
-                            }
-                            
-                            Button("Cancel", role: .cancel) {
-                                showWebsiteFavicons = true
+                            } label: {
+                                Label("Privacy", systemImage: "checkmark.shield")
                             }
                         }
                         
@@ -444,6 +503,30 @@ struct Home: View {
                             NavigationLink {
                                 NavigationStack {
                                     List {
+                                        Section("Spread Privacy") {
+                                            ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
+                                                HStack {
+                                                    Label("Share App", systemImage: "square.and.arrow.up")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                            
+                                            Button {
+                                                requestReview()
+                                            } label: {
+                                                HStack {
+                                                    Label("Rate App", systemImage: "star")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
+                                            .tint(.primary)
+                                        }
+                                        
                                         Section("Product Improvement") {
                                             Button {
                                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=") {
@@ -490,36 +573,11 @@ struct Home: View {
                                     }
                                     .accentColor(accentColorManager.accentColor)
                                     .navigationTitle("Product Improvement")
+                                    .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                                 }
                             } label: {
                                 Label("Product Improvement", systemImage: "arrowshape.up")
                             }
-                            
-                            Button {
-                                if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
-                                    UIApplication.shared.open(url)
-                                }
-                            } label: {
-                                HStack {
-                                    Label("Privacy", systemImage: "checkmark.shield")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .tint(.secondary)
-                                }
-                            }
-                            .tint(.primary)
-                            
-                            Button {
-                                requestReview()
-                            } label: {
-                                HStack {
-                                    Label("Rate App", systemImage: "star")
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .tint(.primary)
                             
                             NavigationLink {
                                 NavigationStack {
@@ -572,6 +630,7 @@ struct Home: View {
                                     }
                                     .accentColor(accentColorManager.accentColor)
                                     .navigationTitle("Credits")
+                                    .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                                 }
                             } label: {
                                 Label("Credits", systemImage: "person.text.rectangle")

@@ -1,2 +1,5 @@
 .DS_Store
+
+# editors
 QRSharePro.xcodeproj/project.xcworkspace/*
+.nova
