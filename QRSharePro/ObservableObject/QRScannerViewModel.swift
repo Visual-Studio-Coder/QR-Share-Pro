@@ -83,7 +83,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     }
     
     @MainActor func didDetectQRCode(string: String) {
-        if string.isValidURL(), let url = URL(string: string), UIApplication.shared.canOpenURL(url) {
+        if string.extractFirstURL().isValidURL(), let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
             self.isLoading = true
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
@@ -112,7 +112,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 }
             }
             
-            let newCode = QRCode(text: sanitizedURL, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+            let newCode = QRCode(text: sanitizedURL, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
             
             self.qrCodeStore.history.append(newCode)
             
@@ -132,7 +132,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 guard let finalURL = response.url else { return }
                 
                 DispatchQueue.main.async {
-                    let newCode = QRCode(text: finalURL.absoluteString, originalURL: url.absoluteString, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                    let newCode = QRCode(text: finalURL.absoluteString, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                     
                     self.qrCodeStore.history.removeLast()
                     self.qrCodeStore.history.append(newCode)
@@ -154,7 +154,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             }.resume()
             
             userLocation = []
-        } else if let url = URL(string: string), UIApplication.shared.canOpenURL(URL(string: string)!) {
+        } else if let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(URL(string: string.extractFirstURL())!) {
             guard string != lastDetectedString else { return }
             
             if playHaptics {
@@ -172,7 +172,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     print("Could not get user location.")
                 }
                 
-                let newCode = QRCode(text: string, originalURL: "", qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                let newCode = QRCode(text: string, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                 
                 qrCodeStore.history.append(newCode)
                 
