@@ -1,15 +1,41 @@
 import MapKit
 import Photos
 import SwiftUI
+import Foundation
+
+func fetchTitle(from url: URL, completion: @escaping (String?) -> Void) {
+    let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+        if let data = data,
+           let html = String(data: data, encoding: .utf8),
+           let titleRange = html.range(of: "<title>(.*?)</title>", options: .regularExpression),
+           !titleRange.isEmpty {
+            var title = String(html[titleRange]).replacingOccurrences(of: "<title>", with: "").replacingOccurrences(of: "</title>", with: "")
+            
+            if let data = title.data(using: .utf8),
+               let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
+                title = attributedString.string
+            }
+            
+            // Remove non-ASCII characters
+            title = title.asciiDecoded
+            
+            completion(title)
+        } else {
+            completion(nil)
+        }
+    }
+    task.resume()
+}
 
 struct HistoryDetailInfo: View {
     @Environment(\.presentationMode) var presentationMode: Binding
     @Environment(\.colorScheme) var colorScheme
-
+    
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
-
+    
     @EnvironmentObject var qrCodeStore: QRCodeStore
-
+    
+    @State private var title: String?
     @State private var originalText = ""
     @State private var showingAboutAppSheet = false
     @State private var isEditing = false
@@ -24,38 +50,50 @@ struct HistoryDetailInfo: View {
     @State private var qrCodeImage: UIImage = .init()
     @State private var locationName: String?
     @State private var showPermissionsError = false
-
+    
     @State private var copiedText = false
     @State private var copiedCleanURL = false
     @State private var copiedOriginalURL = false
-
+    
     private let monitor = NetworkMonitor()
-
+    
     @ObservedObject var accentColorManager = AccentColorManager.shared
-
+    
     @State var qrCode: QRCode
-
+    
     func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
-
+    
+    // Add this function in your view
+    func fetchWebsiteTitle() {
+        let urlString = qrCode.text.extractFirstURL()
+        if let url = URL(string: urlString) {
+            fetchTitle(from: url) { title in
+                DispatchQueue.main.async {
+                    self.title = title
+                }
+            }
+        }
+    }
+    
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
-
+    
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
-
+        
         if let qrCode = filter.outputImage {
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledQrCode = qrCode.transformed(by: transform)
-
+            
             if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
     }
-
+    
     var body: some View {
         VStack {
             if isEditing {
@@ -85,17 +123,17 @@ struct HistoryDetailInfo: View {
                                     }
                                 }
                             }
-
+                        
                         HStack {
                             Spacer()
-
+                            
                             Text("\(qrCode.text.count)/3000 characters")
                                 .foregroundStyle(qrCode.text.count > 3000 ? .red : .secondary)
                                 .bold()
                         }
                         .padding(.top, 3)
                         .padding(.trailing)
-
+                        
                         TextField("Create your own QR code...", text: $qrCode.text)
                             .padding()
                             .background(.gray.opacity(0.2))
@@ -112,7 +150,7 @@ struct HistoryDetailInfo: View {
                                         qrCode.date = Date.now
                                         qrCode.wasEdited = true
                                         qrCodeStore.history[idx] = qrCode
-
+                                        
                                         Task {
                                             do {
                                                 try await save()
@@ -121,7 +159,7 @@ struct HistoryDetailInfo: View {
                                             }
                                         }
                                     }
-
+                                    
                                     isEditing.toggle()
                                 }
                             }
@@ -155,7 +193,7 @@ struct HistoryDetailInfo: View {
                                 Label("Save to Photos", systemImage: "square.and.arrow.down")
                             }
                         }
-
+                    
                     VStack(alignment: .leading) {
                         if qrCode.text.extractFirstURL().isValidURL() {
                             HStack {
@@ -181,7 +219,7 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy URL", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Button {
                                             if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                 UIApplication.shared.open(url)
@@ -189,9 +227,9 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Open URL", systemImage: "safari")
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
@@ -200,17 +238,16 @@ struct HistoryDetailInfo: View {
                                     }
                                 }
                                 
-                                Text(URL(string: qrCode.text.extractFirstURL())!.prettify().host!.replacingOccurrences(of: "www.", with: ""))
-                                    .font(.largeTitle)
+                                Text(title ?? URL(string: qrCode.text.extractFirstURL())!.prettify().host!.removeTrackers())
                                     .bold()
-                                    .lineLimit(1)
+                                    .lineLimit(2)
                                     .contextMenu {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text.extractFirstURL()
                                         } label: {
                                             Label("Copy URL", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Button {
                                             if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                 UIApplication.shared.open(url)
@@ -218,9 +255,9 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Open URL", systemImage: "safari")
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
@@ -230,9 +267,12 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingFullURLSheet = true
                                     }
-
+                                    .onAppear {
+                                        fetchWebsiteTitle()
+                                    }
+                                
                                 Spacer()
-
+                                
                                 Button {
                                     if let url = URL(string: qrCode.text.extractFirstURL()) {
                                         UIApplication.shared.open(url)
@@ -247,16 +287,16 @@ struct HistoryDetailInfo: View {
                                 }
                             }
                             .padding(.horizontal)
-
+                            
                             VStack(alignment: .leading) {
                                 HStack {
                                     Text(qrCode.text.extractFirstURL())
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
-
+                                    
                                     Spacer()
-
+                                    
                                     Image(systemName: "arrow.up.right")
                                         .foregroundStyle(.secondary)
                                 }
@@ -269,7 +309,7 @@ struct HistoryDetailInfo: View {
                                     } label: {
                                         Label("Copy URL", systemImage: "doc.on.doc")
                                     }
-
+                                    
                                     Button {
                                         if let url = URL(string: qrCode.text.extractFirstURL()) {
                                             UIApplication.shared.open(url)
@@ -277,9 +317,9 @@ struct HistoryDetailInfo: View {
                                     } label: {
                                         Label("Open URL", systemImage: "safari")
                                     }
-
+                                    
                                     Divider()
-
+                                    
                                     Button {
                                         showingFullURLSheet = true
                                     } label: {
@@ -322,14 +362,14 @@ struct HistoryDetailInfo: View {
                                                         }
                                                     }
                                                 }
-
+                                                
                                                 Menu {
                                                     Button {
                                                         UIPasteboard.general.string = qrCode.text.extractFirstURL()
                                                     } label: {
                                                         Label("Copy URL", systemImage: "doc.on.doc")
                                                     }
-
+                                                    
                                                     Button {
                                                         if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                             UIApplication.shared.open(url)
@@ -348,7 +388,7 @@ struct HistoryDetailInfo: View {
                                                     } label: {
                                                         Label("Copy URL", systemImage: "doc.on.doc")
                                                     }
-
+                                                    
                                                     Button {
                                                         if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                             UIApplication.shared.open(url)
@@ -363,14 +403,14 @@ struct HistoryDetailInfo: View {
                                                 Text("QR Share Pro removes tracking parameters from links and finds the final redirect of every URL, so you can feel safe clicking on links.")
                                             }
                                         }
-
+                                        
                                         Section {
                                             Button {
                                                 withAnimation {
                                                     copiedCleanURL = false
                                                     copiedOriginalURL = true
                                                 }
-
+                                                
                                                 UIPasteboard.general.string = qrCode.originalURL
                                             } label: {
                                                 Label(copiedOriginalURL ? "Copied URL" : "Copy URL", systemImage: copiedOriginalURL ? "checkmark" : "doc.on.doc")
@@ -383,14 +423,14 @@ struct HistoryDetailInfo: View {
                                                     }
                                                 }
                                             }
-
+                                            
                                             Menu {
                                                 Button {
                                                     UIPasteboard.general.string = qrCode.originalURL
                                                 } label: {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
                                                 }
-
+                                                
                                                 Button {
                                                     if let url = URL(string: qrCode.originalURL) {
                                                         UIApplication.shared.open(url)
@@ -408,7 +448,7 @@ struct HistoryDetailInfo: View {
                                                 } label: {
                                                     Label("Copy URL", systemImage: "doc.on.doc")
                                                 }
-
+                                                
                                                 Button {
                                                     if let url = URL(string: qrCode.originalURL) {
                                                         UIApplication.shared.open(url)
@@ -452,7 +492,7 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy Deep Link", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Button {
                                             if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                 UIApplication.shared.open(url)
@@ -460,9 +500,9 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Open Deep Link", systemImage: "safari")
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
@@ -479,7 +519,7 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy Deep Link", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Button {
                                             if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                 UIApplication.shared.open(url)
@@ -487,9 +527,9 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Open Deep Link", systemImage: "safari")
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         Button {
                                             showingFullURLSheet = true
                                         } label: {
@@ -499,9 +539,9 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingFullURLSheet = true
                                     }
-
+                                
                                 Spacer()
-
+                                
                                 Button {
                                     if let url = URL(string: qrCode.text.extractFirstURL()) {
                                         UIApplication.shared.open(url)
@@ -516,16 +556,16 @@ struct HistoryDetailInfo: View {
                                 }
                             }
                             .padding(.horizontal)
-
+                            
                             VStack(alignment: .leading) {
                                 HStack {
                                     Text(qrCode.text.extractFirstURL())
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
-
+                                    
                                     Spacer()
-
+                                    
                                     Image(systemName: "arrow.up.right")
                                         .foregroundStyle(.secondary)
                                 }
@@ -538,7 +578,7 @@ struct HistoryDetailInfo: View {
                                     } label: {
                                         Label("Copy Deep Link", systemImage: "doc.on.doc")
                                     }
-
+                                    
                                     Button {
                                         if let url = URL(string: qrCode.text.extractFirstURL()) {
                                             UIApplication.shared.open(url)
@@ -546,9 +586,9 @@ struct HistoryDetailInfo: View {
                                     } label: {
                                         Label("Open Deep Link", systemImage: "safari")
                                     }
-
+                                    
                                     Divider()
-
+                                    
                                     Button {
                                         showingFullURLSheet = true
                                     } label: {
@@ -575,7 +615,7 @@ struct HistoryDetailInfo: View {
                                                 withAnimation {
                                                     copiedOriginalURL = true
                                                 }
-
+                                                
                                                 UIPasteboard.general.string = qrCode.originalURL
                                             } label: {
                                                 Label(copiedOriginalURL ? "Copied Deep Link" : "Copy Deep Link", systemImage: copiedOriginalURL ? "checkmark" : "doc.on.doc")
@@ -588,14 +628,14 @@ struct HistoryDetailInfo: View {
                                                     }
                                                 }
                                             }
-
+                                            
                                             Menu {
                                                 Button {
                                                     UIPasteboard.general.string = qrCode.text.extractFirstURL()
                                                 } label: {
                                                     Label("Copy Deep Link", systemImage: "doc.on.doc")
                                                 }
-
+                                                
                                                 Button {
                                                     if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                         UIApplication.shared.open(url)
@@ -614,7 +654,7 @@ struct HistoryDetailInfo: View {
                                                 } label: {
                                                     Label("Copy Deep Link", systemImage: "doc.on.doc")
                                                 }
-
+                                                
                                                 Button {
                                                     if let url = URL(string: qrCode.text.extractFirstURL()) {
                                                         UIApplication.shared.open(url)
@@ -642,10 +682,19 @@ struct HistoryDetailInfo: View {
                             }
                         } else {
                             HStack {
+                                ZStack {
+                                    Circle()
+                                        .fill()
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
+                                    Image(systemName: "textformat")
+                                        .foregroundColor(colorScheme == .light ? .white : .black)
+                                        .scaledToFit()
+                                        .padding(2)
+                                }
+                                    .frame(width: 50, height: 50)
                                 Text(qrCode.text.extractFirstURL())
                                     .bold()
-                                    .lineLimit(1)
-                                    .font(.largeTitle)
+                                    .lineLimit(2)
                                     .onTapGesture {
                                         showingAllTextSheet = true
                                     }
@@ -655,24 +704,24 @@ struct HistoryDetailInfo: View {
                                         } label: {
                                             Label("Copy Text", systemImage: "doc.on.doc")
                                         }
-
+                                        
                                         Divider()
-
+                                        
                                         Button {
                                             showingAllTextSheet = true
                                         } label: {
                                             Label("Show Full Text", systemImage: "arrow.up.right")
                                         }
                                     }
-
+                                
                                 Spacer()
-
+                                
                                 Button {
                                     showingAllTextSheet = true
                                 } label: {
                                     HStack {
                                         Text("Show Full Text")
-
+                                        
                                         Image(systemName: "arrow.up.right")
                                     }
                                     .padding(8)
@@ -704,7 +753,7 @@ struct HistoryDetailInfo: View {
                                                     }
                                                 }
                                             }
-
+                                            
                                             Menu {
                                                 Button {
                                                     UIPasteboard.general.string = qrCode.text.extractFirstURL()
@@ -741,11 +790,11 @@ struct HistoryDetailInfo: View {
                                 .presentationDetents([.medium, .large])
                             }
                         }
-
+                        
                         Divider()
                             .padding(.horizontal)
                             .padding(.bottom, 5)
-
+                        
                         if qrCode.wasScanned && !qrCode.scanLocation.isEmpty {
                             if monitor.isActive {
                                 Button {
@@ -788,10 +837,10 @@ struct HistoryDetailInfo: View {
                                         }
                                     }
                                 }
-
+                                
                                 if showingLocation {
                                     let annotation = [ScanLocation(name: locationName ?? "UNKNOWN LOCATION", coordinate: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]))]
-
+                                    
                                     Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: qrCode.scanLocation[0], longitude: qrCode.scanLocation[1]), span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001))), interactionModes: [.all], annotationItems: annotation) {
                                         MapMarker(coordinate: $0.coordinate, tint: .accentColor)
                                     }
@@ -808,7 +857,7 @@ struct HistoryDetailInfo: View {
                                     .padding(.vertical, 5)
                             }
                         }
-
+                        
                         HStack(spacing: 0) {
                             if qrCode.wasEdited {
                                 Text("Last edited: ")
@@ -819,7 +868,7 @@ struct HistoryDetailInfo: View {
                             } else {
                                 Text("Generated on: ")
                             }
-
+                            
                             Text(qrCode.date, format: .dateTime)
                         }
                         .foregroundStyle(.secondary)
@@ -871,7 +920,7 @@ struct HistoryDetailInfo: View {
                     }
                 }
             }
-
+            
             ToolbarItem(placement: .topBarLeading) {
                 if qrCode.text.extractFirstURL().isValidURL() {
                     ShareLink(item: URL(string: qrCode.text.extractFirstURL())!) {
@@ -892,7 +941,7 @@ struct HistoryDetailInfo: View {
                     Label("Delete", systemImage: "trash")
                 }
             }
-
+            
             if !isEditing {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -919,7 +968,7 @@ struct HistoryDetailInfo: View {
                                 withAnimation {
                                     qrCodeStore.history[idx].pinned.toggle()
                                     qrCode.pinned.toggle()
-
+                                    
                                     Task {
                                         do {
                                             try await save()
@@ -932,7 +981,7 @@ struct HistoryDetailInfo: View {
                         } label: {
                             Label(qrCode.pinned ? "Unpin" : "Pin", systemImage: qrCode.pinned ? "pin.slash.fill" : "pin")
                         }
-
+                        
                         Button {
                             withAnimation {
                                 if isEditing {
@@ -940,7 +989,7 @@ struct HistoryDetailInfo: View {
                                         qrCode.date = Date.now
                                         qrCode.wasEdited = true
                                         qrCodeStore.history[idx] = qrCode
-
+                                        
                                         Task {
                                             do {
                                                 try await save()
@@ -950,7 +999,7 @@ struct HistoryDetailInfo: View {
                                         }
                                     }
                                 }
-
+                                
                                 isEditing.toggle()
                             }
                         } label: {
@@ -962,7 +1011,7 @@ struct HistoryDetailInfo: View {
                     }
                 }
             }
-
+            
             if isEditing {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -979,7 +1028,7 @@ struct HistoryDetailInfo: View {
             Button("Delete QR Code", role: .destructive) {
                 if let idx = qrCodeStore.indexOfQRCode(withID: qrCode.id) {
                     qrCodeStore.history.remove(at: idx)
-
+                    
                     Task {
                         do {
                             try await save()
@@ -988,7 +1037,7 @@ struct HistoryDetailInfo: View {
                         }
                     }
                 }
-
+                
                 showingDeleteConfirmation = false
                 presentationMode.wrappedValue.dismiss()
             }
@@ -996,7 +1045,7 @@ struct HistoryDetailInfo: View {
         .confirmationDialog("Discard Changes?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
             Button("Discard Changes", role: .destructive) {
                 qrCode.text = originalText
-
+                
                 withAnimation {
                     isEditing = false
                 }
@@ -1009,7 +1058,7 @@ struct HistoryDetailInfo: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-
+        
         NavigationStack {
             HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/", originalURL: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
                 .environmentObject(qrCodeStore)

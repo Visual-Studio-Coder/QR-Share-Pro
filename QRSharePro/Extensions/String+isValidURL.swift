@@ -38,4 +38,9 @@ extension String {
         // Reconstruct the URL without trackers
         return components.url!.absoluteString
     }
+    var asciiDecoded: String {
+        let withRegularSpaces = self.replacingOccurrences(of: "\u{00A0}", with: " ")
+        return withRegularSpaces.unicodeScalars.filter { $0.isASCII }.map { String($0) }.joined()
+    }
 }
+
