@@ -432,7 +432,7 @@ struct HistoryDetailInfo: View {
                                                 }
                                                 
                                                 Button {
-                                                    if let url = URL(string: qrCode.originalURL) {
+                                                    if let url = URL(string: qrCode.originalURL.extractFirstURL()) {
                                                         UIApplication.shared.open(url)
                                                     }
                                                 } label: {
@@ -459,7 +459,11 @@ struct HistoryDetailInfo: View {
                                             }
                                         } header: {
                                             if qrCode.text.extractFirstURL() != qrCode.originalURL {
+                                                Text("Original Text From QR Code")
+                                            } else if qrCode.text != qrCode.originalURL {
                                                 Text("Original URL")
+                                            } else {
+                                                Text("")
                                             }
                                         }
                                     }
