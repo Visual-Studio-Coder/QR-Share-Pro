@@ -513,7 +513,7 @@ struct HistoryDetailInfo: View {
                                             Label("Show Full URL", systemImage: "arrow.up.right")
                                         }                                    }
                                 
-                                Text(URL(string: qrCode.text.extractFirstURL())!.host!.replacingOccurrences(of: "www.", with: ""))
+                                Text(URL(string: url.absoluteString)?.host?.replacingOccurrences(of: "www.", with: "") ?? qrCode.text.extractFirstURL())
                                     .font(.largeTitle)
                                     .bold()
                                     .lineLimit(1)
