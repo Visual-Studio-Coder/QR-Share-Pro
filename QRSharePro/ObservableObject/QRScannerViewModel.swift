@@ -96,7 +96,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             let sanitizedURL = url.absoluteString.removeTrackers()
             
             let configuration = URLSessionConfiguration.ephemeral
-            let session = URLSession(configuration: configuration)
+            let delegateQueue = OperationQueue()
+            let delegate = CustomURLSessionDelegate()
+            let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
             
             self.generateQRCode(from: sanitizedURL)
             let qrCodeImage = self.qrCodeImage!
@@ -125,33 +127,67 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 }
             }
             
-            session.dataTask(with: URL(string: sanitizedURL)!) { (data, response, error) in
-                // prevent maliciously crafted qr codes + actually check we visited the page
-                guard error == nil else { return }
-                guard let response = response else { return }
-                guard let finalURL = response.url else { return }
-                
-                DispatchQueue.main.async {
-                    let newCode = QRCode(text: finalURL.absoluteString, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+            var urlComponents = URLComponents(string: sanitizedURL)
+            urlComponents?.scheme = "https"
+            
+            if let httpsURL = urlComponents?.url, UIApplication.shared.canOpenURL(httpsURL) {
+                session.dataTask(with: httpsURL) { (data, response, error) in
+                    guard error == nil else { return }
+                    guard let response = response else { return }
+                    guard let finalURL = response.url else { return }
                     
-                    self.qrCodeStore.history.removeLast()
-                    self.qrCodeStore.history.append(newCode)
-                    
-                    self.detectedString = finalURL.absoluteString.removeTrackers()
-                    
-                    Task {
-                        do {
-                            try self.save()
-                            CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
-                        } catch {
-                            print("Failed to save: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        let newCode = QRCode(text: finalURL.absoluteString, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                        
+                        self.qrCodeStore.history.removeLast()
+                        self.qrCodeStore.history.append(newCode)
+                        
+                        self.detectedString = finalURL.absoluteString.removeTrackers()
+                        
+                        Task {
+                            do {
+                                try self.save()
+                                CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                            } catch {
+                                print("Failed to save: \(error.localizedDescription)")
+                            }
                         }
+                        
+                        self.unshortenedURL = finalURL
+                        self.isLoading = false
                     }
-
-                    self.unshortenedURL = finalURL
-                    self.isLoading = false
+                }.resume()
+            } else {
+                urlComponents?.scheme = "http"
+                if let httpURL = urlComponents?.url {
+                    session.dataTask(with: httpURL) { (data, response, error) in
+                        guard error == nil else { return }
+                        guard let response = response else { return }
+                        guard let finalURL = response.url else { return }
+                        
+                        DispatchQueue.main.async {
+                            let newCode = QRCode(text: finalURL.absoluteString, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                            
+                            self.qrCodeStore.history.removeLast()
+                            self.qrCodeStore.history.append(newCode)
+                            
+                            self.detectedString = finalURL.absoluteString.removeTrackers()
+                            
+                            Task {
+                                do {
+                                    try self.save()
+                                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                                } catch {
+                                    print("Failed to save: \(error.localizedDescription)")
+                                }
+                            }
+                            
+                            self.unshortenedURL = finalURL
+                            self.isLoading = false
+                        }
+                    }.resume()
                 }
-            }.resume()
+            }
             
             userLocation = []
         } else if let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(URL(string: string.extractFirstURL())!) {
@@ -231,5 +267,18 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                 self.isLoading = false
             }
         }
+    }
+}
+class CustomURLSessionDelegate: NSObject, URLSessionTaskDelegate {
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        var newRequest = newRequest
+        if let url = newRequest.url {
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            components?.scheme = "https"
+            if let newUrl = components?.url {
+                newRequest.url = newUrl
+            }
+        }
+        completionHandler(newRequest)
     }
 }
