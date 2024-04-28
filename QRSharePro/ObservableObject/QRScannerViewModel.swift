@@ -273,9 +273,8 @@ class CustomURLSessionDelegate: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         var newRequest = newRequest
         if let url = newRequest.url {
-            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-            components?.scheme = "https"
-            if let newUrl = components?.url {
+            let urlString = url.absoluteString.removeTrackers() // Remove trackers from the URL string
+            if let newUrl = URL(string: urlString) {
                 newRequest.url = newUrl
             }
         }
