@@ -29,4 +29,4 @@ The history feature is also very useful. Every time you create or scan a QR code
 
 The best part about all of this? We take the best efforts to make sure your information stays private on-device, so nobody else knows what you're doing. [Learn more →](PRIVACY.md)
 
-Not private enough for you? By all maeans, please submit a PR or an issue describing how QR Share Pro can take even more precautions to keep our users safe!
+Not private enough for you? By all means, please submit a PR or an issue describing how QR Share Pro can take even more precautions to keep our users safe!
