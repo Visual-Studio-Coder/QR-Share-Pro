@@ -28,3 +28,5 @@ QR Share Pro also features a versatile scanning function that safely unshortens 
 The history feature is also very useful. Every time you create or scan a QR code using the app, we promptly add it to your history. You can even access the location where you scanned the code, which can be extremely helpful.
 
 The best part about all of this? We take the best efforts to make sure your information stays private on-device, so nobody else knows what you're doing. [Learn more →](PRIVACY.md)
+
+Not private enough for you? By all maeans, please submit a PR or an issue describing how QR Share Pro can take even more precautions to keep our users safe!
