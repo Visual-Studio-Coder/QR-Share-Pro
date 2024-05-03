@@ -83,8 +83,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     }
     
     @MainActor func didDetectQRCode(string: String) {
+        isLoading = true
         if string.extractFirstURL().isValidURL(), let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
-            self.isLoading = true
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
             self.detectedString = string
@@ -183,7 +183,6 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                             }
                             
                             self.unshortenedURL = finalURL
-                            self.isLoading = false
                         }
                     }.resume()
                 }
@@ -264,9 +263,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             
             DispatchQueue.main.async {
                 self.detectedString = string
-                self.isLoading = false
             }
         }
+        isLoading = false
     }
 }
 class CustomURLSessionDelegate: NSObject, URLSessionTaskDelegate {
