@@ -137,7 +137,7 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                     guard let finalURL = response.url else { return }
                     
                     DispatchQueue.main.async {
-                        let newCode = QRCode(text: finalURL.absoluteString, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                        let newCode = QRCode(text: finalURL.absoluteString.removeTrackers(), originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
                         
                         self.qrCodeStore.history.removeLast()
                         self.qrCodeStore.history.append(newCode)
@@ -154,116 +154,11 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                         }
                         
                         self.unshortenedURL = finalURL
-                        self.isLoading = false
                     }
                 }.resume()
-            } else {
-                urlComponents?.scheme = "http"
-                if let httpURL = urlComponents?.url {
-                    session.dataTask(with: httpURL) { (data, response, error) in
-                        guard error == nil else { return }
-                        guard let response = response else { return }
-                        guard let finalURL = response.url else { return }
-                        
-                        DispatchQueue.main.async {
-                            let newCode = QRCode(text: finalURL.absoluteString, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
-                            
-                            self.qrCodeStore.history.removeLast()
-                            self.qrCodeStore.history.append(newCode)
-                            
-                            self.detectedString = finalURL.absoluteString.removeTrackers()
-                            
-                            Task {
-                                do {
-                                    try self.save()
-                                    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
-                                } catch {
-                                    print("Failed to save: \(error.localizedDescription)")
-                                }
-                            }
-                            
-                            self.unshortenedURL = finalURL
-                        }
-                    }.resume()
-                }
             }
             
             userLocation = []
-        } else if let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(URL(string: string.extractFirstURL())!) {
-            guard string != lastDetectedString else { return }
-            
-            if playHaptics {
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            }
-            
-            generateQRCode(from: string)
-            
-            if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
-                var userLocation: [Double] = [] // re-write user's location in memory
-                
-                if let location = locationManager.location {
-                    userLocation = [location.latitude, location.longitude]
-                } else {
-                    print("Could not get user location.")
-                }
-                
-                let newCode = QRCode(text: string, originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
-                
-                qrCodeStore.history.append(newCode)
-                
-                Task {
-                    do {
-                        try save()
-                        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
-                    } catch {
-                        print(error.localizedDescription)
-                    }
-                }
-            }
-            
-            lastDetectedString = string
-            
-            DispatchQueue.main.async {
-                self.detectedString = string
-                self.isLoading = false
-            }
-        } else {
-            guard string != lastDetectedString else { return }
-            
-            if playHaptics {
-                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-            }
-            
-            generateQRCode(from: string)
-            
-            if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
-                var userLocation: [Double] = [] // re-write user's location in memory
-                
-                if let location = locationManager.location {
-                    userLocation = [location.latitude, location.longitude]
-                } else {
-                    print("Could not get user location.")
-                }
-                
-                let newCode = QRCode(text: string, originalURL: "", qrCode: pngData, scanLocation: userLocation, wasScanned: true)
-                
-                qrCodeStore.history.append(newCode)
-                
-                Task {
-                    do {
-                        try save()
-                        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
-                    } catch {
-                        print(error.localizedDescription)
-                    }
-                }
-            }
-            
-            lastDetectedString = string
-            
-            DispatchQueue.main.async {
-                self.detectedString = string
-            }
         }
         isLoading = false
     }
@@ -272,8 +167,10 @@ class CustomURLSessionDelegate: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         var newRequest = newRequest
         if let url = newRequest.url {
-            let urlString = url.absoluteString.removeTrackers() // Remove trackers from the URL string
-            if let newUrl = URL(string: urlString) {
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            components?.scheme = "https" // Enforce HTTPS
+            if let urlString = components?.url?.absoluteString.removeTrackers(), // Remove trackers
+               let newUrl = URL(string: urlString) {
                 newRequest.url = newUrl
             }
         }

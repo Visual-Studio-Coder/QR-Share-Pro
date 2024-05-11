@@ -176,8 +176,15 @@ struct Scanner: View {
                                 } label: {
                                     HStack {
                                         if viewModel.isLoading {
-                                            ProgressView()
-                                                .frame(width: 16, height: 16)
+                                            if #available(iOS 17.0, *) {
+                                                Image(systemName: "link.badge.plus")
+                                                    .symbolEffect(.pulse.wholeSymbol)
+                                                    .frame(width: 16, height: 16)
+                                            } else {
+                                                Image(systemName: "link.badge.plus")
+                                                    //.symbolEffect(.pulse)
+                                                    .frame(width: 16, height: 16)
+                                            }
                                         } else {
                                             if let host = url.host {
                                                 if showWebsiteFavicons {
@@ -286,19 +293,6 @@ struct Scanner: View {
                                 }
                             }
                         }
-                    } else {
-                        Button {
-                            // do nothing ig
-                        } label: {
-                            HStack {
-                                Text("**No QR Code Detected**\nPlease upload a different image.")
-                                Image(systemName: "rectangle.portrait.on.rectangle.portrait.slash")
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding()
-                        .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
                 }
                 .padding()
@@ -381,8 +375,15 @@ struct Scanner: View {
                                     } label: {
                                         HStack {
                                             if viewModel.isLoading {
-                                                ProgressView()
-                                                    .frame(width: 16, height: 16)
+                                                if #available(iOS 17.0, *) {
+                                                    Image(systemName: "link.badge.plus")
+                                                        .symbolEffect(.pulse.wholeSymbol)
+                                                        .frame(width: 16, height: 16)
+                                                } else {
+                                                    Image(systemName: "link.badge.plus")
+                                                        //.symbolEffect(.pulse)
+                                                        .frame(width: 16, height: 16)
+                                                }
                                             } else {
                                                 if let host = url.host {
                                                     if showWebsiteFavicons {

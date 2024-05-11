@@ -16,10 +16,11 @@ struct OnboardingView: View {
     @State private var completedStep1 = false
     @State private var isQuickAction = false
     @State private var selection: Tab = .NewQRCode
-    @State private var colors: [Color] = [.purple, .indigo, .pink, .orange, .red]
+    @State private var colors: [Color] = [.purple, .indigo, .pink, .red, .blue]
     @State private var currentPage = 0
     @State private var isDragging = false
-
+    @State private var noise = 50.00
+    
     let features = [
         Feature(title: "Share QR Codes from the Share Menu", description: "When you tap the share icon, we easily generate a beautiful QR code that anyone nearby can scan!", image: "square.and.arrow.up"),
         Feature(title: "Scan Securely & Privately", description: "Sus short link? We unshorten it automatically, with trackers removed.", image: "qrcode.viewfinder"),
@@ -114,7 +115,7 @@ struct OnboardingView: View {
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             } else {
                 ZStack {
-                    ColorfulView(color: $colors)
+                    ColorfulView(color: $colors, noise: $noise)
                         .ignoresSafeArea()
                     VStack {
                         TabView(selection: $currentPage) {
@@ -302,7 +303,7 @@ struct OnboardingView: View {
                                                     .fixedSize(horizontal: false, vertical: true)
                                             }
                                         }
-
+                                        .padding(.horizontal)
                                         Spacer()
                                     }
 
