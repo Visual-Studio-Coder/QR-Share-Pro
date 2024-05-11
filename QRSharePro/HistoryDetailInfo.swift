@@ -238,7 +238,7 @@ struct HistoryDetailInfo: View {
                                     }
                                 }
                                 
-                                Text(title ?? URL(string: qrCode.text.extractFirstURL())!.prettify().host!.removeTrackers())
+                                Text(title ?? URL(string: qrCode.text.extractFirstURL())!.host!.removeTrackers())
                                     .bold()
                                     .lineLimit(2)
                                     .contextMenu {
@@ -893,7 +893,7 @@ struct HistoryDetailInfo: View {
         .onAppear {
             Task {
                 if qrCode.text.extractFirstURL().isValidURL() {
-                    qrCode.text = URL(string: qrCode.text.extractFirstURL().removeTrackers())!.prettify().absoluteString
+                    qrCode.text = URL(string: qrCode.text.extractFirstURL().removeTrackers())!.absoluteString
                     
                     do {
                         try await save()
