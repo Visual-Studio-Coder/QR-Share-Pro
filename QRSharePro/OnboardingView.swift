@@ -16,7 +16,7 @@ struct OnboardingView: View {
     @State private var completedStep1 = false
     @State private var isQuickAction = false
     @State private var selection: Tab = .NewQRCode
-    @State private var colors: [Color] = [.purple, .indigo, .pink, .red, .blue]
+    @State private var colors: [Color] = [.purple, .indigo, .blue, .brown, .orange, .red]
     @State private var currentPage = 0
     @State private var isDragging = false
     @State private var noise = 50.00
