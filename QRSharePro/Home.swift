@@ -503,7 +503,7 @@ struct Home: View {
                             Button {
                                 isOnboardingDone = false
                             } label: {
-                                Label("Show Onboarding", systemImage: "hand.wave.fill")
+                                Label("Show Onboarding", systemImage: "hand.wave")
                             }
                         }
                         Section {
