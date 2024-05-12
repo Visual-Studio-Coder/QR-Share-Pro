@@ -313,6 +313,9 @@ struct OnboardingView: View {
                                     withAnimation {
                                         isOnboardingDone = true
                                     }
+                                        currentPage = 0
+
+                                    completedStep1 = false
                                 } label: {
                                     Text("Done")
                                         .frame(maxWidth: .infinity, minHeight: 44)
