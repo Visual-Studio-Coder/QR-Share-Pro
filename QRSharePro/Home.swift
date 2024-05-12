@@ -129,6 +129,8 @@ struct Home: View {
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
                     .opacity(textIsEmptyWithAnimation ? 0.2 : 1)
+                    .draggable(Image(uiImage: qrCodeImage))
+                    .disabled(text.isEmpty)
                     .contextMenu {
                         if !text.isEmpty {
                             if text.count <= 3000 {
