@@ -40,12 +40,12 @@
 		8BA2748E2BB26FA100EF9631 /* HistoryDetailInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA2748D2BB26FA100EF9631 /* HistoryDetailInfo.swift */; };
 		8BA274902BB279BC00EF9631 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA2748F2BB279BC00EF9631 /* SceneDelegate.swift */; };
 		8BA274942BB27A9300EF9631 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA274932BB27A9300EF9631 /* AppDelegate.swift */; };
+		8BAFEC372BDF5A190008868D /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAFEC362BDF5A190008868D /* ColorfulX */; };
+		8BAFEC392BDF5A280008868D /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BAFEC382BDF5A280008868D /* ColorfulX */; };
 		8BB42EF82B9EB9FC00CE3DC6 /* Scanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB42EF72B9EB9FC00CE3DC6 /* Scanner.swift */; };
 		8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E1652B99575C0094D652 /* ShareViewController.swift */; };
 		8BB6E1692B99575C0094D652 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1682B99575C0094D652 /* Base */; };
 		8BB6E16D2B99575C0094D652 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BB6E1632B99575C0094D652 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		8BDF6FF02BCF614600AEF579 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BDF6FEF2BCF614600AEF579 /* ColorfulX */; };
-		8BDF6FF22BCF614D00AEF579 /* ColorfulX in Frameworks */ = {isa = PBXBuildFile; productRef = 8BDF6FF12BCF614D00AEF579 /* ColorfulX */; };
 		8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */; };
 		8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC26B2BACE80C00423449 /* Storage.swift */; };
 /* End PBXBuildFile section */
@@ -133,7 +133,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7854077D2BCD913900932AA4 /* CameraPermission in Frameworks */,
-				8BDF6FF02BCF614600AEF579 /* ColorfulX in Frameworks */,
+				8BAFEC372BDF5A190008868D /* ColorfulX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,7 +141,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BDF6FF22BCF614D00AEF579 /* ColorfulX in Frameworks */,
+				8BAFEC392BDF5A280008868D /* ColorfulX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,7 +271,7 @@
 			name = QRSharePro;
 			packageProductDependencies = (
 				7854077C2BCD913900932AA4 /* CameraPermission */,
-				8BDF6FEF2BCF614600AEF579 /* ColorfulX */,
+				8BAFEC362BDF5A190008868D /* ColorfulX */,
 			);
 			productName = QRSharePro;
 			productReference = 78F2F23D2B91677000CDF3EC /* QRSharePro.app */;
@@ -291,7 +291,7 @@
 			);
 			name = Share;
 			packageProductDependencies = (
-				8BDF6FF12BCF614D00AEF579 /* ColorfulX */,
+				8BAFEC382BDF5A280008868D /* ColorfulX */,
 			);
 			productName = Share;
 			productReference = 8BB6E1632B99575C0094D652 /* Share.appex */;
@@ -326,7 +326,7 @@
 			mainGroup = 78F2F2342B91676F00CDF3EC;
 			packageReferences = (
 				7854077B2BCD913900932AA4 /* XCRemoteSwiftPackageReference "PermissionsKit" */,
-				8BDF6FEE2BCF614600AEF579 /* XCRemoteSwiftPackageReference "ColorfulX" */,
+				8BAFEC352BDF5A190008868D /* XCRemoteSwiftPackageReference "ColorfulX" */,
 			);
 			productRefGroup = 78F2F23E2B91677000CDF3EC /* Products */;
 			projectDirPath = "";
@@ -735,7 +735,7 @@
 				version = 10.0.1;
 			};
 		};
-		8BDF6FEE2BCF614600AEF579 /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
+		8BAFEC352BDF5A190008868D /* XCRemoteSwiftPackageReference "ColorfulX" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Lakr233/ColorfulX.git";
 			requirement = {
@@ -751,14 +751,14 @@
 			package = 7854077B2BCD913900932AA4 /* XCRemoteSwiftPackageReference "PermissionsKit" */;
 			productName = CameraPermission;
 		};
-		8BDF6FEF2BCF614600AEF579 /* ColorfulX */ = {
+		8BAFEC362BDF5A190008868D /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8BDF6FEE2BCF614600AEF579 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 8BAFEC352BDF5A190008868D /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
-		8BDF6FF12BCF614D00AEF579 /* ColorfulX */ = {
+		8BAFEC382BDF5A280008868D /* ColorfulX */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8BDF6FEE2BCF614600AEF579 /* XCRemoteSwiftPackageReference "ColorfulX" */;
+			package = 8BAFEC352BDF5A190008868D /* XCRemoteSwiftPackageReference "ColorfulX" */;
 			productName = ColorfulX;
 		};
 /* End XCSwiftPackageProductDependency section */
