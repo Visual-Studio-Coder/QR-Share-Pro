@@ -683,6 +683,7 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingAllTextSheet = true
                                     }
+                                    .draggable(qrCode.text.extractFirstURL())
                                     .contextMenu {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text.extractFirstURL()
