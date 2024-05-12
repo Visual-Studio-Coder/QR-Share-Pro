@@ -257,6 +257,7 @@ struct History: View {
                                                 }
                                             }
                                         }
+                                        .draggable(i.text.extractFirstURL())
                                         .contextMenu {
                                             if i.text.extractFirstURL().isValidURL() {
                                                 Button {
@@ -441,6 +442,7 @@ struct History: View {
                                             }
                                         }
                                     }
+                                    .draggable(i.text.extractFirstURL())
                                     .contextMenu {
                                         if i.text.extractFirstURL().isValidURL() {
                                             Button {
