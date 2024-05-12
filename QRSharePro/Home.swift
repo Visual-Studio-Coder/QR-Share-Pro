@@ -46,6 +46,7 @@ struct Home: View {
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
+    @AppStorage("isOnboardingDone") private var isOnboardingDone = true
     
     @State private var showingSettingsSheet = false
     @State var text = ""
@@ -498,7 +499,13 @@ struct Home: View {
                                 Label("Privacy", systemImage: "checkmark.shield")
                             }
                         }
-                        
+                        Section {
+                            Button {
+                                isOnboardingDone = false
+                            } label: {
+                                Label("Show Onboarding", systemImage: "hand.wave.fill")
+                            }
+                        }
                         Section {
                             NavigationLink {
                                 NavigationStack {
