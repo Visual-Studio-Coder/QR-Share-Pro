@@ -526,6 +526,7 @@ struct HistoryDetailInfo: View {
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
+                                        .draggable(qrCode.text.extractFirstURL())
                                         .contextMenu {
                                             Button {
                                                 UIPasteboard.general.string = qrCode.text.extractFirstURL()
@@ -654,7 +655,7 @@ struct HistoryDetailInfo: View {
                                         .scaledToFit()
                                         .padding(2)
                                 }
-                                    .frame(width: 50, height: 50)
+                                .frame(width: 50, height: 50)
                                 Text(qrCode.text.extractFirstURL())
                                     .bold()
                                     .lineLimit(2)
@@ -768,7 +769,7 @@ struct HistoryDetailInfo: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text(locationName ?? "(\(qrCode.scanLocation[0]), \(qrCode.scanLocation[1]))")
+                                        Text(locationName ?? "(\(qrCode.scanLocation[0]), \(qrCode.scanLocation[1])")
                                             .foregroundStyle(.secondary)
                                         Spacer()
                                         Image(systemName: "chevron.down")
