@@ -103,6 +103,7 @@ struct HistoryDetailInfo: View {
                             .interpolation(.none)
                             .resizable()
                             .aspectRatio(1, contentMode: .fit)
+                            .draggable(Image(uiImage: qrCodeImage))
                             .contextMenu {
                                 if !qrCode.text.isEmpty {
                                     Button {
@@ -294,6 +295,30 @@ struct HistoryDetailInfo: View {
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
+                                        .draggable(qrCode.text.extractFirstURL())
+                                        .contextMenu {
+                                            Button {
+                                                UIPasteboard.general.string = qrCode.text.extractFirstURL()
+                                            } label: {
+                                                Label("Copy URL", systemImage: "doc.on.doc")
+                                            }
+                                            
+                                            Button {
+                                                if let url = URL(string: qrCode.text.extractFirstURL()) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Label("Open URL", systemImage: "safari")
+                                            }
+                                            
+                                            Divider()
+                                            
+                                            Button {
+                                                showingFullURLSheet = true
+                                            } label: {
+                                                Label("Show Full URL", systemImage: "arrow.up.right")
+                                            }
+                                        }
                                     
                                     Spacer()
                                     
@@ -302,29 +327,6 @@ struct HistoryDetailInfo: View {
                                 }
                                 .onTapGesture {
                                     showingFullURLSheet = true
-                                }
-                                .contextMenu {
-                                    Button {
-                                        UIPasteboard.general.string = qrCode.text.extractFirstURL()
-                                    } label: {
-                                        Label("Copy URL", systemImage: "doc.on.doc")
-                                    }
-                                    
-                                    Button {
-                                        if let url = URL(string: qrCode.text.extractFirstURL()) {
-                                            UIApplication.shared.open(url)
-                                        }
-                                    } label: {
-                                        Label("Open URL", systemImage: "safari")
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    Button {
-                                        showingFullURLSheet = true
-                                    } label: {
-                                        Label("Show Full URL", systemImage: "arrow.up.right")
-                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -680,6 +682,7 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingAllTextSheet = true
                                     }
+                                    .draggable(qrCode.text.extractFirstURL())
                                     .contextMenu {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text.extractFirstURL()
@@ -703,6 +706,7 @@ struct HistoryDetailInfo: View {
                                 } label: {
                                     HStack {
                                         Text("Show Full Text")
+                                            .fixedSize(horizontal: true, vertical: false)
                                         
                                         Image(systemName: "arrow.up.right")
                                     }
@@ -785,7 +789,6 @@ struct HistoryDetailInfo: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text(locationName ?? "(\(qrCode.scanLocation[0]), \(qrCode.scanLocation[1]))")
                                         Text(locationName ?? "(\(qrCode.scanLocation[0]), \(qrCode.scanLocation[1])")
                                             .foregroundStyle(.secondary)
                                         Spacer()
