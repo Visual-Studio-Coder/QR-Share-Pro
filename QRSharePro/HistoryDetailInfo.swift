@@ -471,33 +471,11 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingFullURLSheet = true
                                     }
-                                    .contextMenu {
-                                        Button {
-                                            UIPasteboard.general.string = qrCode.text.extractFirstURL()
-                                        } label: {
-                                            Label("Copy Deep Link", systemImage: "doc.on.doc")
-                                        }
-                                        
-                                        Button {
-                                            if let url = URL(string: qrCode.text.extractFirstURL()) {
-                                                UIApplication.shared.open(url)
-                                            }
-                                        } label: {
-                                            Label("Open Deep Link", systemImage: "safari")
-                                        }
-                                        
-                                        Divider()
-                                        
-                                        Button {
-                                            showingFullURLSheet = true
-                                        } label: {
-                                            Label("Show Full URL", systemImage: "arrow.up.right")
-                                        }                                    }
                                 
                                 Text(URL(string: url.absoluteString)?.host?.replacingOccurrences(of: "www.", with: "") ?? qrCode.text.extractFirstURL())
-                                    .font(.largeTitle)
                                     .bold()
-                                    .lineLimit(1)
+                                    .lineLimit(2)
+                                    .draggable(URL(string: url.absoluteString)?.host?.replacingOccurrences(of: "www.", with: "") ?? qrCode.text.extractFirstURL())
                                     .contextMenu {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text.extractFirstURL()
@@ -548,6 +526,30 @@ struct HistoryDetailInfo: View {
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
+                                        .draggable(qrCode.text.extractFirstURL())
+                                        .contextMenu {
+                                            Button {
+                                                UIPasteboard.general.string = qrCode.text.extractFirstURL()
+                                            } label: {
+                                                Label("Copy Deep Link", systemImage: "doc.on.doc")
+                                            }
+                                            
+                                            Button {
+                                                if let url = URL(string: qrCode.text.extractFirstURL()) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            } label: {
+                                                Label("Open Deep Link", systemImage: "safari")
+                                            }
+                                            
+                                            Divider()
+                                            
+                                            Button {
+                                                showingFullURLSheet = true
+                                            } label: {
+                                                Label("Show Full URL", systemImage: "arrow.up.right")
+                                            }
+                                        }
                                     
                                     Spacer()
                                     
@@ -556,29 +558,6 @@ struct HistoryDetailInfo: View {
                                 }
                                 .onTapGesture {
                                     showingFullURLSheet = true
-                                }
-                                .contextMenu {
-                                    Button {
-                                        UIPasteboard.general.string = qrCode.text.extractFirstURL()
-                                    } label: {
-                                        Label("Copy Deep Link", systemImage: "doc.on.doc")
-                                    }
-                                    
-                                    Button {
-                                        if let url = URL(string: qrCode.text.extractFirstURL()) {
-                                            UIApplication.shared.open(url)
-                                        }
-                                    } label: {
-                                        Label("Open Deep Link", systemImage: "safari")
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    Button {
-                                        showingFullURLSheet = true
-                                    } label: {
-                                        Label("Show Full URL", systemImage: "arrow.up.right")
-                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -676,7 +655,7 @@ struct HistoryDetailInfo: View {
                                         .scaledToFit()
                                         .padding(2)
                                 }
-                                    .frame(width: 50, height: 50)
+                                .frame(width: 50, height: 50)
                                 Text(qrCode.text.extractFirstURL())
                                     .bold()
                                     .lineLimit(2)
@@ -790,7 +769,7 @@ struct HistoryDetailInfo: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text(locationName ?? "SCAN LOCATION")
+                                        Text(locationName ?? "(\(qrCode.scanLocation[0]), \(qrCode.scanLocation[1])")
                                             .foregroundStyle(.secondary)
                                         Spacer()
                                         Image(systemName: "chevron.down")
