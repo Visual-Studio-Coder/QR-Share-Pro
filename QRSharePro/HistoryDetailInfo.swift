@@ -180,7 +180,6 @@ struct HistoryDetailInfo: View {
                         .opacity((showingFullURLSheet || showingAllTextSheet) ? 0.3 : 1)
                         .transition(.opacity)
                         .animation(Animation.easeInOut(duration: 0.3), value: showingFullURLSheet || showingAllTextSheet)
-                        .draggable(Image(uiImage: qrCodeImage))
                         .contextMenu {
                             Button {
                                 PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -200,7 +199,7 @@ struct HistoryDetailInfo: View {
                         if qrCode.text.extractFirstURL().isValidURL() {
                             HStack {
                                 if showWebsiteFavicons {
-                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text.extractFirstURL())!.host!).ico")) { i in
+                                    AsyncCachedImage(url: URL(string: qrCode.text.extractFirstURL())) { i in
                                         i
                                             .interpolation(.none)
                                             .resizable()
@@ -215,12 +214,34 @@ struct HistoryDetailInfo: View {
                                     .onTapGesture {
                                         showingFullURLSheet = true
                                     }
+                                    .contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = qrCode.text.extractFirstURL()
+                                        } label: {
+                                            Label("Copy URL", systemImage: "doc.on.doc")
+                                        }
+                                        
+                                        Button {
+                                            if let url = URL(string: qrCode.text.extractFirstURL()) {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        } label: {
+                                            Label("Open URL", systemImage: "safari")
+                                        }
+                                        
+                                        Divider()
+                                        
+                                        Button {
+                                            showingFullURLSheet = true
+                                        } label: {
+                                            Label("Show Full URL", systemImage: "arrow.up.right")
+                                        }
+                                    }
                                 }
                                 
                                 Text(title ?? URL(string: qrCode.text.extractFirstURL())!.host!.removeTrackers())
                                     .bold()
                                     .lineLimit(2)
-                                    .draggable(title ?? URL(string: qrCode.text.extractFirstURL())!.host!.removeTrackers())
                                     .contextMenu {
                                         Button {
                                             UIPasteboard.general.string = qrCode.text.extractFirstURL()
@@ -526,7 +547,6 @@ struct HistoryDetailInfo: View {
                                         .lineLimit(2)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
-                                        .draggable(qrCode.text.extractFirstURL())
                                         .contextMenu {
                                             Button {
                                                 UIPasteboard.general.string = qrCode.text.extractFirstURL()
