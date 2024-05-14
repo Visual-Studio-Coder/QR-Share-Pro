@@ -45,12 +45,8 @@ struct Home: View {
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
-<<<<<<< Updated upstream
     @AppStorage("isOnboardingDone") private var isOnboardingDone = true
-    
-=======
 
->>>>>>> Stashed changes
     @State private var showingSettingsSheet = false
     @State var text = ""
     @State private var textIsEmptyWithAnimation = true
@@ -504,7 +500,6 @@ struct Home: View {
                                 Label("Privacy", systemImage: "checkmark.shield")
                             }
                         }
-<<<<<<< Updated upstream
                         Section {
                             Button {
                                 isOnboardingDone = false
@@ -512,9 +507,6 @@ struct Home: View {
                                 Label("Show Onboarding", systemImage: "hand.wave")
                             }
                         }
-=======
-
->>>>>>> Stashed changes
                         Section {
                             NavigationLink {
                                 NavigationStack {
