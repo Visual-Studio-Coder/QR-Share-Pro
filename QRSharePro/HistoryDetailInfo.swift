@@ -200,7 +200,7 @@ struct HistoryDetailInfo: View {
                         if qrCode.text.extractFirstURL().isValidURL() {
                             HStack {
                                 if showWebsiteFavicons {
-                                    AsyncCachedImage(url: URL(string: qrCode.text.extractFirstURL())) { i in
+                                    AsyncCachedImage(url: URL(string: "https://icons.duckduckgo.com/ip3/\(URL(string: qrCode.text)!.host!).ico")) { i in
                                         i
                                             .interpolation(.none)
                                             .resizable()
