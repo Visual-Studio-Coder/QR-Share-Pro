@@ -1,58 +1,58 @@
-import AVFoundation
 import SwiftUI
+import AVFoundation
 
 class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @ObservedObject var locationManager = LocationManager()
-
+    
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
-
+    
     @Published var unshortenedURL: URL?
     @Published var detectedString: String?
-
+    
     @Published var qrCodeImage: UIImage?
-
+    
     @Published var qrCode: QRCode
-
+    
     @Published var isLoading = false
-
+    
     var qrCodeStore: QRCodeStore
-
+    
     func save() throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
-
+    
     @MainActor func clear() {
         detectedString = nil
     }
-
+    
     let scannerController = QRScannerController()
-
+    
     init(qrCodeStore: QRCodeStore) {
         self.qrCodeStore = qrCodeStore
-        qrCode = QRCode(text: "", originalURL: "")
+        self.qrCode = QRCode(text: "", originalURL: "")
         scannerController.delegate = self
         scannerController.requestCameraPermission()
     }
-
+    
     func startScanning() {
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.startScanning()
         }
     }
-
+    
     func stopScanning() {
         DispatchQueue.global(qos: .userInitiated).async {
             self.scannerController.stopScanning()
         }
     }
-
+    
     @MainActor func scanImage(_ image: UIImage) {
         guard let ciImage = CIImage(image: image) else { return }
-
+        
         let context = CIContext()
         let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
         let qrDetector = CIDetector(ofType: CIDetectorTypeQRCode, context: context, options: options)
-
+        
         if let features = qrDetector?.features(in: ciImage) as? [CIQRCodeFeature] {
             for feature in features {
                 if let decodedString = feature.messageString {
@@ -61,40 +61,40 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             }
         }
     }
-
+    
     @Published var lastDetectedURL: URL?
     @Published var lastDetectedString: String? = ""
-
+    
     let filter = CIFilter.qrCodeGenerator()
     let context = CIContext()
-
+    
     func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
-
+        
         if let qrCode = filter.outputImage {
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledQrCode = qrCode.transformed(by: transform)
-
+            
             if let cgImage = context.createCGImage(scaledQrCode, from: scaledQrCode.extent) {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
     }
-
+    
     @MainActor func didDetectQRCode(string: String) {
         isLoading = true
         if string.extractFirstURL().isValidURL(), let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
             guard url != URL(string: lastDetectedString!) else { return }
             lastDetectedString = string
-            detectedString = string
-
+            self.detectedString = string
+            
             if playHaptics {
                 AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
             }
-
+            
             let sanitizedURL = url.absoluteString.removeTrackers()
-
+            
             let configuration = URLSessionConfiguration.ephemeral
             let delegateQueue = OperationQueue()
             let delegate = CustomURLSessionDelegate()
@@ -103,9 +103,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             self.generateQRCode(from: sanitizedURL)
             let qrCodeImage = self.qrCodeImage!
             let pngData = qrCodeImage.pngData()!
-
+            
             var userLocation: [Double] = []
-
+            
             DispatchQueue.main.async {
                 if let location = self.locationManager.location {
                     userLocation = [location.latitude, location.longitude]
