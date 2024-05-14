@@ -85,7 +85,9 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @MainActor func didDetectQRCode(string: String) {
         isLoading = true
         if string.extractFirstURL().isValidURL(), let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
-            guard url != URL(string: lastDetectedString!) else { return }
+            guard url != URL(string: lastDetectedString!) else { 
+                return 
+            }
             lastDetectedString = string
             self.detectedString = string
             
@@ -132,9 +134,15 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             
             if let httpsURL = urlComponents?.url, UIApplication.shared.canOpenURL(httpsURL) {
                 session.dataTask(with: httpsURL) { (data, response, error) in
-                    guard error == nil else { return }
-                    guard let response = response else { return }
-                    guard let finalURL = response.url else { return }
+                    guard error == nil else { 
+                        return 
+                    }
+                    guard let response = response else { 
+                        return 
+                    }
+                    guard let finalURL = response.url else { 
+                        return 
+                    }
                     
                     DispatchQueue.main.async {
                         let newCode = QRCode(text: finalURL.absoluteString.removeTrackers(), originalURL: string, qrCode: pngData, scanLocation: userLocation, wasScanned: true)
@@ -154,13 +162,13 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
                         }
                         
                         self.unshortenedURL = finalURL
+                        self.isLoading = false
                     }
                 }.resume()
             }
             
             userLocation = []
         }
-        isLoading = false
     }
 }
 class CustomURLSessionDelegate: NSObject, URLSessionTaskDelegate {
