@@ -56,64 +56,66 @@ struct OnboardingView: View {
 
     var body: some View {
         VStack {
-            if isOnboardingDone {
-                ZStack {
+            ZStack {
+                VStack {
                     VStack {
-                        VStack {
-                            if selection == .Scanner {
-                                NavigationStack {
-                                    Scanner()
-                                }
-                            } else if selection == .NewQRCode {
-                                Home()
-                            } else {
-                                History()
+                        if selection == .Scanner {
+                            NavigationStack {
+                                Scanner()
                             }
-                        }
-                        .onChange(of: selection) { _ in
-                            if playHaptics {
-                                let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
-                                hapticGenerator.impactOccurred()
-                            }
-                        }
-                        .onAppear {
-                            Task {
-                                if !isQuickAction {
-                                    selection = launchTab
-                                }
-
-                                qrCodeStore.load()
-                            }
-                        }
-
-                        if showingTabView {
-                            HStack(spacing: 0) {
-                                ForEach(Tab.allCases, id: \.self) { tab in
-                                    Button {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
-                                            selection = tab
-                                        }
-                                    } label: {
-                                        Image(systemName: getImage(tab: tab))
-                                            .renderingMode(.template)
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(maxWidth: .infinity)
-                                            .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
-                                            .foregroundStyle(selection == tab ? Color.accentColor : .gray)
-                                            .scaleEffect(selection == tab ? 2 : 1)
-                                            .bold(selection == tab)
-                                    }
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 15)
-                            .padding(.bottom, 10)
-                            .padding([.horizontal, .top])
+                        } else if selection == .NewQRCode {
+                            Home()
+                        } else {
+                            History()
                         }
                     }
+                    .onChange(of: selection) { _ in
+                        if playHaptics {
+                            let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+                            hapticGenerator.impactOccurred()
+                        }
+                    }
+                    .onAppear {
+                        Task {
+                            if !isQuickAction {
+                                selection = launchTab
+                            }
+
+                            qrCodeStore.load()
+                        }
+                    }
+
+                    if showingTabView {
+                        HStack(spacing: 0) {
+                            ForEach(Tab.allCases, id: \.self) { tab in
+                                Button {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
+                                        selection = tab
+                                    }
+                                } label: {
+                                    Image(systemName: getImage(tab: tab))
+                                        .renderingMode(.template)
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(maxWidth: .infinity)
+                                        .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
+                                        .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+                                        .scaleEffect(selection == tab ? 2 : 1)
+                                        .bold(selection == tab)
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 15)
+                        .padding(.bottom, 10)
+                        .padding([.horizontal, .top])
+                    }
                 }
-                .ignoresSafeArea(.keyboard, edges: .bottom)
-            } else {
+            }
+            .transition(.opacity)
+            .animation(.easeInOut, value: isOnboardingDone)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .fullScreenCover(isPresented: .constant(!isOnboardingDone)) {
+                // Onboarding interface
                 ZStack {
                     ColorfulView(color: $colors, noise: $noise)
                         .ignoresSafeArea()
@@ -189,7 +191,8 @@ struct OnboardingView: View {
                                         withAnimation {
                                             currentPage = 1
                                         }
-
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
                                         completedStep1 = true
                                     } label: {
                                         Text("Continue")
@@ -200,6 +203,12 @@ struct OnboardingView: View {
                                             .bold()
                                             .padding(.horizontal)
                                     }
+                                    .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                                        if inProgress {
+                                            let generator = UIImpactFeedbackGenerator(style: .soft)
+                                            generator.impactOccurred()
+                                        }
+                                    }, perform: {})
                                 }
                                 .sheet(isPresented: $showingPrivacySheet) {
                                     NavigationStack {
@@ -310,12 +319,14 @@ struct OnboardingView: View {
                                     Spacer()
                                 }
                                 Button {
-                                    withAnimation {
+                                    withAnimation(.easeInOut) {
                                         isOnboardingDone = true
                                     }
                                         currentPage = 0
 
                                     completedStep1 = false
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
                                 } label: {
                                     Text("Done")
                                         .frame(maxWidth: .infinity, minHeight: 44)
@@ -325,14 +336,20 @@ struct OnboardingView: View {
                                         .bold()
                                         .padding(.horizontal)
                                 }
+                                .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                                                                if inProgress {
+                                                                    let generator = UIImpactFeedbackGenerator(style: .soft)
+                                                                    generator.impactOccurred()
+                                                                }
+                                                            }, perform: {})
                             }
                             .tag(1)
                         }
                         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // hide the built-in page indicator
                     }
                 }
-                .opacity(isOnboardingDone ? 0 : 1)
-                .animation(.easeInOut, value: isOnboardingDone)
+                .transition(.opacity)
+                .animation(.easeInOut, value: !isOnboardingDone)
             }
         }
         .onOpenURL(perform: openURL)

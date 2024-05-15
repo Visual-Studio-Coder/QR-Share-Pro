@@ -45,7 +45,7 @@ struct Home: View {
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
-    @AppStorage("isOnboardingDone") private var isOnboardingDone = true
+    @AppStorage("isOnboardingDone") private var isOnboardingDone = false
 
     @State private var showingSettingsSheet = false
     @State var text = ""
@@ -201,7 +201,7 @@ struct Home: View {
                                 .onReceive(timer) { _ in
                                     let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
 
-                                    if animatedText.count < fullText.count {
+                                    if animatedText.count < fullText.count && isOnboardingDone {
                                         animatedText.append(fullText[fullText.index(fullText.startIndex, offsetBy: animatedText.count)])
                                         if playHaptics {
                                             hapticGenerator.impactOccurred()
