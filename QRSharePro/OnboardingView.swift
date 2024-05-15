@@ -278,7 +278,7 @@ struct OnboardingView: View {
                                                     .background(Color.accentColor)
                                                     .clipShape(Circle())
 
-                                                Text("Open the share sheet, then scroll right and tap on **More**.")
+                                                Text("Open the share menu, then scroll right and tap on **More**.")
                                                     .foregroundStyle(.white)
                                                     .multilineTextAlignment(.leading)
                                                     .fixedSize(horizontal: false, vertical: true)
