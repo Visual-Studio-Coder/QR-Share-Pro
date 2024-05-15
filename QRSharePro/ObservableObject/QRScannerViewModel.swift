@@ -85,8 +85,8 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
     @MainActor func didDetectQRCode(string: String) {
         isLoading = true
         if string.extractFirstURL().isValidURL(), let url = URL(string: string.extractFirstURL()), UIApplication.shared.canOpenURL(url) {
-            guard url != URL(string: lastDetectedString!) else { 
-                return 
+            guard url != URL(string: lastDetectedString!) else {
+                return
             }
             lastDetectedString = string
             self.detectedString = string
@@ -134,14 +134,14 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             
             if let httpsURL = urlComponents?.url, UIApplication.shared.canOpenURL(httpsURL) {
                 session.dataTask(with: httpsURL) { (data, response, error) in
-                    guard error == nil else { 
-                        return 
+                    guard error == nil else {
+                        return
                     }
-                    guard let response = response else { 
-                        return 
+                    guard let response = response else {
+                        return
                     }
-                    guard let finalURL = response.url else { 
-                        return 
+                    guard let finalURL = response.url else {
+                        return
                     }
                     
                     DispatchQueue.main.async {
@@ -168,7 +168,84 @@ class QRScannerViewModel: ObservableObject, QRScannerControllerDelegate {
             }
             
             userLocation = []
+        } else if UIApplication.shared.canOpenURL(URL(string: string)!) {
+            guard string != lastDetectedString else { return }
+            
+            if playHaptics {
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            }
+            
+            generateQRCode(from: string)
+            
+            if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
+                var userLocation: [Double] = [] // re-write user's location in memory
+                
+                if let location = locationManager.location {
+                    userLocation = [location.latitude, location.longitude]
+                } else {
+                    print("Could not get user location.")
+                }
+                
+                let newCode = QRCode(text: string, originalURL: "", qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                
+                qrCodeStore.history.append(newCode)
+                
+                Task {
+                    do {
+                        try save()
+                        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+            
+            lastDetectedString = string
+            
+            DispatchQueue.main.async {
+                self.detectedString = string
+                self.isLoading = false
+            }
+        } else {
+            guard string != lastDetectedString else { return }
+            
+            if playHaptics {
+                AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            }
+            
+            generateQRCode(from: string)
+            
+            if let qrCodeImage = self.qrCodeImage, let pngData = qrCodeImage.pngData() {
+                var userLocation: [Double] = [] // re-write user's location in memory
+                
+                if let location = locationManager.location {
+                    userLocation = [location.latitude, location.longitude]
+                } else {
+                    print("Could not get user location.")
+                }
+                
+                let newCode = QRCode(text: string, originalURL: "", qrCode: pngData, scanLocation: userLocation, wasScanned: true)
+                
+                qrCodeStore.history.append(newCode)
+                
+                Task {
+                    do {
+                        try save()
+                        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.click.QRShare.dataChanged" as CFString), nil, nil, true)
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+            
+            lastDetectedString = string
+            
+            DispatchQueue.main.async {
+                self.detectedString = string
+                self.isLoading = false
+            }
         }
+        isLoading = false
     }
 }
 class CustomURLSessionDelegate: NSObject, URLSessionTaskDelegate {
