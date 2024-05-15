@@ -35,7 +35,16 @@ extension View {
         modifier(NavigationBackButton(color: color, text: text))
     }
 }
-
+extension UINavigationController: UIGestureRecognizerDelegate {
+    open override func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return viewControllers.count > 1
+    }
+}
 struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
@@ -383,7 +392,7 @@ struct Home: View {
                                                     Image(uiImage: #imageLiteral(resourceName: i.iconURL))
                                                         .resizable()
                                                         .frame(width: 50, height: 50)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                        .clipShape(RoundedRectangle(cornerRadius: 12))
                                                         .shadow(radius: 50)
                                                     
                                                     Text(i.iconName)
@@ -409,38 +418,39 @@ struct Home: View {
                         }
                         NavigationLink {
                             
-                                List {
-                                    Section {
-                                        Text("\"Scan QR code using QR Share Pro\"")
-                                        Text("\"Create QR code using QR Share Pro\"")
-                                    } header : {
-                                        Text("Siri Phrases")
-                                    } footer: {
-                                        Text("Use Siri to quickly create or scan QR codes on the fly.")
-                                    }
-                                    
-                                    Section {
-                                        Text("Access QR Share Pro shortcuts from spotlight search OR within the Shortcuts app as well.")
-                                    }
-                                    
+                            List {
+                                Section {
+                                    Text("\"Scan QR code using QR Share Pro\"")
+                                    Text("\"Create QR code using QR Share Pro\"")
+                                } header : {
+                                    Text("Siri Phrases")
+                                } footer: {
+                                    Text("Use Siri to quickly create or scan QR codes on the fly.")
                                 }
-                                .navigationTitle(Text("Siri and Shortcuts"))
+                                
+                                Section {
+                                    Text("Access QR Share Pro shortcuts from spotlight search OR within the Shortcuts app as well.")
+                                }
+                                
+                            }
+                            .navigationTitle(Text("Siri and Shortcuts"))
+                            .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                             
                         } label: {
-                        
-                                //Image("Siri")
-                                //    .resizable()
-                                //    .frame(width: 30, height: 30)
-                                //Text("Siri and Shortcuts")
-                                //Label("Siri and Shortcuts", image: "Siri")
-                                    Label {
-                                        Text("Siri and Shortcuts")
-                                    } icon: {
-                                        Image("Siri")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 20, height: 20)
-                                    }
+                            
+                            //Image("Siri")
+                            //    .resizable()
+                            //    .frame(width: 30, height: 30)
+                            //Text("Siri and Shortcuts")
+                            //Label("Siri and Shortcuts", image: "Siri")
+                            Label {
+                                Text("Siri and Shortcuts")
+                            } icon: {
+                                Image("Siri")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 20, height: 20)
+                            }
                         }
                         
                         Section {
@@ -736,7 +746,6 @@ struct Home: View {
         }
     }
 }
-
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
