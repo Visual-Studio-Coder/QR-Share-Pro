@@ -109,7 +109,7 @@ struct Scanner: View {
     
     @State private var showingFullTextSheet = false
     @State private var isFlashlightOn = false
-    @State private var showingCameraError = !Permission.camera.authorized
+    let showingCameraError = !Permission.camera.authorized
     @State private var isImagePickerPresented = false
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
