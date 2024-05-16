@@ -3,19 +3,20 @@ import CameraPermission
 import PermissionsKit
 import SwiftUI
 import UIKit
+import PhotosUI
 
 class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var captureSession = AVCaptureSession()
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
-
+    
     weak var delegate: QRScannerControllerDelegate?
-
+    
     func requestCameraPermission() {
         AVCaptureDevice.requestAccess(for: .video, completionHandler: { accessGranted in
             guard accessGranted else { return }
         })
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         requestCameraPermission()
@@ -23,46 +24,46 @@ class QRScannerController: UIViewController, AVCaptureMetadataOutputObjectsDeleg
             print("Don't run this on the simulator - run it on your iPhone.")
             return
         }
-
+        
         let videoInput: AVCaptureDeviceInput
-
+        
         do {
             videoInput = try AVCaptureDeviceInput(device: captureDevice)
         } catch {
             print(error.localizedDescription)
             return
         }
-
+        
         captureSession.addInput(videoInput)
-
+        
         let captureMetadataOutput = AVCaptureMetadataOutput()
         captureSession.addOutput(captureMetadataOutput)
-
+        
         captureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         captureMetadataOutput.metadataObjectTypes = [.qr]
-
+        
         videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         videoPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
         view.layer.addSublayer(videoPreviewLayer!)
     }
-
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         videoPreviewLayer?.frame = view.layer.bounds.inset(by: view.safeAreaInsets)
     }
-
+    
     func startScanning() {
         if !captureSession.isRunning {
             captureSession.startRunning()
         }
     }
-
+    
     func stopScanning() {
         if captureSession.isRunning {
             captureSession.stopRunning()
         }
     }
-
+    
     func metadataOutput(_: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from _: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
@@ -77,51 +78,18 @@ protocol QRScannerControllerDelegate: AnyObject {
     func didDetectQRCode(string: String)
 }
 
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    @Environment(\.presentationMode) private var presentationMode
-
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_: UIImagePickerController, context _: UIViewControllerRepresentableContext<ImagePicker>) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-
-    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        var parent: ImagePicker
-
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-
-        func imagePickerController(_: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.selectedImage = image
-            }
-
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-    }
-}
-
 struct QRScanner: UIViewControllerRepresentable {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
-
+    
     func makeUIViewController(context _: Context) -> QRScannerController {
         return viewModel.scannerController
     }
-
+    
     func updateUIViewController(_: QRScannerController, context _: Context) {}
-
+    
     var lastScannedURL: URL?
     var lastScannedString: String?
-
+    
     mutating func metadataOutput(_: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from _: AVCaptureConnection) {
         if let metadataObject = metadataObjects.first,
            let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
@@ -134,20 +102,22 @@ struct QRScanner: UIViewControllerRepresentable {
 
 struct Scanner: View {
     @StateObject var viewModel = QRScannerViewModel(qrCodeStore: QRCodeStore())
-
+    
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
-
+    
     private let monitor = NetworkMonitor()
-
+    
     @State private var showingFullTextSheet = false
     @State private var isFlashlightOn = false
     @State private var showingCameraError = !Permission.camera.authorized
     @State private var isImagePickerPresented = false
+    @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
-
+    @State private var selectedPhotoData: Data?
+    
     var body: some View {
         ZStack(alignment: .bottom) {
-            if let image = selectedImage {
+            if let image = selectedImage  {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
@@ -159,10 +129,10 @@ struct Scanner: View {
                             Image(systemName: "xmark")
                                 .foregroundStyle(.blue)
                         }
-                        .frame(width: 60, height: 60)
-                        .background(VisualEffectView(effect: UIBlurEffect(style: .prominent)).overlay(Color.accentColor.opacity(0.1)))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                        .padding(), alignment: .topTrailing
+                            .frame(width: 60, height: 60)
+                            .background(VisualEffectView(effect: UIBlurEffect(style: .prominent)).overlay(Color.accentColor.opacity(0.1)))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                            .padding(), alignment: .topTrailing
                     )
                     .onAppear {
                         viewModel.scanImage(image)
@@ -182,7 +152,7 @@ struct Scanner: View {
                                                     .frame(width: 16, height: 16)
                                             } else {
                                                 Image(systemName: "link.badge.plus")
-                                                    //.symbolEffect(.pulse)
+                                                //.symbolEffect(.pulse)
                                                     .frame(width: 16, height: 16)
                                             }
                                         } else {
@@ -199,13 +169,13 @@ struct Scanner: View {
                                                 }
                                             }
                                         }
-
+                                        
                                         Text(url.absoluteString)
                                             .lineLimit(2)
                                     }
                                 }
                                 .foregroundStyle(.blue)
-
+                                
                                 if viewModel.lastDetectedString != url.absoluteString {
                                     Menu {
                                         Section {
@@ -269,7 +239,7 @@ struct Scanner: View {
                                             Label("Copy Text", systemImage: "doc.on.doc")
                                                 .tint(Color.accentColor)
                                         }
-
+                                        
                                         Text(string)
                                             .contextMenu {
                                                 Button {
@@ -293,6 +263,19 @@ struct Scanner: View {
                                 }
                             }
                         }
+                    } else {
+                        Button {
+                            // do nothing ig
+                        } label: {
+                            HStack {
+                                Text("**No QR Code Detected**\nPlease upload a different image.")
+                                Image(systemName: "rectangle.portrait.on.rectangle.portrait.slash")
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding()
+                        .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
                 }
                 .padding()
@@ -302,11 +285,11 @@ struct Scanner: View {
                         .tint(.primary)
                         .padding(.bottom, 25)
                 }
-
+                
                 if showingCameraError {
                     VStack {
                         Spacer()
-
+                        
                         Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
                             .resizable()
                             .frame(width: 150, height: 150)
@@ -314,35 +297,35 @@ struct Scanner: View {
                             .accessibilityHidden(true)
                             .shadow(color: .accentColor, radius: 15)
                             .padding(.top, 20)
-
+                        
                         Text("QR Share Pro")
                             .font(.largeTitle)
                             .foregroundStyle(Color.accentColor)
                             .bold()
-
+                        
                         Text("is requesting:")
                             .font(.headline)
                             .foregroundStyle(.white)
                             .padding(.bottom, 20)
-
+                        
                         Label("Camera", systemImage: "camera")
                             .bold()
-
+                        
                         Text("Your camera is used to scan QR codes. This is done 100% offline.")
                             .padding(.horizontal, 50)
                             .multilineTextAlignment(.center)
                             .padding(.bottom, 50)
                             .foregroundStyle(.secondary)
-
+                        
                         Label("Location", systemImage: "location")
                             .bold()
-
+                        
                         Text("You'll be able to see where you scanned QR codes. Apple Maps displays the saved coordinates onto a map.")
                             .padding(.horizontal, 50)
                             .multilineTextAlignment(.center)
                             .padding(.bottom, 50)
                             .foregroundStyle(.secondary)
-
+                        
                         Button {
                             UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
                         } label: {
@@ -354,7 +337,7 @@ struct Scanner: View {
                                 .bold()
                         }
                         .padding(.horizontal)
-
+                        
                         Spacer()
                     }
                 } else {
@@ -365,7 +348,7 @@ struct Scanner: View {
                         .onDisappear {
                             viewModel.stopScanning()
                         }
-
+                    
                     VStack {
                         if let string = viewModel.detectedString {
                             if string.isValidURL(), let url = URL(string: string) {
@@ -381,7 +364,7 @@ struct Scanner: View {
                                                         .frame(width: 16, height: 16)
                                                 } else {
                                                     Image(systemName: "link.badge.plus")
-                                                        //.symbolEffect(.pulse)
+                                                    //.symbolEffect(.pulse)
                                                         .frame(width: 16, height: 16)
                                                 }
                                             } else {
@@ -398,13 +381,13 @@ struct Scanner: View {
                                                     }
                                                 }
                                             }
-
+                                            
                                             Text(url.absoluteString)
                                                 .lineLimit(2)
                                         }
                                     }
                                     .foregroundStyle(.blue)
-
+                                    
                                     if viewModel.lastDetectedString != url.absoluteString {
                                         Menu {
                                             Section {
@@ -468,7 +451,7 @@ struct Scanner: View {
                                                 Label("Copy Text", systemImage: "doc.on.doc")
                                                     .tint(Color.accentColor)
                                             }
-
+                                            
                                             Text(string)
                                                 .contextMenu {
                                                     Button {
@@ -518,22 +501,26 @@ struct Scanner: View {
                     .foregroundStyle(isFlashlightOn ? Color.accentColor : Color.secondary)
                 }
             }
-
+            
             ToolbarItem(placement: .topBarLeading) {
-                Button(action: {
-                    isImagePickerPresented = true
-                }) {
-                    Image(systemName: "photo.on.rectangle.angled")
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    Label("Select a photo", systemImage: "photo.on.rectangle.angled")
                 }
+                .onChange(of: selectedItem) { newItem in
+                    Task {
+                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                            selectedPhotoData = data
+                            selectedImage = UIImage(data: data)
+                        }
+                    }
+                }
+                
             }
-        }
-        .sheet(isPresented: $isImagePickerPresented) {
-            ImagePicker(selectedImage: $selectedImage)
         }
         .navigationTitle(Text("Scan QR Code"))
         .navigationBarTitleDisplayMode(.inline)
     }
-
+    
     func toggleFlashlight() {
         guard let device = AVCaptureDevice.default(for: .video) else { return }
         if device.hasTorch {
@@ -558,7 +545,7 @@ struct Scanner: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-
+        
         Scanner()
             .environmentObject(qrCodeStore)
     }
