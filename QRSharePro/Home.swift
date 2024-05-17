@@ -25,7 +25,13 @@ struct NavigationBackButton: ViewModifier {
                         Text(text)
                             .foregroundStyle(color)
                     }
-                })
+                })/*.contextMenu {
+                    Button {
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Label("Settings", systemImage: "chevron.backward")
+                    }
+                }*/
             )
     }
 }
@@ -372,84 +378,101 @@ struct Home: View {
             .sheet(isPresented: $showingSettingsSheet) {
                 NavigationStack {
                     List {
-                        NavigationLink {
-                            NavigationStack {
-                                List {
-                                    Section("App Icon & Theme") {
-                                        ForEach(allIcons) { i in
-                                            Button {
-                                                changeAppIcon(to: i.iconURL)
-                                                UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
-                                            } label: {
-                                                HStack {
-                                                    Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
-                                                        .resizable()
-                                                        .frame(width: 20, height: 20)
-                                                        .font(.title2)
-                                                        .tint(.accentColor)
-                                                        .padding(.trailing, 5)
-                                                    
-                                                    Image(uiImage: #imageLiteral(resourceName: i.iconURL))
-                                                        .resizable()
-                                                        .frame(width: 50, height: 50)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                                        .shadow(radius: 50)
-                                                    
-                                                    Text(i.iconName)
-                                                        .tint(.primary)
+                        Section {
+                            NavigationLink {
+                                NavigationStack {
+                                    List {
+                                        Section("App Icon & Theme") {
+                                            ForEach(allIcons) { i in
+                                                Button {
+                                                    changeAppIcon(to: i.iconURL)
+                                                    UserDefaults.standard.set(i.iconURL, forKey: "appIcon")
+                                                } label: {
+                                                    HStack {
+                                                        Image(systemName: i.iconURL == (UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon") ? "checkmark.circle.fill" : "circle")
+                                                            .resizable()
+                                                            .frame(width: 20, height: 20)
+                                                            .font(.title2)
+                                                            .tint(.accentColor)
+                                                            .padding(.trailing, 5)
+                                                        
+                                                        Image(uiImage: #imageLiteral(resourceName: i.iconURL))
+                                                            .resizable()
+                                                            .frame(width: 50, height: 50)
+                                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                                            .shadow(radius: 50)
+                                                        
+                                                        Text(i.iconName)
+                                                            .tint(.primary)
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                    .accentColor(accentColorManager.accentColor)
+                                    .navigationTitle("App Icon & Theme")
+                                    .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                                 }
-                                .accentColor(accentColorManager.accentColor)
-                                .navigationTitle("App Icon and Theme")
-                                .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
-                            }
-                        } label: {
-                            Label {
-                                Text("App Icon and Theme")
-                            } icon: {
-                                Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
-                                    .resizable()
-                                    .frame(width: 30, height: 30)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } label: {
+                                Label {
+                                    Text("App Icon & Theme")
+                                } icon: {
+                                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
+                                        .resizable()
+                                        .frame(width: 30, height: 30)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
                             }
                         }
-                        NavigationLink {
-                            
-                            List {
-                                Section {
-                                    Text("\"Scan QR code using QR Share Pro\"")
-                                    Text("\"Create QR code using QR Share Pro\"")
-                                } header : {
-                                    Text("Siri Phrases")
-                                } footer: {
-                                    Text("Use Siri to quickly create or scan QR codes on the fly.")
+                        
+                        Section {
+                            NavigationLink {
+                                List {
+                                    Section {
+                                        HStack {
+                                            Image("Siri")
+                                                .resizable()
+                                                .frame(width: 50, height: 50)
+                                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                                .shadow(radius: 50)
+                                            
+                                            VStack(alignment: .leading) {
+                                                Text("USE YOUR VOICE")
+                                                    .foregroundStyle(.secondary)
+                                                    .font(.caption2)
+                                                
+                                                Text("Hey Siri...")
+                                                    .tint(.primary)
+                                                    .bold()
+                                                    .font(.title2)
+                                            }
+                                        }
+                                    }
+                                    
+                                    Section {
+                                        Text("\"Scan QR code using QR Share Pro\"")
+                                        Text("\"Create QR code using QR Share Pro\"")
+                                    } header: {
+                                        Text("Siri Phrases")
+                                    } footer: {
+                                        Text("Use Siri to quickly create or scan QR codes on the fly.")
+                                    }
+                                    
+                                    Section("Shortcuts") {
+                                        Text("Access QR Share Pro shortcuts from Spotlight or in the Shortcuts app.")
+                                    }
                                 }
-                                
-                                Section {
-                                    Text("Access QR Share Pro shortcuts from spotlight search OR within the Shortcuts app as well.")
+                                .navigationTitle(Text("Siri & Shortcuts"))
+                                .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
+                            } label: {
+                                Label {
+                                    Text("Siri & Shortcuts")
+                                } icon: {
+                                    Image("Siri")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 20, height: 20)
                                 }
-                                
-                            }
-                            .navigationTitle(Text("Siri and Shortcuts"))
-                            .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
-                            
-                        } label: {
-                            
-                            //Image("Siri")
-                            //    .resizable()
-                            //    .frame(width: 30, height: 30)
-                            //Text("Siri and Shortcuts")
-                            //Label("Siri and Shortcuts", image: "Siri")
-                            Label {
-                                Text("Siri and Shortcuts")
-                            } icon: {
-                                Image("Siri")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 20, height: 20)
                             }
                         }
                         
@@ -545,13 +568,16 @@ struct Home: View {
                                 Label("Privacy", systemImage: "checkmark.shield")
                             }
                         }
+                        
                         Section {
                             Button {
                                 isOnboardingDone = false
                             } label: {
                                 Label("Show Onboarding", systemImage: "hand.wave")
+                                    .tint(.primary)
                             }
                         }
+                        
                         Section {
                             NavigationLink {
                                 NavigationStack {

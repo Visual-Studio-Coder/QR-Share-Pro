@@ -152,7 +152,6 @@ struct Scanner: View {
                                                     .frame(width: 16, height: 16)
                                             } else {
                                                 Image(systemName: "link.badge.plus")
-                                                //.symbolEffect(.pulse)
                                                     .frame(width: 16, height: 16)
                                             }
                                         } else {
