@@ -107,6 +107,7 @@ struct Scanner: View {
     
     private let monitor = NetworkMonitor()
     
+    @State private var isCopied = false
     @State private var showingFullTextSheet = false
     @State private var isFlashlightOn = false
     let showingCameraError = !Permission.camera.authorized
@@ -220,6 +221,7 @@ struct Scanner: View {
                                 showingFullTextSheet = true
                             } label: {
                                 HStack {
+                                    Image(systemName: "line.3.horizontal.circle.fill")
                                     Text(string)
                                         .lineLimit(3)
                                         .foregroundStyle(Color.accentColor)
@@ -231,45 +233,55 @@ struct Scanner: View {
                             .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                             .sheet(isPresented: $showingFullTextSheet) {
-                                List {
-                                    Section {
-                                        Button {
-                                            UIPasteboard.general.string = string
-                                        } label: {
-                                            Label("Copy Text", systemImage: "doc.on.doc")
-                                                .tint(Color.accentColor)
-                                        }
-                                        
-                                        Text(string)
-                                            .contextMenu {
-                                                Button {
-                                                    UIPasteboard.general.string = string
-                                                } label: {
+                                NavigationStack {
+                                    List {
+                                        Section {
+                                            Button {
+                                                UIPasteboard.general.string = string
+                                                isCopied = true
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                    isCopied = false
+                                                }
+                                            } label: {
+                                                if isCopied {
+                                                    Label("Copied!", systemImage: "checkmark")
+                                                        .tint(Color.accentColor)
+                                                } else {
                                                     Label("Copy Text", systemImage: "doc.on.doc")
+                                                        .tint(Color.accentColor)
                                                 }
                                             }
-                                    } footer: {
-                                        Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                            
+                                            Text(string)
+                                                .contextMenu {
+                                                    Button {
+                                                        UIPasteboard.general.string = string
+                                                    } label: {
+                                                        Label("Copy Text", systemImage: "doc.on.doc")
+                                                    }
+                                                }
+                                        } footer: {
+                                            Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                        }
                                     }
-                                }
-                                .navigationTitle(string)
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    ToolbarItem(placement: .topBarTrailing) {
-                                        Button("Done") {
-                                            showingFullTextSheet = false
+                                    .navigationTitle(string)
+                                    .navigationBarTitleDisplayMode(.inline)
+                                    .toolbar {
+                                        ToolbarItem(placement: .topBarTrailing) {
+                                            Button("Done") {
+                                                showingFullTextSheet = false
+                                            }
                                         }
                                     }
                                 }
+                                .presentationDetents([.medium, .large])
                             }
                         }
                     } else {
-                        Button {
-                            // do nothing ig
-                        } label: {
+                        PhotosPicker(selection: $selectedItem, matching: .images) {
                             HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
                                 Text("**No QR Code Detected**\nPlease upload a different image.")
-                                Image(systemName: "rectangle.portrait.on.rectangle.portrait.slash")
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -432,6 +444,7 @@ struct Scanner: View {
                                     showingFullTextSheet = true
                                 } label: {
                                     HStack {
+                                        Image(systemName: "line.3.horizontal.circle.fill")
                                         Text(string)
                                             .lineLimit(3)
                                             .foregroundStyle(Color.accentColor)
@@ -443,36 +456,48 @@ struct Scanner: View {
                                 .background(VisualEffectView(effect: UIBlurEffect(style: .systemMaterial)).overlay(Color.accentColor.opacity(0.1)))
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .sheet(isPresented: $showingFullTextSheet) {
-                                    List {
-                                        Section {
-                                            Button {
-                                                UIPasteboard.general.string = string
-                                            } label: {
-                                                Label("Copy Text", systemImage: "doc.on.doc")
-                                                    .tint(Color.accentColor)
-                                            }
-                                            
-                                            Text(string)
-                                                .contextMenu {
-                                                    Button {
-                                                        UIPasteboard.general.string = string
-                                                    } label: {
+                                    NavigationStack {
+                                        List {
+                                            Section {
+                                                Button {
+                                                    UIPasteboard.general.string = string
+                                                    isCopied = true
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                        isCopied = false
+                                                    }
+                                                } label: {
+                                                    if isCopied {
+                                                        Label("Copied!", systemImage: "checkmark")
+                                                            .tint(Color.accentColor)
+                                                    } else {
                                                         Label("Copy Text", systemImage: "doc.on.doc")
+                                                            .tint(Color.accentColor)
                                                     }
                                                 }
-                                        } footer: {
-                                            Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                                
+                                                Text(string)
+                                                    .contextMenu {
+                                                        Button {
+                                                            UIPasteboard.general.string = string
+                                                        } label: {
+                                                            Label("Copy Text", systemImage: "doc.on.doc")
+                                                        }
+                                                    }
+                                            } footer: {
+                                                Text(string.count == 1 ? "1 character" : "\(string.count) characters")
+                                            }
                                         }
-                                    }
-                                    .navigationTitle(string)
-                                    .navigationBarTitleDisplayMode(.inline)
-                                    .toolbar {
-                                        ToolbarItem(placement: .topBarTrailing) {
-                                            Button("Done") {
-                                                showingFullTextSheet = false
+                                        .navigationTitle(string)
+                                        .navigationBarTitleDisplayMode(.inline)
+                                        .toolbar {
+                                            ToolbarItem(placement: .topBarTrailing) {
+                                                Button("Done") {
+                                                    showingFullTextSheet = false
+                                                }
                                             }
                                         }
                                     }
+                                    .presentationDetents([.medium, .large])
                                 }
                             }
                         }
