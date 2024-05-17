@@ -3,14 +3,14 @@ import SwiftUI
 
 struct OnboardingView: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
-
+    
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.scenePhase) var scenePhase
-
+    
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
-
+    
     @State private var showingPrivacySheet = false
     @State private var showingTabView = true
     @State private var completedStep1 = false
@@ -20,14 +20,14 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var isDragging = false
     @State private var noise = 50.00
-
+    
     let features = [
         Feature(title: "Share QR Codes from the Share Menu", description: "When you tap the share icon, we easily generate a beautiful QR code that anyone nearby can scan!", image: "square.and.arrow.up"),
         Feature(title: "Scan Securely & Privately", description: "Sus short link? We unshorten it automatically, with trackers removed.", image: "qrcode.viewfinder"),
         Feature(title: "History", description: "See what you’ve scanned, created, and shared.", image: "clock.arrow.circlepath"),
         Feature(title: "Privacy Included", description: "QR Share Pro can operate 100% offline, with all data stored on-device.", image: "checkmark.shield"),
     ]
-
+    
     func getImage(tab: Tab) -> String {
         switch tab {
         case .Scanner:
@@ -38,12 +38,12 @@ struct OnboardingView: View {
             return "clock.arrow.circlepath"
         }
     }
-
+    
     @EnvironmentObject var sharedData: SharedData
-
+    
     func openURL(_ url: URL) {
         isQuickAction = true
-
+        
         if url.absoluteString.contains("new") {
             selection = .NewQRCode
             sharedData.text = url.queryParameters?["q"] ?? ""
@@ -53,7 +53,7 @@ struct OnboardingView: View {
             selection = .History
         }
     }
-
+    
     var body: some View {
         VStack {
             ZStack {
@@ -80,11 +80,11 @@ struct OnboardingView: View {
                             if !isQuickAction {
                                 selection = launchTab
                             }
-
+                            
                             qrCodeStore.load()
                         }
                     }
-
+                    
                     if showingTabView {
                         HStack(spacing: 0) {
                             ForEach(Tab.allCases, id: \.self) { tab in
@@ -131,12 +131,12 @@ struct OnboardingView: View {
                                             .accessibilityHidden(true)
                                             .shadow(color: .accentColor, radius: 15)
                                             .padding(.top, 20)
-
+                                        
                                         VStack {
                                             Text("QR Share Pro")
                                                 .font(.largeTitle)
                                                 .foregroundStyle(.cyan)
-
+                                            
                                             Text("QR codes, done *right*.")
                                                 .font(.headline)
                                                 .foregroundStyle(.white)
@@ -144,7 +144,7 @@ struct OnboardingView: View {
                                         .multilineTextAlignment(.center)
                                         .font(.largeTitle)
                                         .bold()
-
+                                        
                                         ForEach(features) { feature in
                                             HStack {
                                                 Image(systemName: feature.image)
@@ -152,13 +152,13 @@ struct OnboardingView: View {
                                                     .font(.title)
                                                     .foregroundStyle(Color.accentColor)
                                                     .accessibilityHidden(true)
-
+                                                
                                                 VStack(alignment: .leading) {
                                                     Text("\(feature.title)")
                                                         .foregroundStyle(.white)
                                                         .font(.headline)
                                                         .bold()
-
+                                                    
                                                     if feature.title == "Privacy Included" {
                                                         Button {
                                                             showingPrivacySheet = true
@@ -166,7 +166,7 @@ struct OnboardingView: View {
                                                             VStack(alignment: .leading) {
                                                                 Text("\(feature.description)")
                                                                     .foregroundStyle(.white.opacity(0.7))
-
+                                                                
                                                                 Text("Learn more...")
                                                                     .foregroundStyle(Color.accentColor)
                                                                     .bold()
@@ -185,7 +185,7 @@ struct OnboardingView: View {
                                     }
                                 }
                                 .padding(.horizontal)
-
+                                
                                 VStack {
                                     Button {
                                         withAnimation {
@@ -230,7 +230,7 @@ struct OnboardingView: View {
                                 }
                             }
                             .tag(0)
-
+                            
                             VStack {
                                 Spacer()
                                 ScrollView {
@@ -239,20 +239,20 @@ struct OnboardingView: View {
                                         .font(.title)
                                         .bold()
                                         .multilineTextAlignment(.center)
-
+                                    
                                     Text("Quickly share text & URLs with QR codes by accessing it directly from the share menu!")
                                         .font(.subheadline)
                                         .multilineTextAlignment(.center)
                                         .foregroundStyle(.white)
                                         .padding(.horizontal, 50)
                                         .padding(.bottom, 10)
-
+                                    
                                     Image("QR-share-sheet")
                                         .resizable()
                                         .clipShape(RoundedRectangle(cornerRadius: 16))
                                         .scaledToFit()
                                         .padding(.horizontal, 50)
-
+                                    
                                     ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
                                         HStack {
                                             Spacer()
@@ -265,10 +265,10 @@ struct OnboardingView: View {
                                     .background(.white)
                                     .clipShape(RoundedRectangle(cornerRadius: 18))
                                     .padding(.horizontal, 50)
-
+                                    
                                     HStack {
                                         Spacer()
-
+                                        
                                         VStack(alignment: .leading) {
                                             HStack {
                                                 Text("1")
@@ -277,13 +277,13 @@ struct OnboardingView: View {
                                                     .foregroundStyle(.white)
                                                     .background(Color.accentColor)
                                                     .clipShape(Circle())
-
+                                                
                                                 Text("Open the share menu, then scroll right and tap on **More**.")
                                                     .foregroundStyle(.white)
                                                     .multilineTextAlignment(.leading)
                                                     .fixedSize(horizontal: false, vertical: true)
                                             }
-
+                                            
                                             HStack {
                                                 Text("2")
                                                     .bold()
@@ -291,13 +291,13 @@ struct OnboardingView: View {
                                                     .foregroundStyle(.white)
                                                     .background(Color.accentColor)
                                                     .clipShape(Circle())
-
+                                                
                                                 Text("Tap on **Edit** in the top right corner.")
                                                     .foregroundStyle(.white)
                                                     .multilineTextAlignment(.leading)
                                                     .fixedSize(horizontal: false, vertical: true)
                                             }
-
+                                            
                                             HStack {
                                                 Text("3")
                                                     .bold()
@@ -305,7 +305,7 @@ struct OnboardingView: View {
                                                     .foregroundStyle(.white)
                                                     .background(Color.accentColor)
                                                     .clipShape(Circle())
-
+                                                
                                                 Text("Add **QR Share Pro** and re-order it to the top.")
                                                     .foregroundStyle(.white)
                                                     .multilineTextAlignment(.leading)
@@ -315,7 +315,7 @@ struct OnboardingView: View {
                                         .padding(.horizontal)
                                         Spacer()
                                     }
-
+                                    
                                     Spacer()
                                 }
                                 Button {
@@ -323,7 +323,7 @@ struct OnboardingView: View {
                                         isOnboardingDone = true
                                     }
                                     currentPage = 0
-
+                                    
                                     completedStep1 = false
                                     let generator = UIImpactFeedbackGenerator(style: .light)
                                     generator.impactOccurred()
@@ -359,7 +359,7 @@ struct OnboardingView: View {
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()
-
+        
         OnboardingView()
             .environmentObject(qrCodeStore)
     }
@@ -370,7 +370,7 @@ extension URL {
         guard let components = URLComponents(url: self, resolvingAgainstBaseURL: true), let queryItems = components.queryItems else {
             return nil
         }
-
+        
         return queryItems.reduce(into: [String: String]()) { result, item in
             result[item.name] = item.value
         }

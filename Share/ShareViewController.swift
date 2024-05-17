@@ -48,7 +48,7 @@ struct ShareView: View {
             return "Share Plaintext"
         }
     }
-
+    
     var body: some View {
         ZStack {
             ColorfulView(color: $colors)
