@@ -13,7 +13,7 @@ extension String {
         
         return false
     }
-
+    
     func extractFirstURL() -> String {
         let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
         let matches = detector?.matches(in: self, options: [], range: NSMakeRange(0, self.utf16.count))

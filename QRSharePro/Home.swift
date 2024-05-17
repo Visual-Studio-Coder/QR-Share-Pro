@@ -26,12 +26,12 @@ struct NavigationBackButton: ViewModifier {
                             .foregroundStyle(color)
                     }
                 })/*.contextMenu {
-                    Button {
-                        presentationMode.wrappedValue.dismiss()
-                    } label: {
-                        Label("Settings", systemImage: "chevron.backward")
-                    }
-                }*/
+                   Button {
+                   presentationMode.wrappedValue.dismiss()
+                   } label: {
+                   Label("Settings", systemImage: "chevron.backward")
+                   }
+                   }*/
             )
     }
 }
