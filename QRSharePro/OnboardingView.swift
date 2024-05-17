@@ -20,7 +20,7 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var isDragging = false
     @State private var noise = 50.00
-    
+
     let features = [
         Feature(title: "Share QR Codes from the Share Menu", description: "When you tap the share icon, we easily generate a beautiful QR code that anyone nearby can scan!", image: "square.and.arrow.up"),
         Feature(title: "Scan Securely & Privately", description: "Sus short link? We unshorten it automatically, with trackers removed.", image: "qrcode.viewfinder"),
@@ -322,7 +322,7 @@ struct OnboardingView: View {
                                     withAnimation(.easeInOut) {
                                         isOnboardingDone = true
                                     }
-                                        currentPage = 0
+                                    currentPage = 0
 
                                     completedStep1 = false
                                     let generator = UIImpactFeedbackGenerator(style: .light)
@@ -337,11 +337,11 @@ struct OnboardingView: View {
                                         .padding(.horizontal)
                                 }
                                 .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
-                                                                if inProgress {
-                                                                    let generator = UIImpactFeedbackGenerator(style: .soft)
-                                                                    generator.impactOccurred()
-                                                                }
-                                                            }, perform: {})
+                                    if inProgress {
+                                        let generator = UIImpactFeedbackGenerator(style: .soft)
+                                        generator.impactOccurred()
+                                    }
+                                }, perform: {})
                             }
                             .tag(1)
                         }
