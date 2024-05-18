@@ -1,10 +1,8 @@
 # Privacy Policy
 
-## Last updated: April 17, 2024
+## Last updated: May 17, 2024
 
-> **TL;DR:** We strongly support users' right to privacy. QR Share Pro doesn't collect or sell your data to anyone. Everything is saved and processed on device.
-
-1. We don't collect anything.
+1. We strongly support users' right to privacy. QR Share Pro doesn't collect anything or sell your data to anyone.
 2. QR Share Pro stores all data on-device.
-3. Website favicons are queried through [DuckDuckGo](https://duckduckgo.com/privacy). (***Opt-out:* QR Share Pro (new QR code form) > top right Gear icon > toggle "Show Website Favicons"**)
-4. Scanned QR code locations are stored on-device. [Apple Maps](https://apple.com/legal/privacy) displays the saved coordinates onto a map. (***Opt-out:* Settings > QR Share Pro > Location**)
+3. Website favicons are privately queried through [DuckDuckGo](https://duckduckgo.com/privacy). (**_Opt-out:_ Settings > Privacy > toggle "Show Website Favicons"**)
+4. Scanned QR code locations are stored on-device. [Apple Maps](https://apple.com/legal/privacy) displays the saved coordinates onto a map. (**_Opt-out:_ iOS System Settings > QR Share Pro > Location**)
