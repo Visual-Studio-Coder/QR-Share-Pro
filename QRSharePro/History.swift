@@ -130,17 +130,19 @@ struct History: View {
                         
                         if editMode {
                             Section {
-                                Button {
-                                    showingClearFaviconsConfirmation = true
-                                } label: {
-                                    Label("Clear Website Favicons Cache", systemImage: "xmark.square")
-                                }
-                                .confirmationDialog("Clear Website Favicons Cache?", isPresented: $showingClearFaviconsConfirmation, titleVisibility: .visible) {
-                                    Button("Clear Website Favicons Cache", role: .destructive) {
-                                        withAnimation {
-                                            URLCache.shared.removeAllCachedResponses()
-                                            
-                                            showingClearFaviconsConfirmation = false
+                                if showWebsiteFavicons {
+                                    Button {
+                                        showingClearFaviconsConfirmation = true
+                                    } label: {
+                                        Label("Clear Website Favicons Cache", systemImage: "xmark.square")
+                                    }
+                                    .confirmationDialog("Clear Website Favicons Cache?", isPresented: $showingClearFaviconsConfirmation, titleVisibility: .visible) {
+                                        Button("Clear Website Favicons Cache", role: .destructive) {
+                                            withAnimation {
+                                                URLCache.shared.removeAllCachedResponses()
+                                                
+                                                showingClearFaviconsConfirmation = false
+                                            }
                                         }
                                     }
                                 }
@@ -178,7 +180,11 @@ struct History: View {
                             } header: {
                                 Text("Danger Zone")
                             } footer: {
-                                Text("These actions are permanent and can't be undone.")
+                                if pinned.isEmpty && !showWebsiteFavicons {
+                                    Text("This action is permanent and can't be undone.")
+                                } else {
+                                    Text("These actions are permanent and can't be undone.")
+                                }
                             }
                             .confirmationDialog("Clear Pins?", isPresented: $showingClearAllPinsConfirmation, titleVisibility: .visible) {
                                 Button("Clear Pins", role: .destructive) {
