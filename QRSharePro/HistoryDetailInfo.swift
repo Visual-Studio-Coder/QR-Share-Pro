@@ -658,7 +658,7 @@ struct HistoryDetailInfo: View {
                                 .frame(width: 50, height: 50)
                                 Text(qrCode.text.extractFirstURL())
                                     .bold()
-                                    .lineLimit(2)
+                                    .lineLimit(1)
                                     .onTapGesture {
                                         showingAllTextSheet = true
                                     }
@@ -684,17 +684,12 @@ struct HistoryDetailInfo: View {
                                 Button {
                                     showingAllTextSheet = true
                                 } label: {
-                                    HStack {
-                                        Text("Show Full Text")
-                                            .fixedSize(horizontal: true, vertical: false)
-                                        
-                                        Image(systemName: "arrow.up.right")
-                                    }
-                                    .padding(8)
-                                    .foregroundStyle(.white)
-                                    .background(Color.accentColor)
-                                    .clipShape(Capsule())
-                                    .bold()
+                                    Image(systemName: "arrow.up.right")
+                                        .padding(8)
+                                        .foregroundStyle(.white)
+                                        .background(Color.accentColor)
+                                        .clipShape(Capsule())
+                                        .bold()
                                 }
                             }
                             .padding(.horizontal)
