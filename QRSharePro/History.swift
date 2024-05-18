@@ -91,6 +91,7 @@ struct History: View {
                     
                     if x.isEmpty && pinned.isEmpty {
                         VStack {
+                            Spacer()
                             Image(systemName: "magnifyingglass")
                                 .resizable()
                                 .scaledToFit()
@@ -106,7 +107,6 @@ struct History: View {
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
                         }
-                        .padding(.top, 50)
                     }
                     
                     List {
