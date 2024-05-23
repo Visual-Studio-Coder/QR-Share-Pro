@@ -72,9 +72,6 @@ struct Home: View {
     @State private var qrCodeImage: UIImage = .init()
     @State private var showingClearFaviconsConfirmation = false
     @State private var animatedText = ""
-    @State private var selectedTab = "New QR Code"
-    
-    private var allTabs = ["Scan QR Code", "New QR Code", "History"]
     
     let fullText = "Start typing to\ngenerate a QR code..."
     let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
@@ -83,7 +80,8 @@ struct Home: View {
     
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
-    private var allIcons: [AppIcon] = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal Green"), AppIcon(iconURL: "AppIcon3", iconName: "Holographic Pink")]
+    private var allIcons = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal Green"), AppIcon(iconURL: "AppIcon3", iconName: "Holographic Pink")]
+    private var allTabs = ["Scan QR Code", "New QR Code", "History"]
     
     private func changeColor(to iconName: String) {
         switch iconName {
@@ -332,12 +330,6 @@ struct Home: View {
             .onAppear {
                 UINavigationBar.appearance().tintColor = .black
                 generateQRCode(from: "QR Share Pro")
-                
-                if launchTab == .History {
-                    selectedTab = "History"
-                } else if launchTab == .Scanner {
-                    selectedTab = "Scan QR Code"
-                }
             }
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -418,36 +410,6 @@ struct Home: View {
                             NavigationLink {
                                 List {
                                     Section {
-                                        HStack {
-                                            Label("Default Tab", systemImage: "star")
-                                            
-                                            Picker("", selection: $selectedTab) {
-                                                ForEach(allTabs, id: \.self) { tab in
-                                                    if tab == "Scan QR Code" {
-                                                        Label(" \(tab)", systemImage: "camera")
-                                                    } else if tab == "History" {
-                                                        Label(" \(tab)", systemImage: "clock.arrow.circlepath")
-                                                    } else {
-                                                        Label(" \(tab)", systemImage: "plus")
-                                                    }
-                                                }
-                                            }
-                                            .pickerStyle(.menu)
-                                            .onChange(of: selectedTab) { selected in
-                                                if selected == "Scan QR Code" {
-                                                    launchTab = .Scanner
-                                                } else if selected == "History" {
-                                                    launchTab = .History
-                                                } else {
-                                                    launchTab = .NewQRCode
-                                                }
-                                            }
-                                        }
-                                    } footer: {
-                                        Text("Choose the default tab that appears upon app launch.")
-                                    }
-                                    
-                                    Section {
                                         Toggle(isOn: $playHaptics.animation()) {
                                             Label("Play Haptics", systemImage: "wave.3.right")
                                         }
@@ -460,10 +422,55 @@ struct Home: View {
                                     }
                                 }
                                 .accentColor(accentColorManager.accentColor)
-                                .navigationTitle(Text("Accessibility"))
+                                .navigationTitle(Text("Haptics"))
                                 .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                             } label: {
-                                Label("Accessibility", systemImage: "hand.tap")
+                                Label("Haptics", systemImage: "hand.tap")
+                            }
+                            
+                            NavigationLink {
+                                List {
+                                    Section {
+                                        ForEach(allTabs, id: \.self) { i in
+                                            Button {
+                                                if i == "Scan QR Code" {
+                                                    launchTab = .Scanner
+                                                } else if i == "History" {
+                                                    launchTab = .History
+                                                } else {
+                                                    launchTab = .NewQRCode
+                                                }
+                                            } label: {
+                                                HStack {
+                                                    Image(systemName: ((launchTab == .Scanner && i == "Scan QR Code") || (launchTab == .History && i == "History") || (launchTab == .NewQRCode && i == "New QR Code")) ? "checkmark.circle.fill" : "circle")
+                                                        .resizable()
+                                                        .frame(width: 20, height: 20)
+                                                        .font(.title2)
+                                                        .tint(.accentColor)
+                                                        .padding(.trailing, 5)
+                                                    
+                                                    if i == "Scan QR Code" {
+                                                        Label(i, systemImage: "camera")
+                                                            .tint(.primary)
+                                                    } else if i == "History" {
+                                                        Label(i, systemImage: "clock.arrow.circlepath")
+                                                            .tint(.primary)
+                                                    } else {
+                                                        Label(i, systemImage: "plus")
+                                                            .tint(.primary)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } footer: {
+                                        Text("Choose the default tab that appears upon app launch.")
+                                    }
+                                }
+                                .accentColor(accentColorManager.accentColor)
+                                .navigationTitle(Text("Default Tab"))
+                                .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
+                            } label: {
+                                Label("Default Tab", systemImage: "star")
                             }
                             
                             NavigationLink {
@@ -531,6 +538,34 @@ struct Home: View {
                             NavigationLink {
                                 NavigationStack {
                                     List {
+                                        Section {
+                                            ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
+                                                HStack {
+                                                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
+                                                        .resizable()
+                                                        .frame(width: 50, height: 50)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                                        .shadow(color: .accentColor, radius: 5)
+                                                    
+                                                    VStack(alignment: .leading) {
+                                                        Text("QR Share Pro")
+                                                            .bold()
+                                                        
+                                                        Text("Version \(appVersion)")
+                                                            .foregroundStyle(.secondary)
+                                                    }
+                                                    
+                                                    Spacer()
+                                                    
+                                                    Image(systemName: "square.and.arrow.up")
+                                                        .font(.title)
+                                                        .bold()
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                                .tint(.primary)
+                                            }
+                                        }
+                                        
                                         Section("Credits") {
                                             Button {
                                                 if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
@@ -568,7 +603,7 @@ struct Home: View {
                                                 }
                                             } label: {
                                                 HStack {
-                                                    Label("Contribute", systemImage: "arrowshape.up")
+                                                    Label("Contribute", systemImage: "curlybraces")
                                                     Spacer()
                                                     Image(systemName: "arrow.up.right")
                                                         .tint(.secondary)
@@ -577,17 +612,7 @@ struct Home: View {
                                             .tint(.primary)
                                         }
                                         
-                                        Section("Spread Privacy") {
-                                            ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
-                                                HStack {
-                                                    Label("Share App", systemImage: "square.and.arrow.up")
-                                                    Spacer()
-                                                    Image(systemName: "arrow.up.right")
-                                                        .foregroundStyle(.secondary)
-                                                }
-                                            }
-                                            .tint(.primary)
-                                            
+                                        Section("Support Us") {
                                             Button {
                                                 requestReview()
                                             } label: {
@@ -617,13 +642,6 @@ struct Home: View {
                                     Spacer()
                                 }
                                 .padding(.top)
-                                
-                                HStack {
-                                    Spacer()
-                                    Text("© 2024 Vaibhav Satishkumar and Aaron Ma.")
-                                        .bold()
-                                    Spacer()
-                                }
                             }
                         }
                     }
