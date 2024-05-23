@@ -51,6 +51,7 @@ extension UINavigationController: UIGestureRecognizerDelegate {
         return viewControllers.count > 1
     }
 }
+
 struct Home: View {
     @EnvironmentObject var qrCodeStore: QRCodeStore
     @Environment(\.colorScheme) var colorScheme
@@ -60,6 +61,7 @@ struct Home: View {
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
+    @AppStorage("allTabs") private var allTabs = AppSettings.allTabs
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
     @State private var showingSettingsSheet = false
@@ -81,8 +83,7 @@ struct Home: View {
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
     private var allIcons = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal Green"), AppIcon(iconURL: "AppIcon3", iconName: "Holographic Pink")]
-    private var allTabs = ["Scan QR Code", "New QR Code", "History"]
-    
+
     private func changeColor(to iconName: String) {
         switch iconName {
         case "AppIcon2":
@@ -127,6 +128,10 @@ struct Home: View {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
+    }
+    
+    func moveTab(from source: IndexSet, to destination: Int) {
+        allTabs.move(fromOffsets: source, toOffset: destination)
     }
     
     var appVersion: String {
@@ -462,6 +467,7 @@ struct Home: View {
                                                 }
                                             }
                                         }
+                                        .onMove(perform: moveTab)
                                     } footer: {
                                         Text("Choose the default tab that appears upon app launch.")
                                     }
@@ -469,6 +475,11 @@ struct Home: View {
                                 .accentColor(accentColorManager.accentColor)
                                 .navigationTitle(Text("Default Tab"))
                                 .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
+                                .toolbar {
+                                    ToolbarItem(placement: .topBarTrailing) {
+                                        EditButton()
+                                    }
+                                }
                             } label: {
                                 Label("Default Tab", systemImage: "star")
                             }

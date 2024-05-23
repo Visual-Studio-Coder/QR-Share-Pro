@@ -46,6 +46,7 @@
 		8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB6E1652B99575C0094D652 /* ShareViewController.swift */; };
 		8BB6E1692B99575C0094D652 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 8BB6E1682B99575C0094D652 /* Base */; };
 		8BB6E16D2B99575C0094D652 /* Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8BB6E1632B99575C0094D652 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8BDCE6CC2BFEF5AE000BC24B /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BDCE6CB2BFEF5AE000BC24B /* Array.swift */; };
 		8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */; };
 		8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDC26B2BACE80C00423449 /* Storage.swift */; };
 /* End PBXBuildFile section */
@@ -123,6 +124,7 @@
 		8BB6E1652B99575C0094D652 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		8BB6E1682B99575C0094D652 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		8BB6E16A2B99575C0094D652 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8BDCE6CB2BFEF5AE000BC24B /* Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
 		8BFDC2682BACE2D100423449 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		8BFDC26B2BACE80C00423449 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -201,6 +203,7 @@
 				8B0C94322BBDDCDC009EC3E3 /* UIColor+encode.swift */,
 				8B0C944E2BBDFFE2009EC3E3 /* String+isValidURL.swift */,
 				8B255E782BC39C79008BE876 /* URL+prettify.swift */,
+				8BDCE6CB2BFEF5AE000BC24B /* Array.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 				8B0C94412BBDDF23009EC3E3 /* AppIcon.swift in Sources */,
 				8BA2748E2BB26FA100EF9631 /* HistoryDetailInfo.swift in Sources */,
 				8B0C94312BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift in Sources */,
+				8BDCE6CC2BFEF5AE000BC24B /* Array.swift in Sources */,
 				8B0C942F2BBDDC73009EC3E3 /* View+splashView.swift in Sources */,
 				78F2F2412B91677000CDF3EC /* QRShareProApp.swift in Sources */,
 				8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */,
