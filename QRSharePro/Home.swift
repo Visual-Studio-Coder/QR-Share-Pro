@@ -15,34 +15,26 @@ struct NavigationBackButton: ViewModifier {
     func body(content: Content) -> some View {
         return content
             .navigationBarBackButtonHidden(true)
-            .navigationBarItems(
-                leading: Button(action: { presentationMode.wrappedValue.dismiss() }, label: {
-                    HStack(spacing: 2) {
-                        Image(systemName: "chevron.backward")
-                            .foregroundStyle(color)
-                            .bold()
-                        
-                        Text(text)
-                            .foregroundStyle(color)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button("Settings") {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    } label: {
+                        HStack(spacing: 2) {
+                            Image(systemName: "chevron.backward")
+                                .foregroundStyle(color)
+                                .bold()
+                            
+                            Text(text)
+                                .foregroundStyle(color)
+                        }
+                    } primaryAction: {
+                        presentationMode.wrappedValue.dismiss()
                     }
-                })
-            )
-    }
-}
-
-extension View {
-    func navigationBackButton(color: Color, text: String) -> some View {
-        modifier(NavigationBackButton(color: color, text: text))
-    }
-}
-extension UINavigationController: UIGestureRecognizerDelegate {
-    open override func viewDidLoad() {
-        super.viewDidLoad()
-        interactivePopGestureRecognizer?.delegate = self
-    }
-    
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        return viewControllers.count > 1
+                }
+            }
     }
 }
 
@@ -106,11 +98,11 @@ struct Home: View {
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
     
-    func save() async throws {
+    private func save() async throws {
         qrCodeStore.save(history: qrCodeStore.history)
     }
     
-    func generateQRCode(from string: String) {
+    private func generateQRCode(from string: String) {
         let data = Data(string.utf8)
         filter.setValue(data, forKey: "inputMessage")
         
@@ -124,8 +116,12 @@ struct Home: View {
         }
     }
     
-    var appVersion: String {
-        (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
+    private var appVersion: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.3.0"
+    }
+    
+    private var appBuild: String {
+        (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "69"
     }
     
     var body: some View {
@@ -546,7 +542,7 @@ struct Home: View {
                                                         Text("QR Share Pro")
                                                             .bold()
                                                         
-                                                        Text("Version \(appVersion)")
+                                                        Text("Version \(appVersion) (\(appBuild))")
                                                             .foregroundStyle(.secondary)
                                                     }
                                                     
@@ -632,7 +628,7 @@ struct Home: View {
                             VStack {
                                 HStack {
                                     Spacer()
-                                    Text("QR Share Pro v\(appVersion)")
+                                    Text("QR Share Pro v\(appVersion) (\(appBuild))")
                                         .bold()
                                     Spacer()
                                 }
@@ -679,6 +675,7 @@ struct Home: View {
         }
     }
 }
+
 #Preview {
     Group {
         @StateObject var qrCodeStore = QRCodeStore()

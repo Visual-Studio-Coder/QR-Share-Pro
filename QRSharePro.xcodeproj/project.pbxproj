@@ -14,7 +14,6 @@
 		78F2F2482B91677300CDF3EC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */; };
 		78F9D53F2BD5EF7E00C56A5B /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F9D53E2BD5EF7E00C56A5B /* AppShortcuts.swift */; };
 		8B0C942D2BBDDC4A009EC3E3 /* Data+toImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C942C2BBDDC4A009EC3E3 /* Data+toImage.swift */; };
-		8B0C942F2BBDDC73009EC3E3 /* View+splashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C942E2BBDDC73009EC3E3 /* View+splashView.swift */; };
 		8B0C94312BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94302BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift */; };
 		8B0C94362BBDDE1F009EC3E3 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94352BBDDE1F009EC3E3 /* SplashView.swift */; };
 		8B0C94382BBDDE3A009EC3E3 /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94372BBDDE3A009EC3E3 /* OnboardingPageView.swift */; };
@@ -31,6 +30,8 @@
 		8B0C94532BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
 		8B250F2D2BFFFD7600E5663A /* String+extractFirstURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */; };
 		8B250F2F2C0006F800E5663A /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F2E2C0006F800E5663A /* URL.swift */; };
+		8B250F312C000B3D00E5663A /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F302C000B3D00E5663A /* View.swift */; };
+		8B250F332C000B5300E5663A /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F322C000B5300E5663A /* UINavigationController.swift */; };
 		8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */; };
 		8B2EE4B62B981066001C7997 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B52B981066001C7997 /* Home.swift */; };
 		8B77C40E2BD4550D000013A2 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B77C40D2BD4550D000013A2 /* AppSettings.swift */; };
@@ -95,7 +96,6 @@
 		78F2F2472B91677300CDF3EC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		78F9D53E2BD5EF7E00C56A5B /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
 		8B0C942C2BBDDC4A009EC3E3 /* Data+toImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+toImage.swift"; sourceTree = "<group>"; };
-		8B0C942E2BBDDC73009EC3E3 /* View+splashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+splashView.swift"; sourceTree = "<group>"; };
 		8B0C94302BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+currentUIWindow.swift"; sourceTree = "<group>"; };
 		8B0C94352BBDDE1F009EC3E3 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		8B0C94372BBDDE3A009EC3E3 /* OnboardingPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageView.swift; sourceTree = "<group>"; };
@@ -111,6 +111,8 @@
 		8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+extractFirstURL.swift"; sourceTree = "<group>"; };
 		8B250F2E2C0006F800E5663A /* URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
+		8B250F302C000B3D00E5663A /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
+		8B250F322C000B5300E5663A /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
 		8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8B2EE4B52B981066001C7997 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		8B77C40D2BD4550D000013A2 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -199,12 +201,13 @@
 			isa = PBXGroup;
 			children = (
 				8B0C942C2BBDDC4A009EC3E3 /* Data+toImage.swift */,
-				8B0C942E2BBDDC73009EC3E3 /* View+splashView.swift */,
 				8B0C94302BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift */,
 				8BDCE6CB2BFEF5AE000BC24B /* Array.swift */,
 				8BDCE6CD2BFEFA67000BC24B /* String.swift */,
 				8BDCE6CF2BFEFAAD000BC24B /* UIColor.swift */,
 				8B250F2E2C0006F800E5663A /* URL.swift */,
+				8B250F302C000B3D00E5663A /* View.swift */,
+				8B250F322C000B5300E5663A /* UINavigationController.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -392,12 +395,13 @@
 				8BDCE6D02BFEFAAD000BC24B /* UIColor.swift in Sources */,
 				8B250F2F2C0006F800E5663A /* URL.swift in Sources */,
 				8BDCE6CC2BFEF5AE000BC24B /* Array.swift in Sources */,
-				8B0C942F2BBDDC73009EC3E3 /* View+splashView.swift in Sources */,
 				78F2F2412B91677000CDF3EC /* QRShareProApp.swift in Sources */,
 				8BFDC2692BACE2D100423449 /* NetworkMonitor.swift in Sources */,
 				8B0C943D2BBDDEE9009EC3E3 /* Tab.swift in Sources */,
 				8B0C944A2BBDE09A009EC3E3 /* QRScannerViewModel.swift in Sources */,
+				8B250F312C000B3D00E5663A /* View.swift in Sources */,
 				8B0C94382BBDDE3A009EC3E3 /* OnboardingPageView.swift in Sources */,
+				8B250F332C000B5300E5663A /* UINavigationController.swift in Sources */,
 				8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */,
 				8B0C943F2BBDDF0E009EC3E3 /* Feature.swift in Sources */,
 			);
