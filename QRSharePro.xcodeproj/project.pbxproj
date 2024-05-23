@@ -29,6 +29,7 @@
 		8B0C944C2BBDE0C0009EC3E3 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C944B2BBDE0C0009EC3E3 /* VisualEffectView.swift */; };
 		8B0C94522BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
 		8B0C94532BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
+		8B250F2D2BFFFD7600E5663A /* String+extractFirstURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */; };
 		8B255E792BC39C79008BE876 /* URL+prettify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B255E782BC39C79008BE876 /* URL+prettify.swift */; };
 		8B2EE4B22B980F9B001C7997 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */; };
 		8B2EE4B62B981066001C7997 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2EE4B52B981066001C7997 /* Home.swift */; };
@@ -108,6 +109,7 @@
 		8B0C94492BBDE09A009EC3E3 /* QRScannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerViewModel.swift; sourceTree = "<group>"; };
 		8B0C944B2BBDE0C0009EC3E3 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+extractFirstURL.swift"; sourceTree = "<group>"; };
 		8B255E782BC39C79008BE876 /* URL+prettify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+prettify.swift"; sourceTree = "<group>"; };
 		8B2EE4B12B980F9B001C7997 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8B2EE4B52B981066001C7997 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
@@ -248,6 +250,7 @@
 				8BB6E1652B99575C0094D652 /* ShareViewController.swift */,
 				8BB6E1672B99575C0094D652 /* MainInterface.storyboard */,
 				8BB6E16A2B99575C0094D652 /* Info.plist */,
+				8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */,
 			);
 			path = Share;
 			sourceTree = "<group>";
@@ -406,6 +409,7 @@
 			files = (
 				8BB6E1662B99575C0094D652 /* ShareViewController.swift in Sources */,
 				78B575882BAD11880057A709 /* Storage.swift in Sources */,
+				8B250F2D2BFFFD7600E5663A /* String+extractFirstURL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
