@@ -10,7 +10,6 @@ struct OnboardingView: View {
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
-    @AppStorage("allTabs") private var allTabs = AppSettings.allTabs
     
     @State private var showingPrivacySheet = false
     @State private var showingTabView = true
@@ -29,16 +28,16 @@ struct OnboardingView: View {
         Feature(title: "Privacy Included", description: "QR Share Pro can operate 100% offline, with all data stored on-device.", image: "checkmark.shield"),
     ]
     
-//    func getImage(tab: Tab) -> String {
-//        switch tab {
-//        case .Scanner:
-//            return "qrcode.viewfinder"
-//        case .NewQRCode:
-//            return "plus"
-//        case .History:
-//            return "clock.arrow.circlepath"
-//        }
-//    }
+    func getImage(tab: Tab) -> String {
+        switch tab {
+        case .Scanner:
+            return "qrcode.viewfinder"
+        case .NewQRCode:
+            return "plus"
+        case .History:
+            return "clock.arrow.circlepath"
+        }
+    }
     
     @EnvironmentObject var sharedData: SharedData
     
@@ -59,69 +58,59 @@ struct OnboardingView: View {
         VStack {
             ZStack {
                 VStack {
-                    TabView(selection: $selection) {
-                        ForEach(allTabs, id: \.self) { i in
-                            if i == "Scan QR Code" {
-                                Scanner()
-                                    .tag(Tab.Scanner)
-                                    .tabItem {
-                                        Image(systemName: "qrcode.viewfinder")
-                                    }
-                            } else if i == "New QR Code" {
+                    VStack {
+                        VStack {
+                            if selection == .Scanner {
+                                NavigationStack {
+                                    Scanner()
+                                }
+                            } else if selection == .NewQRCode {
                                 Home()
-                                    .tag(Tab.NewQRCode)
-                                    .tabItem {
-                                        Image(systemName: "plus")
-                                    }
                             } else {
                                 History()
-                                    .tag(Tab.History)
-                                    .tabItem {
-                                        Image(systemName: "clock.arrow.circlepath")
+                            }
+                        }
+                        .onChange(of: selection) { _ in
+                            if playHaptics {
+                                let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+                                hapticGenerator.impactOccurred()
+                            }
+                        }
+                        .onAppear {
+                            Task {
+                                if !isQuickAction {
+                                    selection = launchTab
+                                }
+                                
+                                qrCodeStore.load()
+                            }
+                        }
+                        
+                        if showingTabView {
+                            HStack(spacing: 0) {
+                                ForEach(Tab.allCases, id: \.self) { tab in
+                                    Button {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
+                                            selection = tab
+                                        }
+                                    } label: {
+                                        Image(systemName: getImage(tab: tab))
+                                            .renderingMode(.template)
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(maxWidth: .infinity)
+                                            .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
+                                            .foregroundStyle(selection == tab ? Color.accentColor : .gray)
+                                            .scaleEffect(selection == tab ? 2 : 1)
+                                            .bold(selection == tab)
                                     }
+                                }
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 15)
+                            .padding(.bottom, 10)
+                            .padding([.horizontal, .top])
                         }
                     }
-                    .onChange(of: selection) { _ in
-                        if playHaptics {
-                            let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
-                            hapticGenerator.impactOccurred()
-                        }
-                    }
-                    .onAppear {
-                        Task {
-                            if !isQuickAction {
-                                selection = launchTab
-                            }
-                            
-                            qrCodeStore.load()
-                        }
-                    }
-                    
-//                    if showingTabView {
-//                        HStack(spacing: 0) {
-//                            ForEach(Tab.allCases, id: \.self) { tab in
-//                                Button {
-//                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0)) {
-//                                        selection = tab
-//                                    }
-//                                } label: {
-//                                    Image(systemName: getImage(tab: tab))
-//                                        .renderingMode(.template)
-//                                        .aspectRatio(contentMode: .fit)
-//                                        .frame(maxWidth: .infinity)
-//                                        .animation(Animation.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0).delay(0.01), value: selection)
-//                                        .foregroundStyle(selection == tab ? Color.accentColor : .gray)
-//                                        .scaleEffect(selection == tab ? 2 : 1)
-//                                        .bold(selection == tab)
-//                                }
-//                            }
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        .frame(height: 15)
-//                        .padding(.bottom, 10)
-//                        .padding([.horizontal, .top])
-//                    }
                 }
             }
             .transition(.opacity)
@@ -374,17 +363,5 @@ struct OnboardingView: View {
         
         OnboardingView()
             .environmentObject(qrCodeStore)
-    }
-}
-
-extension URL {
-    var queryParameters: [String: String]? {
-        guard let components = URLComponents(url: self, resolvingAgainstBaseURL: true), let queryItems = components.queryItems else {
-            return nil
-        }
-        
-        return queryItems.reduce(into: [String: String]()) { result, item in
-            result[item.name] = item.value
-        }
     }
 }
