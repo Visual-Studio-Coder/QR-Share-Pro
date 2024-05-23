@@ -473,7 +473,7 @@ struct Home: View {
                                     }
                                 }
                                 .accentColor(accentColorManager.accentColor)
-                                .navigationTitle(Text("Default Tab"))
+                                .navigationTitle(Text("Tab Bar"))
                                 .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
                                 .toolbar {
                                     ToolbarItem(placement: .topBarTrailing) {
@@ -481,7 +481,7 @@ struct Home: View {
                                     }
                                 }
                             } label: {
-                                Label("Default Tab", systemImage: "star")
+                                Label("Tab Bar", systemImage: "star")
                             }
                             
                             NavigationLink {
