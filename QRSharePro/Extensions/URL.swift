@@ -1,3 +1,10 @@
+//
+//  URL.swift
+//  QRSharePro
+//
+//  Created by Aaron Ma on 5/23/24.
+//
+
 import Foundation
 
 extension URL {
@@ -17,5 +24,15 @@ extension URL {
         }
         
         return URL(string: absoluteString)!
+    }
+    
+    var queryParameters: [String: String]? {
+        guard let components = URLComponents(url: self, resolvingAgainstBaseURL: true), let queryItems = components.queryItems else {
+            return nil
+        }
+        
+        return queryItems.reduce(into: [String: String]()) { result, item in
+            result[item.name] = item.value
+        }
     }
 }

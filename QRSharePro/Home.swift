@@ -25,13 +25,7 @@ struct NavigationBackButton: ViewModifier {
                         Text(text)
                             .foregroundStyle(color)
                     }
-                })/*.contextMenu {
-                   Button {
-                   presentationMode.wrappedValue.dismiss()
-                   } label: {
-                   Label("Settings", systemImage: "chevron.backward")
-                   }
-                   }*/
+                })
             )
     }
 }
@@ -61,11 +55,10 @@ struct Home: View {
     @AppStorage("showWebsiteFavicons") private var showWebsiteFavicons = AppSettings.showWebsiteFavicons
     @AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
     @AppStorage("launchTab") private var launchTab = AppSettings.launchTab
-    @AppStorage("allTabs") private var allTabs = AppSettings.allTabs
     @AppStorage("isOnboardingDone") private var isOnboardingDone = false
     
+    @State var text = "" // TODO: add a helper function that takes in widget input (please submit a PR)
     @State private var showingSettingsSheet = false
-    @State var text = ""
     @State private var textIsEmptyWithAnimation = true
     @State private var showSavedAlert = false
     @State private var showExceededLimitAlert = false
@@ -83,7 +76,8 @@ struct Home: View {
     @ObservedObject var accentColorManager = AccentColorManager.shared
     
     private var allIcons = [AppIcon(iconURL: "AppIcon", iconName: "Sky Blue"), AppIcon(iconURL: "AppIcon2", iconName: "Terminal Green"), AppIcon(iconURL: "AppIcon3", iconName: "Holographic Pink")]
-
+    private var allTabs = ["Scan QR Code", "New QR Code", "History"]
+    
     private func changeColor(to iconName: String) {
         switch iconName {
         case "AppIcon2":
@@ -128,10 +122,6 @@ struct Home: View {
                 qrCodeImage = UIImage(cgImage: cgImage)
             }
         }
-    }
-    
-    func moveTab(from source: IndexSet, to destination: Int) {
-        allTabs.move(fromOffsets: source, toOffset: destination)
     }
     
     var appVersion: String {
@@ -467,21 +457,15 @@ struct Home: View {
                                                 }
                                             }
                                         }
-                                        .onMove(perform: moveTab)
                                     } footer: {
                                         Text("Choose the default tab that appears upon app launch.")
                                     }
                                 }
                                 .accentColor(accentColorManager.accentColor)
-                                .navigationTitle(Text("Tab Bar"))
+                                .navigationTitle(Text("Default Tab"))
                                 .navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
-                                .toolbar {
-                                    ToolbarItem(placement: .topBarTrailing) {
-                                        EditButton()
-                                    }
-                                }
                             } label: {
-                                Label("Tab Bar", systemImage: "star")
+                                Label("Default Tab", systemImage: "star")
                             }
                             
                             NavigationLink {
