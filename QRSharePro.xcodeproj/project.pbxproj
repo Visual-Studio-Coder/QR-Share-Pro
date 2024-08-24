@@ -20,7 +20,6 @@
 		8B0C943A2BBDDE63009EC3E3 /* AsyncCachedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94392BBDDE63009EC3E3 /* AsyncCachedImage.swift */; };
 		8B0C943D2BBDDEE9009EC3E3 /* Tab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C943C2BBDDEE9009EC3E3 /* Tab.swift */; };
 		8B0C943F2BBDDF0E009EC3E3 /* Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C943E2BBDDF0E009EC3E3 /* Feature.swift */; };
-		8B0C94412BBDDF23009EC3E3 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94402BBDDF23009EC3E3 /* AppIcon.swift */; };
 		8B0C94442BBDDF4E009EC3E3 /* AccentColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94432BBDDF4E009EC3E3 /* AccentColorManager.swift */; };
 		8B0C94462BBDDF9C009EC3E3 /* ScanLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94452BBDDF9C009EC3E3 /* ScanLocation.swift */; };
 		8B0C94482BBDE004009EC3E3 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C94472BBDE004009EC3E3 /* LocationManager.swift */; };
@@ -28,6 +27,7 @@
 		8B0C944C2BBDE0C0009EC3E3 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0C944B2BBDE0C0009EC3E3 /* VisualEffectView.swift */; };
 		8B0C94522BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
 		8B0C94532BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */; };
+		8B15B4C22C7AA17C00DE3C00 /* SettingsBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B15B4C12C7AA17C00DE3C00 /* SettingsBoxView.swift */; };
 		8B250F2D2BFFFD7600E5663A /* String+extractFirstURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */; };
 		8B250F2F2C0006F800E5663A /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F2E2C0006F800E5663A /* URL.swift */; };
 		8B250F312C000B3D00E5663A /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B250F302C000B3D00E5663A /* View.swift */; };
@@ -102,13 +102,13 @@
 		8B0C94392BBDDE63009EC3E3 /* AsyncCachedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCachedImage.swift; sourceTree = "<group>"; };
 		8B0C943C2BBDDEE9009EC3E3 /* Tab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tab.swift; sourceTree = "<group>"; };
 		8B0C943E2BBDDF0E009EC3E3 /* Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.swift; sourceTree = "<group>"; };
-		8B0C94402BBDDF23009EC3E3 /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
 		8B0C94432BBDDF4E009EC3E3 /* AccentColorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentColorManager.swift; sourceTree = "<group>"; };
 		8B0C94452BBDDF9C009EC3E3 /* ScanLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanLocation.swift; sourceTree = "<group>"; };
 		8B0C94472BBDE004009EC3E3 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		8B0C94492BBDE09A009EC3E3 /* QRScannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerViewModel.swift; sourceTree = "<group>"; };
 		8B0C944B2BBDE0C0009EC3E3 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		8B0C94512BBE1C23009EC3E3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		8B15B4C12C7AA17C00DE3C00 /* SettingsBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsBoxView.swift; sourceTree = "<group>"; };
 		8B250F2C2BFFFD7600E5663A /* String+extractFirstURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+extractFirstURL.swift"; sourceTree = "<group>"; };
 		8B250F2E2C0006F800E5663A /* URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
 		8B250F302C000B3D00E5663A /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
@@ -178,7 +178,7 @@
 		78F2F23F2B91677000CDF3EC /* QRSharePro */ = {
 			isa = PBXGroup;
 			children = (
-				8B0C943B2BBDDEE2009EC3E3 /* Data */,
+				8B0C943B2BBDDEE2009EC3E3 /* Model */,
 				8B0C94342BBDDE08009EC3E3 /* Views */,
 				8B0C942B2BBDDC25009EC3E3 /* Extensions */,
 				8B0C94422BBDDF36009EC3E3 /* ObservableObject */,
@@ -219,20 +219,20 @@
 				8B0C94372BBDDE3A009EC3E3 /* OnboardingPageView.swift */,
 				8B0C94392BBDDE63009EC3E3 /* AsyncCachedImage.swift */,
 				8B0C944B2BBDE0C0009EC3E3 /* VisualEffectView.swift */,
+				8B15B4C12C7AA17C00DE3C00 /* SettingsBoxView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		8B0C943B2BBDDEE2009EC3E3 /* Data */ = {
+		8B0C943B2BBDDEE2009EC3E3 /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				8B0C943C2BBDDEE9009EC3E3 /* Tab.swift */,
 				8B0C943E2BBDDF0E009EC3E3 /* Feature.swift */,
-				8B0C94402BBDDF23009EC3E3 /* AppIcon.swift */,
 				8B0C94452BBDDF9C009EC3E3 /* ScanLocation.swift */,
 				8B77C40D2BD4550D000013A2 /* AppSettings.swift */,
 			);
-			path = Data;
+			path = Model;
 			sourceTree = "<group>";
 		};
 		8B0C94422BBDDF36009EC3E3 /* ObservableObject */ = {
@@ -313,7 +313,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1530;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					78F2F23C2B91677000CDF3EC = {
 						CreatedOnToolsVersion = 15.2;
@@ -389,7 +389,6 @@
 				8B0C944C2BBDE0C0009EC3E3 /* VisualEffectView.swift in Sources */,
 				8B2EE4B62B981066001C7997 /* Home.swift in Sources */,
 				8BB42EF82B9EB9FC00CE3DC6 /* Scanner.swift in Sources */,
-				8B0C94412BBDDF23009EC3E3 /* AppIcon.swift in Sources */,
 				8BA2748E2BB26FA100EF9631 /* HistoryDetailInfo.swift in Sources */,
 				8B0C94312BBDDCAD009EC3E3 /* UIApplication+currentUIWindow.swift in Sources */,
 				8BDCE6D02BFEFAAD000BC24B /* UIColor.swift in Sources */,
@@ -401,6 +400,7 @@
 				8B0C944A2BBDE09A009EC3E3 /* QRScannerViewModel.swift in Sources */,
 				8B250F312C000B3D00E5663A /* View.swift in Sources */,
 				8B0C94382BBDDE3A009EC3E3 /* OnboardingPageView.swift in Sources */,
+				8B15B4C22C7AA17C00DE3C00 /* SettingsBoxView.swift in Sources */,
 				8B250F332C000B5300E5663A /* UINavigationController.swift in Sources */,
 				8BFDC26C2BACE80C00423449 /* Storage.swift in Sources */,
 				8B0C943F2BBDDF0E009EC3E3 /* Feature.swift in Sources */,
@@ -561,7 +561,6 @@
 		78F2F24C2B91677300CDF3EC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon3 AppIcon2 AppIcon";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -603,7 +602,6 @@
 		78F2F24D2B91677300CDF3EC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon3 AppIcon2 AppIcon";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

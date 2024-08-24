@@ -5,7 +5,7 @@ struct QRCodeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @Environment(\.colorScheme) var colorScheme
-    @AppStorage("appIcon") private var appIcon = "AppIcon"
+//	@AppStorage("appTheme") private var appTheme = AppSettings.appTheme
     @StateObject private var qrCodeStore = QRCodeStore()
     @StateObject var sharedData = SharedData()
     @ObservedObject var accentColorManager = AccentColorManager.shared
@@ -26,11 +26,11 @@ struct QRCodeApp: App {
                             
                             Spacer()
                             
-                            Image(uiImage: #imageLiteral(resourceName: appIcon))
-                                .resizable()
-                                .frame(width: 150, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-                                .shadow(color: colorScheme == .dark ? accentColorManager.accentColor : accentColorManager.accentColor.opacity(0.1), radius: 50)
+//                            Image(uiImage:#imageLiteral(resourceName: appIcon))
+//                                .resizable()
+//                                .frame(width: 150, height: 150)
+//                                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+//                                .shadow(color: colorScheme == .dark ? accentColorManager.accentColor : accentColorManager.accentColor.opacity(0.1), radius: 50)
                             
                             Text("QR Share Pro")
                                 .font(.largeTitle)
