@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "AppIcon21024x1024.png",
+      "filename" : "appstore.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "AppIcon31024x1024.png",
+      "filename" : "appstore 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

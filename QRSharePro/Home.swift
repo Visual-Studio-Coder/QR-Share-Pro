@@ -59,7 +59,7 @@ struct Home: View {
 	@State private var qrCodeImage: UIImage = .init()
 	@State private var showingClearFaviconsConfirmation = false
 	@State private var animatedText = ""
-	@State private var launchTabSelection = "New QR Code"
+	@State private var launchTabSelection = "New"
 	
 	let fullText = "Start typing to\ngenerate a QR code..."
 	let timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
@@ -68,8 +68,8 @@ struct Home: View {
 	
 	@ObservedObject var accentColorManager = AccentColorManager.shared
 	
-	private var themes = ["Sky Blue", "Terminal Green", "Holographic Pink"]
-	private var allTabs = ["Scan QR Code", "New QR Code", "History"]
+	private var themes = ["Sky Blue", "Midnight Blue", "Bright Orange", "Mint Green", "Terminal Green", "Deep Purple", "Holographic Pink"]
+	private var allTabs = ["Scan", "New", "History"]
 	
 	let context = CIContext()
 	let filter = CIFilter.qrCodeGenerator()
@@ -94,10 +94,6 @@ struct Home: View {
 	
 	private var appVersion: String {
 		(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.3.0"
-	}
-	
-	private var appBuild: String {
-		(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String) ?? "69"
 	}
 	
 	var body: some View {
@@ -297,6 +293,14 @@ struct Home: View {
 			.onAppear {
 				UINavigationBar.appearance().tintColor = .black
 				generateQRCode(from: "QR Share Pro")
+				
+				if launchTab == .Scanner {
+					launchTabSelection = "Scan"
+				} else if launchTab == .NewQRCode {
+					launchTabSelection = "New"
+				} else {
+					launchTabSelection = "History"
+				}
 			}
 			.onTapGesture {
 				UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -346,15 +350,25 @@ struct Home: View {
 								Label {
 									Text("App Theme")
 								} icon: {
-									SettingsBoxView(icon: "app.gift", color: .blue)
+									SettingsBoxView(icon: "app.gift.fill", color: .pink)
 								}
 							}
+							.listRowBackground(Color.clear)
+							.listRowSeparator(.hidden)
 							.onChange(of: appTheme) { i in
 								switch i {
 								case "Terminal Green":
 									AccentColorManager.shared.accentColor = .green
 								case "Holographic Pink":
 									AccentColorManager.shared.accentColor = Color(UIColor(red: 252 / 255, green: 129 / 255, blue: 158 / 255, alpha: 1))
+								case "Midnight Blue":
+									AccentColorManager.shared.accentColor = .blue.opacity(0.67)
+								case "Mint Green":
+									AccentColorManager.shared.accentColor = .mint
+								case "Bright Orange":
+									AccentColorManager.shared.accentColor = .orange
+								case "Deep Purple":
+									AccentColorManager.shared.accentColor = .purple.opacity(0.67)
 								default:
 									AccentColorManager.shared.accentColor = Color(#colorLiteral(red: 0.3860174716, green: 0.7137812972, blue: 0.937712729, alpha: 1))
 								}
@@ -364,17 +378,21 @@ struct Home: View {
 								Label {
 									Text("Play Haptics")
 								} icon: {
-									SettingsBoxView(icon: "hand.tap", color: .orange)
+									SettingsBoxView(icon: "hand.tap.fill", color: .orange)
 								}
 							}
+							.listRowBackground(Color.clear)
+							.listRowSeparator(.hidden)
 							
 							Toggle(isOn: $showWebsiteFavicons) {
 								Label {
 									Text("Show Website Favicons")
 								} icon: {
-									SettingsBoxView(icon: "info.square", color: .orange)
+									SettingsBoxView(icon: "info.square.fill", color: .brown)
 								}
 							}
+							.listRowBackground(Color.clear)
+							.listRowSeparator(.hidden)
 							.onChange(of: showWebsiteFavicons) { state in
 								if !state {
 									showingClearFaviconsConfirmation = true
@@ -392,82 +410,36 @@ struct Home: View {
 							
 							Picker(selection: $launchTabSelection) {
 								ForEach(allTabs, id: \.self) { i in
-									Button {
-										if i == "Scan QR Code" {
-											launchTab = .Scanner
+									HStack {
+										if i == "Scan" {
+											Image(systemName: "camera")
 										} else if i == "History" {
-											launchTab = .History
+											Image(systemName: "clock.arrow.circlepath")
 										} else {
-											launchTab = .NewQRCode
+											Image(systemName: "plus")
 										}
-									} label: {
-										if i == "Scan QR Code" {
-											Label(i, systemImage: "camera")
-												.tint(.primary)
-										} else if i == "History" {
-											Label(i, systemImage: "clock.arrow.circlepath")
-												.tint(.primary)
-										} else {
-											Label(i, systemImage: "plus")
-												.tint(.primary)
-										}
+										
+										Text(" \(i)")
 									}
 								}
 							} label: {
 								Label {
 									Text("Default Tab")
 								} icon: {
-									SettingsBoxView(icon: "star", color: .yellow)
+									SettingsBoxView(icon: "star.fill", color: .mint)
 								}
 							}
-							
-							//							NavigationLink {
-							//								List {
-							//									Section {
-							//										ForEach(allTabs, id: \.self) { i in
-							//											Button {
-							//												if i == "Scan QR Code" {
-							//													launchTab = .Scanner
-							//												} else if i == "History" {
-							//													launchTab = .History
-							//												} else {
-							//													launchTab = .NewQRCode
-							//												}
-							//											} label: {
-							//												HStack {
-							//													Image(systemName: ((launchTab == .Scanner && i == "Scan QR Code") || (launchTab == .History && i == "History") || (launchTab == .NewQRCode && i == "New QR Code")) ? "checkmark.circle.fill" : "circle")
-							//														.resizable()
-							//														.frame(width: 20, height: 20)
-							//														.font(.title2)
-							//														.tint(.accentColor)
-							//														.padding(.trailing, 5)
-							//
-							//													if i == "Scan QR Code" {
-							//														Label(i, systemImage: "camera")
-							//															.tint(.primary)
-							//													} else if i == "History" {
-							//														Label(i, systemImage: "clock.arrow.circlepath")
-							//															.tint(.primary)
-							//													} else {
-							//														Label(i, systemImage: "plus")
-							//															.tint(.primary)
-							//													}
-							//												}
-							//											}
-							//										}
-							//									} footer: {
-							//										Text("Choose the default tab that appears upon app launch.")
-							//									}
-							//								}
-							//								.accentColor(accentColorManager.accentColor)
-							//								.navigationTitle("Default Tab")
-							//								.navigationBarTitleDisplayMode(.inline)
-							//								.navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
-							//							} label: {
-							//								Label("Default Tab", systemImage: "star")
-							//							}
-						} footer: {
-							Text("Choose the default tab that appears upon app launch.")
+							.listRowBackground(Color.clear)
+							.listRowSeparator(.hidden)
+							.onChange(of: launchTabSelection) { i in
+								if i == "Scan" {
+									launchTab = .Scanner
+								} else if i == "History" {
+									launchTab = .History
+								} else {
+									launchTab = .NewQRCode
+								}
+							}
 						}
 						
 						Section {
@@ -477,17 +449,17 @@ struct Home: View {
 										Section {
 											ShareLink(item: URL(string: "https://apps.apple.com/us/app/qr-share-pro/id6479589995")!) {
 												HStack {
-													//                                                    Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
-													//                                                        .resizable()
-													//                                                        .frame(width: 50, height: 50)
-													//                                                        .clipShape(RoundedRectangle(cornerRadius: 16))
-													//                                                        .shadow(color: .accentColor, radius: 5)
+													Image(uiImage: Bundle.main.icon ?? UIImage())
+														.resizable()
+														.frame(width: 50, height: 50)
+														.clipShape(RoundedRectangle(cornerRadius: 16))
+														.shadow(color: .accentColor, radius: 5)
 													
 													VStack(alignment: .leading) {
 														Text("QR Share Pro")
 															.bold()
 														
-														Text("Version \(appVersion) (\(appBuild))")
+														Text("Version \(appVersion)")
 															.foregroundStyle(.secondary)
 													}
 													
@@ -500,11 +472,13 @@ struct Home: View {
 												}
 												.tint(.primary)
 											}
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
 										}
 										
 										Section("Credits") {
 											Button {
-												if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
+												if let url = URL(string: "https://github.com/TopGApps/QR-Share-Pro") {
 													UIApplication.shared.open(url)
 												}
 											} label: {
@@ -518,6 +492,8 @@ struct Home: View {
 												}
 											}
 											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
 											
 											Button {
 												if let url = URL(string: "https://aaronhma.com") {
@@ -532,25 +508,13 @@ struct Home: View {
 												}
 											}
 											.tint(.primary)
-											
-											Button {
-												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro?tab=readme-ov-file#we--open-source") {
-													UIApplication.shared.open(url)
-												}
-											} label: {
-												HStack {
-													Label("Contribute", systemImage: "curlybraces")
-													Spacer()
-													Image(systemName: "arrow.up.right")
-														.tint(.secondary)
-												}
-											}
-											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
 										}
 										
-										Section("Privacy") {
+										Section {
 											Button {
-												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
+												if let url = URL(string: "https://github.com/TopGApps/QR-Share-Pro/blob/master/PRIVACY.md") {
 													UIApplication.shared.open(url)
 												}
 											} label: {
@@ -562,9 +526,15 @@ struct Home: View {
 												}
 											}
 											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
+										} header: {
+											Text("Privacy")
+										} footer: {
+											Text("TL;DR: No data is collected, sold, or shared.")
 										}
 										
-										Section("Support Us") {
+										Section("Support") {
 											Button {
 												requestReview()
 											} label: {
@@ -576,6 +546,24 @@ struct Home: View {
 												}
 											}
 											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
+											
+											Button {
+												if let url = URL(string: "https://github.com/TopGApps/QR-Share-Pro/?tab=readme-ov-file#we--open-source") {
+													UIApplication.shared.open(url)
+												}
+											} label: {
+												HStack {
+													Label("Contribute", systemImage: "curlybraces")
+													Spacer()
+													Image(systemName: "arrow.up.right")
+														.tint(.secondary)
+												}
+											}
+											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
 										}
 									}
 									.accentColor(accentColorManager.accentColor)
@@ -584,13 +572,19 @@ struct Home: View {
 									.navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
 								}
 							} label: {
-								Label("About QR Share Pro", systemImage: "info.circle")
+								Label {
+									Text("About QR Share Pro")
+								} icon: {
+									SettingsBoxView(icon: "info.circle.fill", color: .blue)
+								}
 							}
+							.listRowBackground(Color.clear)
+							.listRowSeparator(.hidden)
 						} footer: {
 							VStack {
 								HStack {
 									Spacer()
-									Text("QR Share Pro v\(appVersion) (\(appBuild))")
+									Text("QR Share Pro v\(appVersion)")
 										.bold()
 									Spacer()
 								}
@@ -607,9 +601,11 @@ struct Home: View {
 							Button {
 								showingSettingsSheet = false
 							} label: {
-								Text("Done")
-									.tint(accentColorManager.accentColor)
+								Image(systemName: "xmark.circle.fill")
+									.foregroundStyle(.secondary)
+									.bold()
 							}
+							.buttonStyle(.plain)
 						}
 						
 						ToolbarItemGroup(placement: .keyboard) {
@@ -623,7 +619,11 @@ struct Home: View {
 						}
 					}
 				}
-				.presentationDetents([.medium, .large])
+				.presentationDetents([.height(200), .large])
+				.presentationBackground(.regularMaterial)
+				.presentationBackgroundInteraction(.enabled(upThrough: .large))
+				.presentationDetents([.height(380)])
+				.presentationCornerRadius(32)
 			}
 		}
 		.onChange(of: isFocused) { focus in
@@ -637,13 +637,4 @@ struct Home: View {
 			text = newText.removingPercentEncoding ?? ""
 		}
 	}
-}
-
-#Preview {
-	var qrCodeStore = QRCodeStore()
-	var sharedData = SharedData()
-	
-	Home()
-		.environmentObject(qrCodeStore)
-		.environmentObject(sharedData)
 }

@@ -638,9 +638,3 @@ struct History: View {
 		}
 	}
 }
-#Preview {
-	var qrCodeStore = QRCodeStore()
-	
-	History()
-		.environmentObject(qrCodeStore)
-}

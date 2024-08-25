@@ -1015,12 +1015,3 @@ struct HistoryDetailInfo: View {
 		.alert("Saved to Photos!", isPresented: $showSavedAlert) {}
 	}
 }
-
-#Preview {
-	var qrCodeStore = QRCodeStore()
-	
-	NavigationStack {
-		HistoryDetailInfo(qrCode: QRCode(text: "https://duckduckgo.com/", originalURL: "https://duckduckgo.com/", scanLocation: [51.507222, -0.1275], wasScanned: true))
-			.environmentObject(qrCodeStore)
-	}
-}

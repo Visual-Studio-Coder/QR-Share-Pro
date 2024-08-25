@@ -301,13 +301,13 @@ struct Scanner: View {
 					VStack {
 						Spacer()
 						
-//						Image(uiImage: #imageLiteral(resourceName: UserDefaults.standard.string(forKey: "appIcon") ?? "AppIcon"))
-//							.resizable()
-//							.frame(width: 150, height: 150)
-//							.clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-//							.accessibilityHidden(true)
-//							.shadow(color: .accentColor, radius: 15)
-//							.padding(.top, 20)
+						Image(uiImage: Bundle.main.icon ?? UIImage())
+							.resizable()
+							.frame(width: 150, height: 150)
+							.clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+							.accessibilityHidden(true)
+							.shadow(color: .accentColor, radius: 15)
+							.padding(.top, 20)
 						
 						Text("QR Share Pro")
 							.font(.largeTitle)
@@ -564,11 +564,4 @@ struct Scanner: View {
 			print("Flashlight unavailable")
 		}
 	}
-}
-
-#Preview {
-	var qrCodeStore = QRCodeStore()
-	
-	Scanner()
-		.environmentObject(qrCodeStore)
 }
