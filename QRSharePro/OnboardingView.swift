@@ -356,18 +356,3 @@ struct OnboardingView: View {
 		.onOpenURL(perform: openURL)
 	}
 }
-
-struct PreviewWrapper: View {
-	@StateObject var qrCodeStore = QRCodeStore()
-	@StateObject var sharedData = SharedData()
-	
-	var body: some View {
-		OnboardingView()
-			.environmentObject(qrCodeStore)
-			.environmentObject(sharedData)
-	}
-}
-
-#Preview {
-	PreviewWrapper()
-}
