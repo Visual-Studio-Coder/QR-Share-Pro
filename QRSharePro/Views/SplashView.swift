@@ -13,7 +13,7 @@ struct SplashView<SplashContent: View>: ViewModifier {
         if isActive {
             splashContent()
                 .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    DispatchQueue.main.asyncAfter(deadline: .now()) {
                         withAnimation {
                             self.isActive = false
                         }
