@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/Price-Free-green)
 
-
+## Developed by [Vaibhav Satishkumar](https://github.com/Visual-Studio-Coder)
 
 [![Download on the App Store](.github/download-app-store.svg)](https://apps.apple.com/us/app/qr-share-pro/id6479589995)
 
