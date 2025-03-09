@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: 'feature-request'
-assignees: 'aaronhma, Visual-Studio-Coder'
+assignees: 'Visual-Studio-Coder'
 
 ---
 
