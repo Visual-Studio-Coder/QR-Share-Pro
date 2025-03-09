@@ -59,7 +59,7 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement: [@ ](https://github.com/ ), [@Visual-Studio-Coder](https://github.com/Visual-Studio-Coder).
+reported to [@Visual-Studio-Coder](https://github.com/Visual-Studio-Coder).
 
 All complaints will be reviewed and investigated promptly and fairly.
 
