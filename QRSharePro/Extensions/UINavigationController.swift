@@ -1,10 +1,3 @@
-//
-//  UINavigationController.swift
-//  QRSharePro
-//
-
-//
-
 import UIKit
 
 extension UINavigationController: UIGestureRecognizerDelegate {

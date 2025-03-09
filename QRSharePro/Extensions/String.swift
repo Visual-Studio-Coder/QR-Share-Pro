@@ -1,10 +1,3 @@
-//
-//  String.swift
-//  QRSharePro
-//
-
-//
-
 import Foundation
 
 extension String {

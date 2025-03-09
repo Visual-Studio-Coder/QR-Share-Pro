@@ -478,7 +478,7 @@ struct Home: View {
 										
 										Section("Credits") {
 											Button {
-												if let url = URL(string: "https://github.com/TopGApps/QR-Share-Pro") {
+												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro") {
 													UIApplication.shared.open(url)
 												}
 											} label: {
@@ -494,27 +494,11 @@ struct Home: View {
 											.tint(.primary)
 											.listRowBackground(Color.clear)
 											.listRowSeparator(.hidden)
-											
-											Button {
-
-													UIApplication.shared.open(url)
-												}
-											} label: {
-												HStack {
-
-													Spacer()
-													Image(systemName: "arrow.up.right")
-														.tint(.secondary)
-												}
-											}
-											.tint(.primary)
-											.listRowBackground(Color.clear)
-											.listRowSeparator(.hidden)
 										}
 										
 										Section {
 											Button {
-												if let url = URL(string: "https://github.com/TopGApps/QR-Share-Pro/blob/master/PRIVACY.md") {
+												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/blob/master/PRIVACY.md") {
 													UIApplication.shared.open(url)
 												}
 											} label: {
@@ -550,7 +534,39 @@ struct Home: View {
 											.listRowSeparator(.hidden)
 											
 											Button {
-												if let url = URL(string: "https://github.com/TopGApps/QR-Share-Pro/?tab=readme-ov-file#we--open-source") {
+												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=") {
+													UIApplication.shared.open(url)
+												}
+											} label: {
+												HStack {
+													Label("Feature Request", systemImage: "lightbulb")
+													Spacer()
+													Image(systemName: "arrow.up.right")
+														.tint(.secondary)
+												}
+											}
+											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
+											
+											Button {
+												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=") {
+													UIApplication.shared.open(url)
+												}
+											} label: {
+												HStack {
+													Label("Bug Report", systemImage: "ant")
+													Spacer()
+													Image(systemName: "arrow.up.right")
+														.tint(.secondary)
+												}
+											}
+											.tint(.primary)
+											.listRowBackground(Color.clear)
+											.listRowSeparator(.hidden)
+											
+											Button {
+												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro/?tab=readme-ov-file#we--open-source") {
 													UIApplication.shared.open(url)
 												}
 											} label: {

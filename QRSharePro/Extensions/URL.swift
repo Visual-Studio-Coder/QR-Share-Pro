@@ -1,10 +1,3 @@
-//
-//  URL.swift
-//  QRSharePro
-//
-
-//
-
 import Foundation
 
 extension URL {

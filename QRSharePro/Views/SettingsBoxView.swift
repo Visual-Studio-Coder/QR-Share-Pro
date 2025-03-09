@@ -1,11 +1,3 @@
-//
-//  SettingsBoxView.swift
-//  QRSharePro
-//
-
-//
-
-
 import SwiftUI
 
 struct SettingsBoxView: View {

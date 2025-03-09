@@ -1,10 +1,3 @@
-//
-//  Bundle+icon.swift
-//  QRSharePro
-//
-
-//
-
 import UIKit
 
 extension Bundle {
