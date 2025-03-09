@@ -1,10 +1,3 @@
-//
-//  UIColor.swift
-//  QRSharePro
-//
-//  Created by   on 5/22/24.
-//
-
 import UIKit
 
 extension UIColor {

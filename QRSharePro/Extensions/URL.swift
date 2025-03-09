@@ -1,10 +1,3 @@
-//
-//  URL.swift
-//  QRSharePro
-//
-//  Created by   on 5/23/24.
-//
-
 import Foundation
 
 extension URL {

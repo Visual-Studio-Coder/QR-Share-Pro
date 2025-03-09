@@ -1,11 +1,3 @@
-//
-//  SettingsBoxView.swift
-//  QRSharePro
-//
-//  Created by   on 8/24/24.
-//
-// https://github.com/ /HackerNews/blob/master/HackerNews/Views/Settings/SettingsView.swift#L10
-
 import SwiftUI
 
 struct SettingsBoxView: View {

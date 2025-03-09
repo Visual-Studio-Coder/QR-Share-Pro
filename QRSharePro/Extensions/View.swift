@@ -1,10 +1,3 @@
-//
-//  View.swift
-//  QRSharePro
-//
-//  Created by   on 5/23/24.
-//
-
 import SwiftUI
 
 extension View {
