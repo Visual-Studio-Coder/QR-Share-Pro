@@ -1,10 +1,3 @@
-//
-//  Array.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 5/22/24.
-//
-
 import Foundation
 
 extension Array: RawRepresentable where Element: Codable {
