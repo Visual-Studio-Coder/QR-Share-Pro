@@ -394,7 +394,7 @@ struct Home: View {
 							.listRowBackground(Color.clear)
 							.listRowSeparator(.hidden)
 							.onChange(of: showWebsiteFavicons) { state in
-								if !state {
+								if (!state) {
 									showingClearFaviconsConfirmation = true
 								}
 							}
@@ -439,6 +439,91 @@ struct Home: View {
 								} else {
 									launchTab = .NewQRCode
 								}
+							}
+							Section {
+								NavigationLink {
+									NavigationStack {
+										List {
+											Section {
+												HStack {
+													Image(systemName: "mic.fill")
+														.font(.title)
+														.foregroundStyle(.white)
+														.padding(12)
+														.background(.blue)
+														.clipShape(RoundedRectangle(cornerRadius: 12))
+													
+													VStack(alignment: .leading, spacing: 4) {
+														Text("Hey Siri,")
+															.font(.headline)
+														Text("Create QR Code with QR Share Pro")
+															.font(.subheadline)
+															.foregroundStyle(.secondary)
+													}
+													
+													Spacer()
+												}
+												.padding(.vertical, 8)
+												.listRowBackground(Color.clear)
+												.listRowSeparator(.hidden)
+												
+												HStack {
+													Image(systemName: "mic.fill")
+														.font(.title)
+														.foregroundStyle(.white)
+														.padding(12)
+														.background(.blue)
+														.clipShape(RoundedRectangle(cornerRadius: 12))
+													
+													VStack(alignment: .leading, spacing: 4) {
+														Text("Hey Siri,")
+															.font(.headline)
+														Text("Scan QR Code with QR Share Pro")
+															.font(.subheadline)
+															.foregroundStyle(.secondary)
+													}
+													
+													Spacer()
+												}
+												.padding(.vertical, 8)
+												.listRowBackground(Color.clear)
+												.listRowSeparator(.hidden)
+											}
+											
+											Section {
+												Button {
+													if let url = URL(string: "shortcuts://") {
+														UIApplication.shared.open(url)
+													}
+												} label: {
+													HStack {
+														Text("Open Shortcuts App")
+														Spacer()
+														Image(systemName: "arrow.up.right")
+															.tint(.secondary)
+													}
+												}
+												.tint(.primary)
+												.listRowBackground(Color.clear)
+												.listRowSeparator(.hidden)
+											} footer: {
+												Text("You can also find these shortcuts in the Shortcuts app for customization and to add them to your workflows.")
+											}
+										}
+										.accentColor(accentColorManager.accentColor)
+										.navigationTitle("Siri & Shortcuts")
+										.navigationBarTitleDisplayMode(.inline)
+										.navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
+									}
+								} label: {
+									Label {
+										Text("Siri & Shortcuts")
+									} icon: {
+										SettingsBoxView(icon: "mic.circle.fill", color: .cyan)
+									}
+								}
+								.listRowBackground(Color.clear)
+								.listRowSeparator(.hidden)
 							}
 						}
 						
