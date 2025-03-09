@@ -1,10 +1,3 @@
-//
-//  String+extractFirstURL.swift
-//  Share
-//
-//  Created by Aaron Ma on 5/23/24.
-//
-
 import Foundation
 
 extension String {

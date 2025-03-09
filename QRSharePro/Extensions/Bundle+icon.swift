@@ -1,10 +1,3 @@
-//
-//  Bundle+icon.swift
-//  QRSharePro
-//
-//  Created by Aaron Ma on 8/24/24.
-//
-
 import UIKit
 
 extension Bundle {
