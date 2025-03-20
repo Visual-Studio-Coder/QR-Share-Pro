@@ -20,6 +20,9 @@ struct OnboardingView: View {
 	@State private var currentPage = 0
 	@State private var isDragging = false
 	@State private var noise = 50.00
+    // New state variables for GitHub stars
+	@State private var hasVisitedGitHub = false
+	@State private var repoStarCount: Int? = nil
 	
 	let features = [
 		Feature(title: "Share QR Codes from the Share Menu", description: "When you tap the share icon, we easily generate a beautiful QR code that anyone nearby can scan!", image: "square.and.arrow.up"),
@@ -53,6 +56,28 @@ struct OnboardingView: View {
 			selection = .History
 		}
 	}
+    
+    // Function to fetch repo stars count
+    private func fetchRepoStars() {
+        guard repoStarCount == nil else { return } // Fetch only once
+        
+        let url = URL(string: "https://api.github.com/repos/Visual-Studio-Coder/QR-Share-Pro")!
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let starCount = json["stargazers_count"] as? Int {
+                        DispatchQueue.main.async {
+                            self.repoStarCount = starCount
+                        }
+                    }
+                } catch {
+                    print("Error parsing GitHub API response:", error)
+                }
+            }
+        }.resume()
+    }
 	
 	var body: some View {
 		VStack {
@@ -125,13 +150,13 @@ struct OnboardingView: View {
 							VStack(spacing: 20) {
 								ScrollView {
 									VStack(spacing: 20) {
-//										Image(uiImage: UIImage(named: "AppIcon")!)
-//											.resizable()
-//											.frame(width: 150, height: 150)
-//											.clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-//											.accessibilityHidden(true)
-//											.shadow(color: .accentColor, radius: 15)
-//											.padding(.top, 20)
+                                        Image("QRSharePro-Icon")
+											.resizable()
+											.frame(width: 150, height: 150)
+											.clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+											.accessibilityHidden(true)
+											.shadow(color: .accentColor, radius: 15)
+											.padding(.top, 20)
 										
 										VStack {
 											Text("QR Share Pro")
@@ -231,6 +256,157 @@ struct OnboardingView: View {
 								}
 							}
 							.tag(0)
+                            
+                            // New GitHub Star slide
+                            VStack(spacing: 25) {
+                                Spacer(minLength: 20)
+                                
+                                Image(systemName: "star.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 100, height: 100)
+                                    .foregroundColor(.yellow)
+                                    .padding(.top, 20)
+                                
+                                Text("Support Open Source")
+                                    .font(.largeTitle)
+                                    .bold()
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+                                
+                                Text("Help me earn the Starstruck badge on GitHub!")
+                                    .font(.headline)
+                                    .foregroundColor(.yellow)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                
+                                VStack(alignment: .leading, spacing: 16) {
+                                    Text("Your star helps in many ways:")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                        .padding(.bottom, 4)
+                                    
+                                    HStack(alignment: .top, spacing: 10) {
+                                        Image(systemName: "star.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.yellow)
+                                            .frame(width: 20, height: 20)
+                                        
+                                        Text("Makes the app more discoverable")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.9))
+                                    }
+                                    
+                                    HStack(alignment: .top, spacing: 10) {
+                                        Image(systemName: "star.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.yellow)
+                                            .frame(width: 20, height: 20)
+                                        
+                                        Text("Motivates me to add more features")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.9))
+                                    }
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                                .padding(.horizontal, 20)
+                                
+                                Spacer()
+                                
+                                // Star button with star count bubble
+                                Button {
+                                    if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro") {
+                                        UIApplication.shared.open(url)
+                                        hasVisitedGitHub = true
+                                    }
+                                } label: {
+                                    HStack {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "star")
+                                                .font(.system(size: 18))
+                                                .foregroundColor(.yellow)
+                                            
+                                            Text("Star Repository")
+                                                .fontWeight(.medium)
+                                                .foregroundColor(.white)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        // Star count bubble
+                                        if let starCount = repoStarCount {
+                                            Text("\(starCount) Stars")
+                                                .font(.footnote.bold())
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(
+                                                    Capsule()
+                                                        .fill(Color.gray.opacity(0.4))
+                                                )
+                                        }
+
+                                        // External link indicator
+                                        Image(systemName: "arrow.up.right")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.white.opacity(0.7))
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.black.opacity(0.3))
+                                    )
+                                }
+                                .padding(.horizontal, 20)
+                                
+                                if hasVisitedGitHub {
+                                    // Continue button
+                                    Button {
+                                        withAnimation {
+                                            currentPage = 2
+                                        }
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
+                                    } label: {
+                                        Text("Continue")
+                                            .frame(maxWidth: .infinity, minHeight: 44)
+                                            .background(Color.accentColor)
+                                            .foregroundStyle(.white)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            .bold()
+                                            .padding(.horizontal)
+                                    }
+                                    .onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+                                        if inProgress {
+                                            let generator = UIImpactFeedbackGenerator(style: .soft)
+                                            generator.impactOccurred()
+                                        }
+                                    }, perform: {})
+                                    .padding(.vertical)
+                                } else {
+                                    // Skip button
+                                    Button {
+                                        withAnimation {
+                                            currentPage = 2
+                                        }
+                                    } label: {
+                                        Text("Skip for now")
+                                            .font(.footnote)
+                                            .foregroundColor(.white.opacity(0.6))
+                                            .underline()
+                                    }
+                                    .padding(.bottom, 20)
+                                    .padding(.top, 5)
+                                }
+                            }
+                            .onAppear {
+                                fetchRepoStars()
+                            }
+                            .tag(1)
 							
 							VStack {
 								Spacer()
@@ -253,6 +429,7 @@ struct OnboardingView: View {
 										.clipShape(RoundedRectangle(cornerRadius: 16))
 										.scaledToFit()
 										.padding(.horizontal, 50)
+										.shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 4)
 									
 									ShareLink(item: "https://apps.apple.com/us/app/qr-share-pro/id6479589995/") {
 										HStack {
@@ -263,59 +440,129 @@ struct OnboardingView: View {
 											Spacer()
 										}
 									}
-									.background(.white)
-									.clipShape(RoundedRectangle(cornerRadius: 18))
-									.padding(.horizontal, 50)
+										.background(Color.white)
+										.clipShape(RoundedRectangle(cornerRadius: 18))
+										.padding(.horizontal, 50)
+										.padding(.vertical, 10)
+										.shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
 									
-									HStack {
-										Spacer()
-										
-										VStack(alignment: .leading) {
-											HStack {
-												Text("1")
-													.bold()
-													.padding()
+									VStack(spacing: 16) {
+										// Step 1
+										HStack(alignment: .top, spacing: 16) {
+											Text("1")
+												.font(.system(size: 18, weight: .bold))
+												.foregroundStyle(.white)
+												.frame(width: 28, height: 28)
+												.background(
+													Circle()
+														.fill(Color.white.opacity(0.15))
+														.overlay(
+															Circle()
+																.stroke(Color.white.opacity(0.5), lineWidth: 1)
+														)
+												)
+											
+											VStack(alignment: .leading) {
+												Text("Tap **Show Share Menu**")
+													.font(.headline)
 													.foregroundStyle(.white)
-													.background(Color.accentColor)
-													.clipShape(Circle())
 												
-												Text("Open the share menu, then scroll right and tap on **More**.")
-													.foregroundStyle(.white)
-													.multilineTextAlignment(.leading)
-													.fixedSize(horizontal: false, vertical: true)
+												Text("Scroll right and tap on **More**")
+													.font(.subheadline)
+													.foregroundStyle(.white.opacity(0.8))
 											}
 											
-											HStack {
-												Text("2")
-													.bold()
-													.padding()
-													.foregroundStyle(.white)
-													.background(Color.accentColor)
-													.clipShape(Circle())
-												
-												Text("Tap on **Edit** in the top right corner.")
-													.foregroundStyle(.white)
-													.multilineTextAlignment(.leading)
-													.fixedSize(horizontal: false, vertical: true)
-											}
-											
-											HStack {
-												Text("3")
-													.bold()
-													.padding()
-													.foregroundStyle(.white)
-													.background(Color.accentColor)
-													.clipShape(Circle())
-												
-												Text("Add **QR Share Pro** and re-order it to the top.")
-													.foregroundStyle(.white)
-													.multilineTextAlignment(.leading)
-													.fixedSize(horizontal: false, vertical: true)
-											}
+											Spacer()
 										}
-										.padding(.horizontal)
-										Spacer()
+											.padding(.vertical, 8)
+											.padding(.horizontal, 16)
+											.background(
+												RoundedRectangle(cornerRadius: 16)
+													.fill(Color.white.opacity(0.1))
+													.overlay(
+														RoundedRectangle(cornerRadius: 16)
+															.stroke(Color.white.opacity(0.2), lineWidth: 1)
+													)
+											)
+										
+										// Step 2
+										HStack(alignment: .top, spacing: 16) {
+											Text("2")
+												.font(.system(size: 18, weight: .bold))
+												.foregroundStyle(.white)
+												.frame(width: 28, height: 28)
+												.background(
+													Circle()
+														.fill(Color.white.opacity(0.15))
+														.overlay(
+															Circle()
+																.stroke(Color.white.opacity(0.5), lineWidth: 1)
+														)
+												)
+											
+											VStack(alignment: .leading) {
+												Text("Edit your share menu")
+													.font(.headline)
+													.foregroundStyle(.white)
+												
+												Text("Tap on **Edit** in the top right corner")
+													.font(.subheadline)
+													.foregroundStyle(.white.opacity(0.8))
+											}
+											
+											Spacer()
+										}
+											.padding(.vertical, 8)
+											.padding(.horizontal, 16)
+											.background(
+												RoundedRectangle(cornerRadius: 16)
+													.fill(Color.white.opacity(0.1))
+													.overlay(
+														RoundedRectangle(cornerRadius: 16)
+															.stroke(Color.white.opacity(0.2), lineWidth: 1)
+													)
+											)
+										
+										// Step 3
+										HStack(alignment: .top, spacing: 16) {
+											Text("3")
+												.font(.system(size: 18, weight: .bold))
+												.foregroundStyle(.white)
+												.frame(width: 28, height: 28)
+												.background(
+													Circle()
+														.fill(Color.white.opacity(0.15))
+														.overlay(
+															Circle()
+																.stroke(Color.white.opacity(0.5), lineWidth: 1)
+														)
+												)
+											
+											VStack(alignment: .leading) {
+												Text("Add QR Share Pro")
+													.font(.headline)
+													.foregroundStyle(.white)
+												
+												Text("Add and re-order it to the top for easy access")
+													.font(.subheadline)
+													.foregroundStyle(.white.opacity(0.8))
+											}
+											
+											Spacer()
+										}
+											.padding(.vertical, 8)
+											.padding(.horizontal, 16)
+											.background(
+												RoundedRectangle(cornerRadius: 16)
+													.fill(Color.white.opacity(0.1))
+													.overlay(
+														RoundedRectangle(cornerRadius: 16)
+															.stroke(Color.white.opacity(0.2), lineWidth: 1)
+													)
+											)
 									}
+										.padding(.horizontal, 20)
+										.padding(.vertical, 10)
 									
 									Spacer()
 								}
@@ -329,7 +576,7 @@ struct OnboardingView: View {
 									let generator = UIImpactFeedbackGenerator(style: .light)
 									generator.impactOccurred()
 								} label: {
-									Text("Done")
+									Text("Get Started")
 										.frame(maxWidth: .infinity, minHeight: 44)
 										.background(Color.accentColor)
 										.foregroundStyle(.white)
@@ -337,22 +584,24 @@ struct OnboardingView: View {
 										.bold()
 										.padding(.horizontal)
 								}
-								.onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
-									if inProgress {
-										let generator = UIImpactFeedbackGenerator(style: .soft)
-										generator.impactOccurred()
-									}
-								}, perform: {})
+									.shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 2)
+									.padding(.vertical, 20)
+									.onLongPressGesture(minimumDuration: 0, pressing: { inProgress in
+										if inProgress {
+											let generator = UIImpactFeedbackGenerator(style: .soft)
+											generator.impactOccurred()
+										}
+									}, perform: {})
 							}
-							.tag(1)
+								.tag(2)
 						}
-						.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // hide the built-in page indicator
+							.tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // hide the built-in page indicator
 					}
 				}
-				.transition(.opacity)
-				.animation(.easeInOut, value: !isOnboardingDone)
+					.transition(.opacity)
+					.animation(.easeInOut, value: !isOnboardingDone)
 			}
 		}
-		.onOpenURL(perform: openURL)
+			.onOpenURL(perform: openURL)
 	}
 }

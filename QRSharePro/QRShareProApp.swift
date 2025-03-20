@@ -23,6 +23,14 @@ struct QRCodeApp: App {
 						VStack {
 							Spacer()
 							
+                            Image("QRSharePro-Icon")
+                                .resizable()
+                                .frame(width: 150, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                                .accessibilityHidden(true)
+                                .shadow(color: .accentColor, radius: 15)
+                                .padding(.top, 20)
+                            
 							Spacer()
 							
 							Text("QR Share Pro")
