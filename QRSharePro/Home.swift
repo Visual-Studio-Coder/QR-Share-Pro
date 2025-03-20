@@ -48,6 +48,7 @@ struct Home: View {
 	@AppStorage("playHaptics") private var playHaptics = AppSettings.playHaptics
 	@AppStorage("launchTab") private var launchTab = AppSettings.launchTab
 	@AppStorage("appTheme") private var appTheme = AppSettings.appTheme
+    @AppStorage("isOnboardingDone") private var isOnboardingDone = true
 	
 	@State var text = "" // TODO: add a helper function that takes in widget input (please submit a PR)
 	@State private var showingSettingsSheet = false
@@ -439,93 +440,214 @@ struct Home: View {
 								} else {
 									launchTab = .NewQRCode
 								}
-							}
-							Section {
-								NavigationLink {
-									NavigationStack {
-										List {
-											Section {
-												HStack {
-													Image(systemName: "mic.fill")
-														.font(.title)
-														.foregroundStyle(.white)
-														.padding(12)
-														.background(.blue)
-														.clipShape(RoundedRectangle(cornerRadius: 12))
-													
-													VStack(alignment: .leading, spacing: 4) {
-														Text("Hey Siri,")
-															.font(.headline)
-														Text("Create QR Code with QR Share Pro")
-															.font(.subheadline)
-															.foregroundStyle(.secondary)
-													}
-													
-													Spacer()
-												}
-												.padding(.vertical, 8)
-												.listRowBackground(Color.clear)
-												.listRowSeparator(.hidden)
-												
-												HStack {
-													Image(systemName: "mic.fill")
-														.font(.title)
-														.foregroundStyle(.white)
-														.padding(12)
-														.background(.blue)
-														.clipShape(RoundedRectangle(cornerRadius: 12))
-													
-													VStack(alignment: .leading, spacing: 4) {
-														Text("Hey Siri,")
-															.font(.headline)
-														Text("Scan QR Code with QR Share Pro")
-															.font(.subheadline)
-															.foregroundStyle(.secondary)
-													}
-													
-													Spacer()
-												}
-												.padding(.vertical, 8)
-												.listRowBackground(Color.clear)
-												.listRowSeparator(.hidden)
-											}
-											
-											Section {
-												Button {
-													if let url = URL(string: "shortcuts://") {
-														UIApplication.shared.open(url)
-													}
-												} label: {
-													HStack {
-														Text("Open Shortcuts App")
-														Spacer()
-														Image(systemName: "arrow.up.right")
-															.tint(.secondary)
-													}
-												}
-												.tint(.primary)
-												.listRowBackground(Color.clear)
-												.listRowSeparator(.hidden)
-											} footer: {
-												Text("You can also find these shortcuts in the Shortcuts app for customization and to add them to your workflows.")
-											}
-										}
-										.accentColor(accentColorManager.accentColor)
-										.navigationTitle("Siri & Shortcuts")
-										.navigationBarTitleDisplayMode(.inline)
-										.navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
-									}
-								} label: {
-									Label {
-										Text("Siri & Shortcuts")
-									} icon: {
-										SettingsBoxView(icon: "mic.circle.fill", color: .cyan)
-									}
 								}
-								.listRowBackground(Color.clear)
-								.listRowSeparator(.hidden)
+                            // Show onboarding button
+                            Button {
+                                showingSettingsSheet = false
+                                
+                                // Briefly delay to allow the sheet to dismiss
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    isOnboardingDone = false
+                                }
+                            } label: {
+                                Label {
+                                    Text("Show Onboarding")
+                                        .foregroundStyle(.white)
+                                } icon: {
+                                    SettingsBoxView(icon: "sparkles", color: .orange)
+                                }
+                            }
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+						}
+						
+						NavigationLink {
+							NavigationStack {
+								List {
+									Section("How to Add to Control Center") {
+										VStack(alignment: .leading, spacing: 10) {
+											HStack {
+												Image(systemName: "1.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.blue)
+												Text("Swipe down from top right corner")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+											
+											HStack {
+												Image(systemName: "2.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.blue)
+                                                Text("Tap the \(Image(systemName: "plus")) icon in the top left corner")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+											
+											HStack {
+												Image(systemName: "3.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.blue)
+												Text("Scroll down to the \"QR Share Pro\" section")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+											
+											HStack {
+												Image(systemName: "4.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.blue)
+												Text("Add the \"Scan QR Code\" control")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+											
+											HStack {
+												Image(systemName: "5.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.blue)
+												Text("Position and resize it as needed")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+										}
+										.listRowBackground(Color.clear)
+										.listRowSeparator(.hidden)
+									}
+									
+									Section("How to Use") {
+										VStack(alignment: .leading, spacing: 10) {
+											HStack {
+												Image(systemName: "1.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.green)
+												Text("Open Control Center (swipe down from top-right)")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+											
+											HStack {
+												Image(systemName: "2.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.green)
+												Text("Tap the \"Scan QR Code\" control")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+											
+											HStack {
+												Image(systemName: "3.circle.fill")
+													.font(.title2)
+													.foregroundStyle(.green)
+												Text("QR Share Pro will open directly to the scanner")
+													.font(.subheadline)
+											}
+											.padding(.vertical, 5)
+										}
+										.listRowBackground(Color.clear)
+										.listRowSeparator(.hidden)
+									}
+									
+
+								}
+								.accentColor(accentColorManager.accentColor)
+								.navigationTitle("Control Center QR Scanner")
+								.navigationBarTitleDisplayMode(.inline)
+								.navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
+							}
+						} label: {
+							Label {
+								Text("Control Center Setup")
+							} icon: {
+								SettingsBoxView(icon: "qrcode.viewfinder", color: .indigo)
 							}
 						}
+						.listRowBackground(Color.clear)
+						.listRowSeparator(.hidden)
+						
+						NavigationLink {
+							NavigationStack {
+								List {
+									Section {
+										HStack {
+											Image(systemName: "mic.fill")
+												.font(.title)
+												.foregroundStyle(.white)
+												.padding(12)
+												.background(.blue)
+												.clipShape(RoundedRectangle(cornerRadius: 12))
+											
+											VStack(alignment: .leading, spacing: 4) {
+												Text("Hey Siri,")
+													.font(.headline)
+												Text("Create QR Code with QR Share Pro")
+													.font(.subheadline)
+													.foregroundStyle(.secondary)
+											}
+											
+											Spacer()
+										}
+										.padding(.vertical, 8)
+										.listRowBackground(Color.clear)
+										.listRowSeparator(.hidden)
+										
+										HStack {
+											Image(systemName: "mic.fill")
+												.font(.title)
+												.foregroundStyle(.white)
+												.padding(12)
+												.background(.blue)
+												.clipShape(RoundedRectangle(cornerRadius: 12))
+											
+											VStack(alignment: .leading, spacing: 4) {
+												Text("Hey Siri,")
+													.font(.headline)
+												Text("Scan QR Code with QR Share Pro")
+													.font(.subheadline)
+													.foregroundStyle(.secondary)
+											}
+											
+											Spacer()
+										}
+										.padding(.vertical, 8)
+										.listRowBackground(Color.clear)
+										.listRowSeparator(.hidden)
+									}
+									
+									Section {
+										Button {
+											if let url = URL(string: "shortcuts://") {
+												UIApplication.shared.open(url)
+											}
+										} label: {
+											HStack {
+												Text("Open Shortcuts App")
+												Spacer()
+												Image(systemName: "arrow.up.right")
+													.tint(.secondary)
+											}
+										}
+										.tint(.primary)
+										.listRowBackground(Color.clear)
+										.listRowSeparator(.hidden)
+									} footer: {
+										Text("You can also find these shortcuts in the Shortcuts app for customization and to add them to your workflows.")
+									}
+								}
+								.accentColor(accentColorManager.accentColor)
+								.navigationTitle("Siri & Shortcuts")
+								.navigationBarTitleDisplayMode(.inline)
+								.navigationBackButton(color: accentColorManager.accentColor, text: "Settings")
+							}
+						} label: {
+							Label {
+								Text("Siri & Shortcuts")
+							} icon: {
+								SettingsBoxView(icon: "mic.circle.fill", color: .cyan)
+							}
+						}
+						.listRowBackground(Color.clear)
+						.listRowSeparator(.hidden)
 						
 						Section {
 							NavigationLink {
