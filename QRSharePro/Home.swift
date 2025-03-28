@@ -322,7 +322,7 @@ struct Home: View {
 			.alert("Saved to Photos!", isPresented: $showSavedAlert) {}
 			.alert("Saved to History!", isPresented: $showHistorySavedAlert) {}
 			.toolbar {
-				ToolbarItem(placement: .topBarLeading) {
+				ToolbarItem(placement: .topBarTrailing) {
 					let qrCodeImage = Image(uiImage: qrCodeImage)
 					
 					ShareLink(item: qrCodeImage, preview: SharePreview(text, image: qrCodeImage)) {
@@ -331,7 +331,7 @@ struct Home: View {
 					.disabled(text.isEmpty)
 				}
 				
-				ToolbarItem(placement: .topBarTrailing) {
+				ToolbarItem(placement: .topBarLeading) {
 					Button {
 						showingSettingsSheet = true
 					} label: {
@@ -685,17 +685,34 @@ struct Home: View {
 										
 										Section("Credits") {
 											Button {
-												if let url = URL(string: "https://github.com/Visual-Studio-Coder/QR-Share-Pro") {
+												if let url = URL(string: "https://github.com/Visual-Studio-Coder") {
 													UIApplication.shared.open(url)
 												}
 											} label: {
 												VStack {
-													HStack {
-														Label("Vaibhav Satishkumar", systemImage: "person")
-														Spacer()
-														Image(systemName: "arrow.up.right")
-															.tint(.secondary)
-													}
+                                                    HStack {
+                                                        Label {
+                                                            Text("Vaibhav Satishkumar")
+                                                        } icon: {
+                                                            AsyncImage(url: URL(string: "https://avatars.githubusercontent.com/u/78756662?v=4")) { image in
+                                                                image
+                                                                    .resizable()
+                                                                    .aspectRatio(contentMode: .fit)
+                                                                    //.frame(width: 24, height: 24) // Adjust the size as needed
+                                                                    .clipShape(Circle()) // Make the image circular
+                                                            } placeholder: {
+                                                                Image(systemName: "person")
+                                                                    .resizable()
+                                                                    .aspectRatio(contentMode: .fit)
+                                                                    .frame(width: 24, height: 24) // Adjust the size as needed
+                                                                    .clipShape(Circle()) // Make the placeholder circular
+                                                            }
+                                                        }
+                                                        Spacer()
+                                                        Image(systemName: "arrow.up.right")
+                                                            .tint(.secondary)
+                                                    }
+
 												}
 											}
 											.tint(.primary)
@@ -726,16 +743,14 @@ struct Home: View {
 										}
 										
 										Section("Support") {
-											Button {
-												requestReview()
-											} label: {
-												HStack {
-													Label("Rate App", systemImage: "star")
-													Spacer()
-													Image(systemName: "arrow.up.right")
-														.foregroundStyle(.secondary)
-												}
-											}
+                                            Link(destination: URL(string: "itms-apps://itunes.apple.com/app/id6479589995?action=write-review")!) {
+                                                HStack {
+                                                    Label("Rate & Review App", systemImage: "star")
+                                                    Spacer()
+                                                    Image(systemName: "arrow.up.right")
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
 											.tint(.primary)
 											.listRowBackground(Color.clear)
 											.listRowSeparator(.hidden)

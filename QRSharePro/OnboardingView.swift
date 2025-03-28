@@ -463,11 +463,11 @@ struct OnboardingView: View {
 												)
 											
 											VStack(alignment: .leading) {
-												Text("Tap **Show Share Menu**")
+                                                Text("Tap **Show Share Menu**")
 													.font(.headline)
 													.foregroundStyle(.white)
 												
-												Text("Scroll right and tap on **More**")
+                                                Text("Scroll right and tap on **More** \(Image(systemName: "ellipsis.circle"))")
 													.font(.subheadline)
 													.foregroundStyle(.white.opacity(0.8))
 											}
