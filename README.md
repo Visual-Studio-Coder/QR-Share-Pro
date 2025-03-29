@@ -1,38 +1,64 @@
-# QR Share Pro - QR codes done _right_
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/158dfcfe-1f99-4104-b9e8-4910ec0c65e9" alt="Frame 1">
+</p>
 
-![](https://img.shields.io/badge/Price-Free-green)
+<div align="center">
+  <h4>Scan, share, and create QR codes with ease. Un-shorten and remove trackers from URLs safely, protect your privacy, and track history—all in one sleek, open-source app!</h4>
+</div>
 
-## Developed by [Vaibhav Satishkumar](https://github.com/Visual-Studio-Coder)
+<p align="center">
+  <img src="https://img.shields.io/badge/Price-Free-green" alt="Price Badge">
+  <img src="https://img.shields.io/badge/Platform-iOS_16%2B-blue" alt="Platform Badge">
+  <img src="https://img.shields.io/badge/Device-iPhone_8%2B-blue" alt="Device Badge">
+</p>
 
-[![Download on the App Store](.github/download-app-store.svg)](https://apps.apple.com/us/app/qr-share-pro/id6479589995)
+<p align="center">
+  <a href="https://apps.apple.com/us/app/qr-share-pro/id6479589995">
+    <img src="https://img.shields.io/badge/Download_on_the_App_Store-black?logo=apple" alt="Download on the App Store Badge">
+  </a>
+</p>
 
-_**iPhone 8** or later running **iOS 16** or later required to download QR Share Pro_
-
-## We 💖 Open Source
-
-Thank you for taking the time to improve the best QR code app on the App Store!
-
-- 💡 [Feature Request](https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)
-- 🐞 [Report a Bug](https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=)
+---
 
 ## App Features
 
-**TL;DR: The only QR code app on the store that cares about your privacy. No creepy data selling AND 100% free (no ads or in-app purchases). [Learn more →](PRIVACY.md)**
+**TL;DR:** The only QR code app on the store that cares about your privacy. No creepy data selling AND 100% free (no ads or in-app purchases). [Learn more →](PRIVACY.md)
 
 ### 📸 Safely Scan QR Codes
 
-Most QR codes contain tracking links such as [https://qrco.de](https://qrco.de), which redirects you to the real site, typically after collecting data such as your IP address and other metrics. By un-shortening these links, we show you exactly where the QR code is actually taking you, protecting you from phishing scams. We also eliminate URL trackers (such as Google Analytics) from URLs before un-shortening to provide users the maximum privacy.
+-  **Protection from Tracking:** Prevents data collection by revealing real QR code destinations and eliminating URL trackers.
+-  **Phishing Scam Defense:** Understand real sites behind QR codes to protect against scams.
 
 ### 🔨 Generate QR Codes
 
-Quickly generate codes from anywhere on your phone by simply clicking on the share menu and tapping our icon. You will be presented with a beautiful QR code that is as versatile as it looks.
+-  **Seamless Creation:** Quickly generate QR codes from your device's share menu.
+-  **Aesthetic Design:** Produces beautiful and versatile QR codes.
 
 ### 📜 History
 
-Every time you create or scan a QR code using the app, we promptly add it to your History. You can even see where you scanned the code, which can be extremely helpful.
+-  **Comprehensive Tracking:** Automatically logs each scan and creation.
+-  **Location Insight:** Provides information on where each scan occurred.
+
+### 🧩 Widgets, Control Center, Siri, and Shortcuts
+
+-   **Siri Integration:** Use commands like "Scan QR Code with QR Share Pro."
+-   **Home Screen Widget:** Access scanning and creation functions directly.
+-   **Control Center Access:** Scan directly from your control center.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6dea9713-0055-4302-844b-cf1e3f5af748" alt="Widgets" width="200"/>
+  <img src="https://github.com/user-attachments/assets/2e021375-2d3f-4084-bfc4-44d11bf3c2a3" alt="Control Center Scan" width="200"/>
+</p>
 
 ### 🔒 Privacy
 
-The best part about all of this? We take the best efforts to make sure your information stays private on-device, so nobody else knows what you're doing. [Learn more →](PRIVACY.md)
+-  **On-Device Protection:** Keeps your information private and confined to your device. [Learn more →](PRIVACY.md)
 
-Not private enough for you? By all means, please submit a PR or an issue describing how QR Share Pro can take even more precautions to keep our users safe!
+## Support
+
+Thank you for helping improve the best QR code app on the App Store!
+
+-  💡 [Feature Request](https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=)
+-  🐞 [Report a Bug](https://github.com/Visual-Studio-Coder/QR-Share-Pro/issues/new?assignees=&labels=&projects=&template=bug_report.md&title=)
+
+Not private enough for you? Submit a PR or issue to suggest enhancements for even better user protection!
