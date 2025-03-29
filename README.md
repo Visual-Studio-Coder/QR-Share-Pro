@@ -50,6 +50,10 @@
   <img src="https://github.com/user-attachments/assets/2e021375-2d3f-4084-bfc4-44d11bf3c2a3" alt="Control Center Scan" width="200"/>
 </p>
 
+<div align="center">
+  Add widgets to homescreen or controls to control center to have quick access to features.
+</div>
+
 ### 🔒 Privacy
 
 -  **On-Device Protection:** Keeps your information private and confined to your device. [Learn more →](PRIVACY.md)
