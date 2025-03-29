@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://apps.apple.com/us/app/qr-share-pro/id6479589995">
+  <a href="https://apps.apple.com/app/apple-store/id6479589995?pt=123771738&ct=github&mt=8">
     <img src="https://img.shields.io/badge/Download_on_the_App_Store-black?logo=apple" alt="Download on the App Store Badge">
   </a>
 </p>
